@@ -1,0 +1,27 @@
+# NetAuditPro Development and Testing Requirements
+# This file includes all main requirements plus development/testing tools
+
+# Include main requirements
+-r requirements.txt
+
+# Testing Framework
+pytest==7.4.3
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+pytest-flask==1.3.0
+
+# Test Reporting
+unittest-xml-reporting==3.2.0
+coverage==7.3.2
+
+# Mocking and Test Utilities
+mock==5.1.0
+responses==0.24.1
+freezegun==1.2.2
+factory-boy==3.3.0
+faker==20.1.0
+
+# Code Quality Tools (optional)
+# flake8==6.0.0
+# black==23.7.0
+# pylint==2.17.5 
