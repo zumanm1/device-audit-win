@@ -1,0 +1,43 @@
+# Python virtual environment
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Logs and databases
+*.log
+*.sqlite
+*.db
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Large files and directories that might exceed GitHub's limit
+ALL-ROUTER-REPORTS/
+*.mp4
+*.pdf
+*.xlsx
+
+# Playwright specific files
+playwright/
+*/playwright/
+*/*/playwright/
+*/*/*/playwright/
+*.AppImage
+*.zip
+
+# Any file larger than 50MB as a precaution
+# This won't retroactively un-track files, but will prevent new large files
+# from being added to tracking
