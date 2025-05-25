@@ -101,7 +101,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config['UPLOAD_FOLDER'] = 'inventories'
 app.config['ALLOWED_EXTENSIONS'] = {'csv'} 
-app.config['PORT'] = 5009  # Changed port for enhanced version
+app.config['PORT'] = 5010  # Changed port for enhanced version
 socketio = SocketIO(app, async_mode=None, cors_allowed_origins="*")
 
 ui_logs: List[str] = []
@@ -557,17 +557,58 @@ Recommended Actions:
 # === END ENHANCED FEATURES ADDITIONS ===
 
 def strip_ansi(text: str) -> str:
+    """Remove ANSI escape sequences from text."""
     return re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
 
 def sanitize_log_message(msg: str) -> str:
+    """Enhanced sanitization function that masks usernames with **** and passwords with ####"""
     sanitized_msg = str(msg)
+    
     if APP_CONFIG:
+        # First handle specific parameter patterns to avoid conflicts
+        # Handle quotes and specific parameter patterns first
+        sanitized_msg = re.sub(r"'username':\s*'([^']+)'", r"'username': '****'", sanitized_msg)
+        sanitized_msg = re.sub(r"'password':\s*'([^']+)'", r"'password': '####'", sanitized_msg)
+        sanitized_msg = re.sub(r'"username":\s*"([^"]+)"', r'"username": "****"', sanitized_msg)
+        sanitized_msg = re.sub(r'"password":\s*"([^"]+)"', r'"password": "####"', sanitized_msg)
+        
+        # Handle function parameter patterns (username=value, password=value)
+        sanitized_msg = re.sub(r'username=([^\s,)]+)', r'username=****', sanitized_msg)
+        sanitized_msg = re.sub(r'password=([^\s,)]+)', r'password=####', sanitized_msg)
+        
+        # Handle generic patterns with colons and equals, but be more specific
+        # Only replace if not already processed
+        if "'username': '****'" not in sanitized_msg:
+            sanitized_msg = re.sub(r'\buser\s+\'([^\']+)\'', r'user \'****\'', sanitized_msg)
+            sanitized_msg = re.sub(r'\busername\s+\'([^\']+)\'', r'username \'****\'', sanitized_msg)
+        
+        # SSH connection string patterns (user@host)
+        sanitized_msg = re.sub(r'(\w+)@([\w\.-]+)', r'****@\2', sanitized_msg)
+        
+        # Now handle specific configured values replacement
+        # Replace exact username values
+        for key in ["JUMP_USERNAME", "DEVICE_USERNAME"]:
+            value = APP_CONFIG.get(key)
+            if value and len(value) > 0:
+                # Only replace standalone instances to avoid affecting other text
+                sanitized_msg = re.sub(r'\b' + re.escape(value) + r'\b', "****", sanitized_msg)
+        
+        # Replace exact password values  
         for key in ["JUMP_PASSWORD", "DEVICE_PASSWORD", "DEVICE_ENABLE"]:
             value = APP_CONFIG.get(key)
-            if value and len(value) > 2:
-                sanitized_msg = sanitized_msg.replace(value, "*******")
-    sanitized_msg = re.sub(r'(password|secret)\s*[:=]\s*([^\s,;"\']+)', r'\1: ********', sanitized_msg, flags=re.IGNORECASE)
-    sanitized_msg = re.sub(r'(password|secret)\s+([^\s,;"\']+)', r'\1 ********', sanitized_msg, flags=re.IGNORECASE)
+            if value and len(value) > 0:
+                # Only replace standalone instances to avoid affecting other text
+                sanitized_msg = re.sub(r'\b' + re.escape(value) + r'\b', "####", sanitized_msg)
+        
+        # Handle remaining generic patterns that weren't caught above
+        sanitized_msg = re.sub(r'(password|secret|pass|pwd)[:=]\s*([^\s,;"\']+)', r'\1=####', sanitized_msg, flags=re.IGNORECASE)
+        sanitized_msg = re.sub(r'(username|user)[:=]\s*([^\s,;"\']+)', r'\1=****', sanitized_msg, flags=re.IGNORECASE)
+    
+    # Also check SENSITIVE_STRINGS_TO_REDACT for any additional sensitive strings
+    for sensitive_string in SENSITIVE_STRINGS_TO_REDACT:
+        if sensitive_string and len(sensitive_string) > 0:
+            sanitized_msg = sanitized_msg.replace(sensitive_string, "####")
+    
     return sanitized_msg
 
 def log_to_ui_and_console(msg, console_only=False, is_sensitive=False, end="\n", **kw):
@@ -582,6 +623,7 @@ def log_to_ui_and_console(msg, console_only=False, is_sensitive=False, end="\n",
     
     # Always add to UI logs regardless of console_only flag
     # This ensures all logs are visible in both places
+    # First strip ANSI codes, then sanitize sensitive data
     processed_msg_ui = strip_ansi(sanitize_log_message(str(msg)))
     ui_msg_formatted = f"[{timestamp}] {processed_msg_ui}"
     cleaned_progress_marker = " कार्य प्रगति पर है "
@@ -621,6 +663,18 @@ def execute_verbose_command(ssh_client, command, timeout=30, device_name="Unknow
         stderr_data = stderr.read().decode('utf-8', errors='replace').strip()
         exit_status = stdout.channel.recv_exit_status()
         
+        # Determine command status
+        command_status = "SUCCESS" if exit_status == 0 else "FAILED"
+        full_response = stdout_data
+        if stderr_data:
+            full_response += f"\nSTDERR: {stderr_data}"
+        
+        # Log command to command logging system
+        try:
+            log_device_command(device_name, command, full_response, command_status)
+        except Exception as log_err:
+            print(f"[WARNING] Failed to log command for {device_name}: {log_err}")
+        
         if stdout_data:
             # Limit output to prevent flooding the UI
             truncated = len(stdout_data) > 500
@@ -632,6 +686,12 @@ def execute_verbose_command(ssh_client, command, timeout=30, device_name="Unknow
         log_to_ui_and_console(f"[{device_name}] Command completed with exit status: {exit_status}")
         return True, stdout_data, stderr_data, exit_status
     except Exception as e:
+        # Log failed command to command logging system
+        try:
+            log_device_command(device_name, command, f"Exception: {str(e)}", "FAILED")
+        except Exception as log_err:
+            print(f"[WARNING] Failed to log failed command for {device_name}: {log_err}")
+            
         log_to_ui_and_console(f"[{device_name}] Command execution failed: {e}")
         return False, "", str(e), -1
 
@@ -2043,6 +2103,8 @@ def run_the_audit_logic():
                 if secret_collect: net_connect.enable()
                 log_to_ui_and_console(f"  {mark_audit(True)} Successfully connected to {r_name_collect}."); last_run_summary_data["per_router_status"][r_name_collect] = "Collection in Progress"; current_audit_progress["current_device_hostname"] = f"{r_name_collect} (Connected)"
                 if r_name_collect in detailed_reports_manifest: detailed_reports_manifest[r_name_collect]["status"] = "Collection in Progress"
+                # Initialize hostname variable to ensure it's always defined (fixes UnboundLocalError)
+                hostname = r_name_collect
                 # Verbose logging for router commands
                 log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Executing: terminal length 0")
                 try:
@@ -2050,22 +2112,22 @@ def run_the_audit_logic():
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Set terminal length 0 successful")
                     if output:
                         log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Command output:\n{output[:200]}{'...' if len(output) > 200 else ''}")
+                    
+                    # Log to command logging system
+                    try:
+                        log_device_command(r_name_collect, "terminal length 0", output or "No output", "SUCCESS")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log command for {r_name_collect}: {log_err}")
+                        
                 except Exception as e:
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Error setting terminal length: {e}")
-                
-                # Get hostname with verbose logging
-                log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Executing: show hostname")
-                try:
-                    hostname_output = net_connect.send_command("show hostname", expect_string=r"#")
-                    hostname = hostname_output.strip() if hostname_output else r_name_collect
-                    current_audit_progress["current_device_hostname"] = hostname
-                    log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Device hostname is '{hostname}'")
-                    if hostname_output:
-                        log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Command output:\n{hostname_output}")
-                except Exception as e:
-                    log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Error getting hostname: {e}")
-                    hostname = r_name_collect
-                
+                    # hostname already initialized above, no need to set again
+                    
+                    # Log failed command to command logging system
+                    try:
+                        log_device_command(r_name_collect, "terminal length 0", f"Exception: {str(e)}", "FAILED")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log failed command for {r_name_collect}: {log_err}")
                 # Initialize command output variables
                 show_run_section_line_cmd_output = ""; show_line_cmd_output = ""
                 
@@ -2076,9 +2138,21 @@ def run_the_audit_logic():
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Successfully retrieved line configurations")
                     if show_run_section_line_cmd_output:
                         log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Command output:\n{show_run_section_line_cmd_output[:500]}{'...' if len(show_run_section_line_cmd_output) > 500 else ''}")
+                    
+                    # Log to command logging system
+                    try:
+                        log_device_command(r_name_collect, "show running-config | include ^line", show_run_section_line_cmd_output or "No output", "SUCCESS")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log command for {r_name_collect}: {log_err}")
+                        
                 except Exception as e_cmd_run_line:
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] {Fore.YELLOW}Warning:{Style.RESET_ALL} Could not retrieve line configurations: {str(e_cmd_run_line)}")
-                
+                    
+                    # Log failed command to command logging system
+                    try:
+                        log_device_command(r_name_collect, "show running-config | include ^line", f"Exception: {str(e_cmd_run_line)}", "FAILED")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log failed command for {r_name_collect}: {log_err}")
                 # Get show line output with verbose logging
                 log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Executing: show line")
                 try:
@@ -2086,8 +2160,21 @@ def run_the_audit_logic():
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Successfully retrieved 'show line' output")
                     if show_line_cmd_output:
                         log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Command output:\n{show_line_cmd_output[:500]}{'...' if len(show_line_cmd_output) > 500 else ''}")
+                    
+                    # Log to command logging system
+                    try:
+                        log_device_command(r_name_collect, "show line", show_line_cmd_output or "No output", "SUCCESS")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log command for {r_name_collect}: {log_err}")
+                        
                 except Exception as e_cmd_show_line:
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] {Fore.YELLOW}Warning:{Style.RESET_ALL} Could not retrieve 'show line' output: {str(e_cmd_show_line)}")
+                    
+                    # Log failed command to command logging system
+                    try:
+                        log_device_command(r_name_collect, "show line", f"Exception: {str(e_cmd_show_line)}", "FAILED")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log failed command for {r_name_collect}: {log_err}")
                 violations_count_for_this_router = 0; physical_line_telnet_violations_details = []; router_has_physical_line_violation = False
                 current_physical_line = None; physical_line_buffer = []
                 target_line_pattern = re.compile(r"^\s*line\s+(?!(?:con|aux|vty)\b)(\d+(?:/\d+)*(?:\s+\d+)?)\s*$")
@@ -2146,6 +2233,12 @@ def run_the_audit_logic():
                 device_final_status = "success" if violations_count_for_this_router == 0 else "warning"
                 update_audit_progress(device=r_name_collect, status=device_final_status, completed=True) # Real-time update
                 last_run_summary_data["per_router_status"][r_name_collect] = f"Collected (as {hostname}), Physical Line Violations: {violations_count_for_this_router}"; current_run_failures[r_name_collect] = None
+                
+                # Save command logs to file
+                try:
+                    save_device_command_log_to_file(r_name_collect)
+                except Exception as save_log_err:
+                    print(f"[WARNING] Failed to save command log for {r_name_collect}: {save_log_err}")
             except NetmikoTimeoutException as e_nm_timeout: 
                 err_msg = f"Netmiko Timeout for {r_name_collect}: {e_nm_timeout}"
                 log_to_ui_and_console(f"{Fore.RED}  {mark_audit(False)} {sanitize_log_message(err_msg)}{Style.RESET_ALL}")
@@ -2274,7 +2367,7 @@ def run_the_audit_logic():
             print(f"Error emitting progress update: {e}")
     except Exception as e_audit_main:
         error_msg = f"UNEXPECTED CRITICAL ERROR: {type(e_audit_main).__name__} - {e_audit_main}"; log_to_ui_and_console(f"{Fore.RED}{sanitize_log_message(error_msg)}{Style.RESET_ALL}")
-        import traceback; tb_str = traceback.format_exc(); log_to_ui_and_console(sanitize_log_message(tb_str)); ui_logs.append(strip_ansi(sanitize_log_message(tb_str)))
+        import traceback; tb_str = traceback.format_exc(); log_to_ui_and_console(sanitize_log_message(tb_str)); ui_logs.append(sanitize_log_message(tb_str))
         audit_status = f"Failed Critically: {type(e_audit_main).__name__}"; current_audit_progress["status_message"] = audit_status
     finally:
         current_audit_progress["current_phase"] = "Finalizing"
@@ -4272,7 +4365,7 @@ def audit_runner_thread_wrapper(): # (No changes needed in this function itself)
         if audit_status == "Completed": last_successful_audit_completion_time = datetime.now()
     except Exception as e_runner:
         log_to_ui_and_console(f"{Fore.RED}Critical error in audit runner: {e_runner}{Style.RESET_ALL}"); audit_status = f"Failed Critically: {e_runner}"; current_audit_progress["status_message"] = audit_status
-        import traceback; tb_str = traceback.format_exc(); log_to_ui_and_console(sanitize_log_message(tb_str)); ui_logs.append(strip_ansi(sanitize_log_message(tb_str)))
+        import traceback; tb_str = traceback.format_exc(); log_to_ui_and_console(sanitize_log_message(tb_str)); ui_logs.append(sanitize_log_message(tb_str))
     finally:
         ui_logs = [log_entry for log_entry in ui_logs if " कार्य प्रगति पर है " not in log_entry]
         if audit_status == "Running": audit_status = "Failed: Interrupted"; current_audit_progress["status_message"] = audit_status
@@ -4380,7 +4473,7 @@ def inject_now():
     # Inject both timestamp and port number for all templates
     return {
         'BROWSER_TIMESTAMP': datetime.now(timezone.utc),
-        'APP_PORT': app.config.get('PORT', 5007)  # Default to 5007 if not set
+        'APP_PORT': app.config.get('PORT', 5010)  # Default to 5010 if not set
     }
 
 def interactive_shell_reader(sid: str, paramiko_channel: paramiko.channel.Channel): # (No changes needed)

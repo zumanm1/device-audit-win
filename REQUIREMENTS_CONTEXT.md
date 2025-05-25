@@ -136,8 +136,8 @@ python3 rr4-router-complete-enhanced-v2.py
 ```
 
 ### Application will start on:
-- Default Port: 5009
-- Web Interface: http://localhost:5009
+- Default Port: 5010
+- Web Interface: http://localhost:5010
 - SocketIO: Real-time updates enabled
 
 ### Key Features Available:

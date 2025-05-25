@@ -12,7 +12,7 @@ import subprocess
 from threading import Thread
 
 class NetAuditProTester:
-    def __init__(self, base_url="http://localhost:5009"):
+    def __init__(self, base_url="http://localhost:5010"):
         self.base_url = base_url
         self.app_process = None
         

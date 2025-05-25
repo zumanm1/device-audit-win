@@ -1,0 +1,1651 @@
+{
+  "timestamp": "2025-05-25T13:01:24.988970",
+  "summary": {
+    "slot_0_pa_1_lines": 23,
+    "slot_1_pa_0_lines": 23,
+    "total_async_lines": 46,
+    "telnet_enabled_count": 34,
+    "compliance_issues_count": 32,
+    "expected_lines_per_slot": 23,
+    "audit_status": "ISSUES_FOUND"
+  },
+  "findings": [
+    "Found 34 lines with telnet enabled"
+  ],
+  "compliance_issues": [
+    "Security Risk: 0/1/1 has telnet enabled but no login required",
+    "Security Risk: 0/1/4 has telnet enabled but no login required",
+    "Security Risk: 0/1/6 has telnet enabled but no login required",
+    "Security Risk: 0/1/7 has telnet enabled but no login required",
+    "Security Risk: 0/1/8 has telnet enabled but no login required",
+    "Security Risk: 0/1/9 has telnet enabled but no login required",
+    "Security Risk: 0/1/10 has telnet enabled but no login required",
+    "Security Risk: 0/1/16 has telnet enabled but no login required",
+    "Security Risk: 0/1/17 has telnet enabled but no login required",
+    "Security Risk: 0/1/18 has telnet enabled but no login required",
+    "Security Risk: 1/0/1 has telnet enabled but no login required",
+    "Security Risk: 1/0/4 has telnet enabled but no login required",
+    "Security Risk: 1/0/6 has telnet enabled but no login required",
+    "Security Risk: 1/0/7 has telnet enabled but no login required",
+    "Security Risk: 1/0/8 has telnet enabled but no login required",
+    "Security Risk: 1/0/9 has telnet enabled but no login required",
+    "Security Risk: 1/0/10 has telnet enabled but no login required",
+    "Security Risk: 1/0/16 has telnet enabled but no login required",
+    "Security Risk: 1/0/17 has telnet enabled but no login required",
+    "Security Risk: 1/0/18 has telnet enabled but no login required",
+    "Flow Control Warning: 0/1/6 has speed configured but no flow control",
+    "Flow Control Warning: 0/1/11 has speed configured but no flow control",
+    "Flow Control Warning: 0/1/12 has speed configured but no flow control",
+    "Flow Control Warning: 0/1/13 has speed configured but no flow control",
+    "Flow Control Warning: 0/1/14 has speed configured but no flow control",
+    "Flow Control Warning: 0/1/15 has speed configured but no flow control",
+    "Flow Control Warning: 1/0/6 has speed configured but no flow control",
+    "Flow Control Warning: 1/0/11 has speed configured but no flow control",
+    "Flow Control Warning: 1/0/12 has speed configured but no flow control",
+    "Flow Control Warning: 1/0/13 has speed configured but no flow control",
+    "Flow Control Warning: 1/0/14 has speed configured but no flow control",
+    "Flow Control Warning: 1/0/15 has speed configured but no flow control"
+  ],
+  "telnet_enabled_lines": [
+    {
+      "line_id": "0/1/0",
+      "slot_pa": "0/1",
+      "channel": 0,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "local",
+      "access_class": "MGT-IN",
+      "is_console_server": false
+    },
+    {
+      "line_id": "0/1/1",
+      "slot_pa": "0/1",
+      "channel": 1,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "0/1/2",
+      "slot_pa": "0/1",
+      "channel": 2,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "0/1/4",
+      "slot_pa": "0/1",
+      "channel": 4,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "0/1/6",
+      "slot_pa": "0/1",
+      "channel": 6,
+      "transport_input": [
+        "all"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "0/1/7",
+      "slot_pa": "0/1",
+      "channel": 7,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "0/1/8",
+      "slot_pa": "0/1",
+      "channel": 8,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "0/1/9",
+      "slot_pa": "0/1",
+      "channel": 9,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "0/1/10",
+      "slot_pa": "0/1",
+      "channel": 10,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "0/1/11",
+      "slot_pa": "0/1",
+      "channel": 11,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "0/1/12",
+      "slot_pa": "0/1",
+      "channel": 12,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "0/1/13",
+      "slot_pa": "0/1",
+      "channel": 13,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "0/1/14",
+      "slot_pa": "0/1",
+      "channel": 14,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "0/1/15",
+      "slot_pa": "0/1",
+      "channel": 15,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "0/1/16",
+      "slot_pa": "0/1",
+      "channel": 16,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "MGT-IN",
+      "is_console_server": false
+    },
+    {
+      "line_id": "0/1/17",
+      "slot_pa": "0/1",
+      "channel": 17,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "MGT-IN",
+      "is_console_server": false
+    },
+    {
+      "line_id": "0/1/18",
+      "slot_pa": "0/1",
+      "channel": 18,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "MGT-IN",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/0",
+      "slot_pa": "1/0",
+      "channel": 0,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "local",
+      "access_class": "LAB2-MGT",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/1",
+      "slot_pa": "1/0",
+      "channel": 1,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "1/0/2",
+      "slot_pa": "1/0",
+      "channel": 2,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/4",
+      "slot_pa": "1/0",
+      "channel": 4,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "1/0/6",
+      "slot_pa": "1/0",
+      "channel": 6,
+      "transport_input": [
+        "all"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/7",
+      "slot_pa": "1/0",
+      "channel": 7,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "1/0/8",
+      "slot_pa": "1/0",
+      "channel": 8,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "1/0/9",
+      "slot_pa": "1/0",
+      "channel": 9,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "1/0/10",
+      "slot_pa": "1/0",
+      "channel": 10,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "none",
+      "is_console_server": true
+    },
+    {
+      "line_id": "1/0/11",
+      "slot_pa": "1/0",
+      "channel": 11,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/12",
+      "slot_pa": "1/0",
+      "channel": 12,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/13",
+      "slot_pa": "1/0",
+      "channel": 13,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/14",
+      "slot_pa": "1/0",
+      "channel": 14,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/15",
+      "slot_pa": "1/0",
+      "channel": 15,
+      "transport_input": [
+        "ssh",
+        "telnet"
+      ],
+      "login_method": "ASYNC-AUTH",
+      "access_class": "none",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/16",
+      "slot_pa": "1/0",
+      "channel": 16,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "LAB2-MGT",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/17",
+      "slot_pa": "1/0",
+      "channel": 17,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "LAB2-MGT",
+      "is_console_server": false
+    },
+    {
+      "line_id": "1/0/18",
+      "slot_pa": "1/0",
+      "channel": 18,
+      "transport_input": [
+        "telnet"
+      ],
+      "login_method": "none",
+      "access_class": "LAB2-MGT",
+      "is_console_server": false
+    }
+  ],
+  "recommendations": [],
+  "detailed_configs": {
+    "slot_0_pa_1": {
+      "0/1/0": {
+        "line_id": "0/1/0",
+        "slot": 0,
+        "pa": 1,
+        "channel": 0,
+        "login_method": "local",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "MGT-IN",
+        "rotary": "none",
+        "speed": "9600",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/0",
+          " login local",
+          " exec-timeout 10 0",
+          " access-class MGT-IN in",
+          " transport input telnet",
+          " flowcontrol hardware",
+          " speed 9600"
+        ]
+      },
+      "0/1/1": {
+        "line_id": "0/1/1",
+        "slot": 0,
+        "pa": 1,
+        "channel": 1,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "1",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/1",
+          " no exec",
+          " rotary 1",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "0/1/2": {
+        "line_id": "0/1/2",
+        "slot": 0,
+        "pa": 1,
+        "channel": 2,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "15 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "115200",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/2",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 15 0",
+          " transport input ssh telnet",
+          " speed 115200",
+          " flowcontrol hardware"
+        ]
+      },
+      "0/1/3": {
+        "line_id": "0/1/3",
+        "slot": 0,
+        "pa": 1,
+        "channel": 3,
+        "login_method": "password",
+        "exec_enabled": true,
+        "timeout": "5 0",
+        "transport_input": [
+          "ssh"
+        ],
+        "access_class": "MGT-IN",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "15",
+        "escape_char": "33",
+        "raw_config": [
+          "line 0/1/3",
+          " exec-timeout 5 0",
+          " privilege level 15",
+          " login",
+          " access-class MGT-IN in",
+          " transport input ssh",
+          " escape-character 33"
+        ]
+      },
+      "0/1/4": {
+        "line_id": "0/1/4",
+        "slot": 0,
+        "pa": 1,
+        "channel": 4,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "2",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "telnet 10.10.10.4",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/4",
+          " no exec",
+          " autocommand telnet 10.10.10.4",
+          " rotary 2",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "0/1/5": {
+        "line_id": "0/1/5",
+        "slot": 0,
+        "pa": 1,
+        "channel": 5,
+        "login_method": "local",
+        "exec_enabled": true,
+        "timeout": "20 0",
+        "transport_input": [
+          "none"
+        ],
+        "access_class": "VTY-ONLY",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/5",
+          " login local",
+          " exec-timeout 20 0",
+          " transport input none",
+          " access-class VTY-ONLY in",
+          " flowcontrol hardware"
+        ]
+      },
+      "0/1/6": {
+        "line_id": "0/1/6",
+        "slot": 0,
+        "pa": 1,
+        "channel": 6,
+        "login_method": "none",
+        "exec_enabled": true,
+        "timeout": "0 1",
+        "transport_input": [
+          "all"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "57600",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/6",
+          " no login",
+          " exec-timeout 0 1",
+          " transport input all",
+          " speed 57600"
+        ]
+      },
+      "0/1/7": {
+        "line_id": "0/1/7",
+        "slot": 0,
+        "pa": 1,
+        "channel": 7,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "1",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/7",
+          " no exec",
+          " rotary 1",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "0/1/8": {
+        "line_id": "0/1/8",
+        "slot": 0,
+        "pa": 1,
+        "channel": 8,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "1",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/8",
+          " no exec",
+          " rotary 1",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "0/1/9": {
+        "line_id": "0/1/9",
+        "slot": 0,
+        "pa": 1,
+        "channel": 9,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "1",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/9",
+          " no exec",
+          " rotary 1",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "0/1/10": {
+        "line_id": "0/1/10",
+        "slot": 0,
+        "pa": 1,
+        "channel": 10,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "1",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/10",
+          " no exec",
+          " rotary 1",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "0/1/11": {
+        "line_id": "0/1/11",
+        "slot": 0,
+        "pa": 1,
+        "channel": 11,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "230400",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/11",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 10 0",
+          " transport input ssh telnet",
+          " speed 230400"
+        ]
+      },
+      "0/1/12": {
+        "line_id": "0/1/12",
+        "slot": 0,
+        "pa": 1,
+        "channel": 12,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "230400",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/12",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 10 0",
+          " transport input ssh telnet",
+          " speed 230400"
+        ]
+      },
+      "0/1/13": {
+        "line_id": "0/1/13",
+        "slot": 0,
+        "pa": 1,
+        "channel": 13,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "230400",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/13",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 10 0",
+          " transport input ssh telnet",
+          " speed 230400"
+        ]
+      },
+      "0/1/14": {
+        "line_id": "0/1/14",
+        "slot": 0,
+        "pa": 1,
+        "channel": 14,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "230400",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/14",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 10 0",
+          " transport input ssh telnet",
+          " speed 230400"
+        ]
+      },
+      "0/1/15": {
+        "line_id": "0/1/15",
+        "slot": 0,
+        "pa": 1,
+        "channel": 15,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "230400",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/15",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 10 0",
+          " transport input ssh telnet",
+          " speed 230400"
+        ]
+      },
+      "0/1/16": {
+        "line_id": "0/1/16",
+        "slot": 0,
+        "pa": 1,
+        "channel": 16,
+        "login_method": "none",
+        "exec_enabled": true,
+        "timeout": "5 0",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "MGT-IN",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/16",
+          " no login",
+          " access-class MGT-IN in",
+          " exec-timeout 5 0",
+          " transport input telnet"
+        ]
+      },
+      "0/1/17": {
+        "line_id": "0/1/17",
+        "slot": 0,
+        "pa": 1,
+        "channel": 17,
+        "login_method": "none",
+        "exec_enabled": true,
+        "timeout": "5 0",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "MGT-IN",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/17",
+          " no login",
+          " access-class MGT-IN in",
+          " exec-timeout 5 0",
+          " transport input telnet"
+        ]
+      },
+      "0/1/18": {
+        "line_id": "0/1/18",
+        "slot": 0,
+        "pa": 1,
+        "channel": 18,
+        "login_method": "none",
+        "exec_enabled": true,
+        "timeout": "5 0",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "MGT-IN",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/18",
+          " no login",
+          " access-class MGT-IN in",
+          " exec-timeout 5 0",
+          " transport input telnet"
+        ]
+      },
+      "0/1/19": {
+        "line_id": "0/1/19",
+        "slot": 0,
+        "pa": 1,
+        "channel": 19,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "none"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/19",
+          " no exec",
+          " transport input none"
+        ]
+      },
+      "0/1/20": {
+        "line_id": "0/1/20",
+        "slot": 0,
+        "pa": 1,
+        "channel": 20,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "none"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/20",
+          " no exec",
+          " transport input none"
+        ]
+      },
+      "0/1/21": {
+        "line_id": "0/1/21",
+        "slot": 0,
+        "pa": 1,
+        "channel": 21,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "none"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/21",
+          " no exec",
+          " transport input none"
+        ]
+      },
+      "0/1/22": {
+        "line_id": "0/1/22",
+        "slot": 0,
+        "pa": 1,
+        "channel": 22,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "none"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 0/1/22",
+          " no exec",
+          " transport input none",
+          "!"
+        ]
+      }
+    },
+    "slot_1_pa_0": {
+      "1/0/0": {
+        "line_id": "1/0/0",
+        "slot": 1,
+        "pa": 0,
+        "channel": 0,
+        "login_method": "local",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "LAB2-MGT",
+        "rotary": "none",
+        "speed": "9600",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/0",
+          " login local",
+          " exec-timeout 10 0",
+          " access-class LAB2-MGT in",
+          " transport input telnet",
+          " flowcontrol hardware",
+          " speed 9600"
+        ]
+      },
+      "1/0/1": {
+        "line_id": "1/0/1",
+        "slot": 1,
+        "pa": 0,
+        "channel": 1,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "3",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/1",
+          " no exec",
+          " rotary 3",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "1/0/2": {
+        "line_id": "1/0/2",
+        "slot": 1,
+        "pa": 0,
+        "channel": 2,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "15 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "115200",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/2",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 15 0",
+          " transport input ssh telnet",
+          " speed 115200",
+          " flowcontrol hardware"
+        ]
+      },
+      "1/0/3": {
+        "line_id": "1/0/3",
+        "slot": 1,
+        "pa": 0,
+        "channel": 3,
+        "login_method": "password",
+        "exec_enabled": true,
+        "timeout": "5 0",
+        "transport_input": [
+          "ssh"
+        ],
+        "access_class": "LAB2-MGT",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "15",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/3",
+          " exec-timeout 5 0",
+          " privilege level 15",
+          " login",
+          " access-class LAB2-MGT in",
+          " transport input ssh"
+        ]
+      },
+      "1/0/4": {
+        "line_id": "1/0/4",
+        "slot": 1,
+        "pa": 0,
+        "channel": 4,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "4",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "telnet 172.20.10.4",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/4",
+          " no exec",
+          " autocommand telnet 172.20.10.4",
+          " rotary 4",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "1/0/5": {
+        "line_id": "1/0/5",
+        "slot": 1,
+        "pa": 0,
+        "channel": 5,
+        "login_method": "local",
+        "exec_enabled": true,
+        "timeout": "20 0",
+        "transport_input": [
+          "none"
+        ],
+        "access_class": "LAB2-MGT",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/5",
+          " login local",
+          " exec-timeout 20 0",
+          " transport input none",
+          " access-class LAB2-MGT in",
+          " flowcontrol hardware"
+        ]
+      },
+      "1/0/6": {
+        "line_id": "1/0/6",
+        "slot": 1,
+        "pa": 0,
+        "channel": 6,
+        "login_method": "none",
+        "exec_enabled": true,
+        "timeout": "0 1",
+        "transport_input": [
+          "all"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "57600",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/6",
+          " no login",
+          " exec-timeout 0 1",
+          " transport input all",
+          " speed 57600"
+        ]
+      },
+      "1/0/7": {
+        "line_id": "1/0/7",
+        "slot": 1,
+        "pa": 0,
+        "channel": 7,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "3",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/7",
+          " no exec",
+          " rotary 3",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "1/0/8": {
+        "line_id": "1/0/8",
+        "slot": 1,
+        "pa": 0,
+        "channel": 8,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "3",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/8",
+          " no exec",
+          " rotary 3",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "1/0/9": {
+        "line_id": "1/0/9",
+        "slot": 1,
+        "pa": 0,
+        "channel": 9,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "3",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/9",
+          " no exec",
+          " rotary 3",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "1/0/10": {
+        "line_id": "1/0/10",
+        "slot": 1,
+        "pa": 0,
+        "channel": 10,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "3",
+        "speed": "none",
+        "flowcontrol": "hardware",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/10",
+          " no exec",
+          " rotary 3",
+          " transport input telnet",
+          " flowcontrol hardware"
+        ]
+      },
+      "1/0/11": {
+        "line_id": "1/0/11",
+        "slot": 1,
+        "pa": 0,
+        "channel": 11,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "230400",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/11",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 10 0",
+          " transport input ssh telnet",
+          " speed 230400"
+        ]
+      },
+      "1/0/12": {
+        "line_id": "1/0/12",
+        "slot": 1,
+        "pa": 0,
+        "channel": 12,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "230400",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/12",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 10 0",
+          " transport input ssh telnet",
+          " speed 230400"
+        ]
+      },
+      "1/0/13": {
+        "line_id": "1/0/13",
+        "slot": 1,
+        "pa": 0,
+        "channel": 13,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "230400",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/13",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 10 0",
+          " transport input ssh telnet",
+          " speed 230400"
+        ]
+      },
+      "1/0/14": {
+        "line_id": "1/0/14",
+        "slot": 1,
+        "pa": 0,
+        "channel": 14,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "230400",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/14",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 10 0",
+          " transport input ssh telnet",
+          " speed 230400"
+        ]
+      },
+      "1/0/15": {
+        "line_id": "1/0/15",
+        "slot": 1,
+        "pa": 0,
+        "channel": 15,
+        "login_method": "ASYNC-AUTH",
+        "exec_enabled": true,
+        "timeout": "10 0",
+        "transport_input": [
+          "ssh",
+          "telnet"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "230400",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/15",
+          " login authentication ASYNC-AUTH",
+          " exec-timeout 10 0",
+          " transport input ssh telnet",
+          " speed 230400"
+        ]
+      },
+      "1/0/16": {
+        "line_id": "1/0/16",
+        "slot": 1,
+        "pa": 0,
+        "channel": 16,
+        "login_method": "none",
+        "exec_enabled": true,
+        "timeout": "5 0",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "LAB2-MGT",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/16",
+          " no login",
+          " access-class LAB2-MGT in",
+          " exec-timeout 5 0",
+          " transport input telnet"
+        ]
+      },
+      "1/0/17": {
+        "line_id": "1/0/17",
+        "slot": 1,
+        "pa": 0,
+        "channel": 17,
+        "login_method": "none",
+        "exec_enabled": true,
+        "timeout": "5 0",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "LAB2-MGT",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/17",
+          " no login",
+          " access-class LAB2-MGT in",
+          " exec-timeout 5 0",
+          " transport input telnet"
+        ]
+      },
+      "1/0/18": {
+        "line_id": "1/0/18",
+        "slot": 1,
+        "pa": 0,
+        "channel": 18,
+        "login_method": "none",
+        "exec_enabled": true,
+        "timeout": "5 0",
+        "transport_input": [
+          "telnet"
+        ],
+        "access_class": "LAB2-MGT",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/18",
+          " no login",
+          " access-class LAB2-MGT in",
+          " exec-timeout 5 0",
+          " transport input telnet"
+        ]
+      },
+      "1/0/19": {
+        "line_id": "1/0/19",
+        "slot": 1,
+        "pa": 0,
+        "channel": 19,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "none"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/19",
+          " no exec",
+          " transport input none"
+        ]
+      },
+      "1/0/20": {
+        "line_id": "1/0/20",
+        "slot": 1,
+        "pa": 0,
+        "channel": 20,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "none"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/20",
+          " no exec",
+          " transport input none"
+        ]
+      },
+      "1/0/21": {
+        "line_id": "1/0/21",
+        "slot": 1,
+        "pa": 0,
+        "channel": 21,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "none"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/21",
+          " no exec",
+          " transport input none"
+        ]
+      },
+      "1/0/22": {
+        "line_id": "1/0/22",
+        "slot": 1,
+        "pa": 0,
+        "channel": 22,
+        "login_method": "none",
+        "exec_enabled": false,
+        "timeout": "none",
+        "transport_input": [
+          "none"
+        ],
+        "access_class": "none",
+        "rotary": "none",
+        "speed": "none",
+        "flowcontrol": "none",
+        "autocommand": "none",
+        "privilege_level": "none",
+        "escape_char": "none",
+        "raw_config": [
+          "line 1/0/22",
+          " no exec",
+          " transport input none",
+          "!"
+        ]
+      }
+    }
+  }
+}
