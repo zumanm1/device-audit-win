@@ -1,0 +1,788 @@
+#!/usr/bin/env python3
+"""
+Phased Audit Tool
+
+This tool performs a 5-phase security audit on network devices.
+Phases:
+1. Connectivity Verification
+2. Authentication Testing
+3. Configuration Audit
+4. Risk Assessment
+5. Reporting and Recommendations
+"""
+
+import sqlite3
+import datetime
+import json
+import uuid
+import subprocess # Added for Phase 1
+import re # Added for Phase 1 RTT parsing
+from netmiko import ConnectHandler
+from netmiko.exceptions import NetmikoTimeoutException, NetmikoAuthenticationException, SSHException
+from flask import Flask, render_template, jsonify, request, Response
+from flask_socketio import SocketIO, emit
+
+DATABASE_NAME = 'phased_audit_results.sqlite'
+
+# Initialize Flask app
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'phased_audit_secret_key'
+app.config['PORT'] = 5012
+socketio = SocketIO(app)
+
+def initialize_database():
+    """Initializes the SQLite database and creates the audit_phase_results table if it doesn't exist."""
+    conn = sqlite3.connect(DATABASE_NAME)
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS audit_phase_results (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            audit_run_id TEXT NOT NULL,
+            router_hostname TEXT NOT NULL,
+            router_ip TEXT,
+            phase_number INTEGER NOT NULL,
+            phase_name TEXT NOT NULL,
+            status TEXT NOT NULL, 
+            summary TEXT,
+            details TEXT, 
+            error_message TEXT,
+            start_time DATETIME,
+            end_time DATETIME
+        )
+    ''')
+    conn.commit()
+    conn.close()
+    print(f"Database {DATABASE_NAME} initialized/verified.")
+
+def log_phase_result(audit_run_id, router_hostname, router_ip, phase_number, phase_name, status, summary="", details=None, error_message="", start_time=None, end_time=None):
+    """Logs the result of an audit phase to the database."""
+    conn = sqlite3.connect(DATABASE_NAME)
+    cursor = conn.cursor()
+    
+    current_time = datetime.datetime.now()
+    if start_time is None:
+        start_time = current_time
+    if end_time is None and status not in ["IN_PROGRESS"]:
+        end_time = current_time
+
+    details_json = json.dumps(details) if details is not None else None
+
+    cursor.execute('''
+        INSERT INTO audit_phase_results 
+            (audit_run_id, router_hostname, router_ip, phase_number, phase_name, status, summary, details, error_message, start_time, end_time)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (audit_run_id, router_hostname, router_ip, phase_number, phase_name, status, summary, details_json, error_message, start_time, end_time))
+    conn.commit()
+    conn.close()
+
+# --- Phase 1: Helper Function ---
+def _ping_device(ip_address):
+    """Pings an IP address and returns status, summary, and details."""
+    try:
+        # For Linux/macOS, using -c 4 for 4 pings, -W 1 for 1-second timeout per ping.
+        # For Windows, it would be -n 4 -w 1000.
+        # Adjust command based on the USER's OS if known, otherwise default to Linux-like.
+        command = ['ping', '-c', '4', '-W', '1', ip_address]
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, stderr = process.communicate(timeout=10) # 10-second overall timeout for the subprocess
+
+        if process.returncode == 0:
+            status = "SUCCESS"
+            summary = f"Successfully pinged {ip_address}."
+            # Try to extract RTT avg from output (example for Linux ping)
+            rtt_match = re.search(r'rtt min/avg/max/mdev = [\d\.]+/([\d\.]+)/[\d\.]+/([\d\.]+) ms', stdout)
+            if rtt_match:
+                details = {"rtt_avg_ms": rtt_match.group(1), "output": stdout}
+            else:
+                details = {"output": stdout} # Include full output if RTT parsing fails
+            error = ""
+        elif process.returncode == 1: # Host unreachable or other non-zero for no reply (common for ping)
+            status = "FAILURE"
+            summary = f"Ping failed: No reply from {ip_address}."
+            details = {"output": stdout, "error_output": stderr}
+            error = f"No reply from {ip_address}. Stderr: {stderr.strip()}"
+        else: # Other errors
+            status = "FAILURE"
+            summary = f"Ping failed for {ip_address} with exit code {process.returncode}."
+            details = {"output": stdout, "error_output": stderr, "return_code": process.returncode}
+            error = f"Ping command error. Stderr: {stderr.strip()} Stdout: {stdout.strip()}"
+
+    except subprocess.TimeoutExpired:
+        status = "FAILURE"
+        summary = f"Ping timed out for {ip_address}."
+        details = None
+        error = "Ping command timed out after 10 seconds."
+    except FileNotFoundError: # ping command not found
+        status = "FAILURE"
+        summary = "Ping command not found."
+        details = None
+        error = "The 'ping' command was not found on the system. Please ensure it is installed and in PATH."
+    except Exception as e:
+        status = "FAILURE"
+        summary = f"An unexpected error occurred during ping: {str(e)}"
+        details = None
+        error = f"Unexpected ping error: {str(e)}"
+    
+    return status, summary, details, error
+
+# --- Phase 1: Connectivity Verification ---
+def execute_phase1_connectivity(audit_run_id, router_config):
+    """Verifies basic network connectivity to the router (e.g., ICMP ping)."""
+    hostname = router_config.get('hostname')
+    ip_address = router_config.get('ip')
+    phase_name = "Connectivity Verification"
+    print(f"Starting Phase 1: {phase_name} for {hostname} ({ip_address})")
+    start_time = datetime.datetime.now()
+
+    if not ip_address:
+        status = "FAILURE"
+        summary = "IP address not provided for router."
+        details = None
+        error = "Missing IP address in router configuration."
+    else:
+        status, summary, details, error = _ping_device(ip_address)
+
+    log_phase_result(audit_run_id, hostname, ip_address, 1, phase_name, status, summary, details, error, start_time)
+    return {"status": status, "details": details, "error": error}
+
+# --- Phase 2: Authentication Testing ---
+def execute_phase2_authentication(audit_run_id, router_config, phase1_result):
+    """Attempts to authenticate to the router using provided credentials."""
+    hostname = router_config.get('hostname')
+    ip_address = router_config.get('ip')
+    phase_name = "Authentication Testing"
+    print(f"Starting Phase 2: {phase_name} for {hostname}")
+    start_time = datetime.datetime.now()
+    net_connect = None # Initialize net_connect
+
+    if phase1_result.get('status') != "SUCCESS":
+        status = "SKIPPED"
+        summary = "Skipped due to Phase 1 failure (device unreachable)."
+        details = None
+        error = phase1_result.get('error', "Connectivity failed.")
+        log_phase_result(audit_run_id, hostname, ip_address, 2, phase_name, status, summary, details, error, start_time)
+        return {"status": status, "details": details, "error": error, "connection": net_connect}
+
+    device_type = router_config.get('device_type', 'cisco_ios') # Default to cisco_ios if not specified
+    username = router_config.get('username')
+    password = router_config.get('password')
+    secret = router_config.get('secret', '') # Optional enable secret
+
+    if not all([ip_address, username, password]):
+        status = "FAILURE"
+        summary = "Missing required credentials (IP, username, or password) for SSH."
+        details = None
+        error = "Incomplete router configuration for authentication."
+        log_phase_result(audit_run_id, hostname, ip_address, 2, phase_name, status, summary, details, error, start_time)
+        return {"status": status, "details": details, "error": error, "connection": net_connect}
+
+    device = {
+        'device_type': device_type,
+        'host': ip_address,
+        'username': username,
+        'password': password,
+        'secret': secret,
+        'port': router_config.get('port', 22), # Default to port 22
+        'global_delay_factor': 2, # Adjust as needed
+    }
+
+    try:
+        print(f"  Attempting SSH to {ip_address} as {username}...")
+        net_connect = ConnectHandler(**device)
+        status = "SUCCESS"
+        summary = f"Successfully authenticated to {ip_address} via SSH."
+        details = {"auth_method": "ssh_password", "device_type": device_type}
+        error = ""
+        # Note: We keep net_connect open for Phase 3
+        print(f"  SSH connection successful for {hostname}.")
+
+    except NetmikoAuthenticationException as e:
+        status = "FAILURE"
+        summary = f"Authentication failed for {ip_address}. Invalid credentials or SSH configuration issue."
+        details = {"exception_type": "NetmikoAuthenticationException"}
+        error = str(e)
+        print(f"  Authentication failed for {hostname}: {error}")
+    except NetmikoTimeoutException as e:
+        status = "FAILURE"
+        summary = f"SSH connection timed out for {ip_address}. Device may be unreachable or SSH service not responding."
+        details = {"exception_type": "NetmikoTimeoutException"}
+        error = str(e)
+        print(f"  SSH timeout for {hostname}: {error}")
+    except SSHException as e: # More generic SSH library errors (e.g. no matching key exchange, etc.)
+        status = "FAILURE"
+        summary = f"An SSH protocol error occurred for {ip_address}."
+        details = {"exception_type": "SSHException"}
+        error = str(e)
+        print(f"  SSH protocol error for {hostname}: {error}")
+    except Exception as e:
+        status = "FAILURE"
+        summary = f"An unexpected error occurred during SSH connection to {ip_address}."
+        details = {"exception_type": str(type(e).__name__)}
+        error = str(e)
+        print(f"  Unexpected SSH error for {hostname}: {error}")
+
+    log_phase_result(audit_run_id, hostname, ip_address, 2, phase_name, status, summary, details, error, start_time)
+    # If connection failed, net_connect will be None. If successful, it's the active connection object.
+    return {"status": status, "details": details, "error": error, "connection": net_connect}
+
+# --- Phase 3: Configuration Audit ---
+def execute_phase3_config_audit(audit_run_id, router_config, phase2_result):
+    """Collects device configuration and audits it against predefined policies/rules."""
+    hostname = router_config.get('hostname')
+    ip_address = router_config.get('ip')
+    net_connect = phase2_result.get('connection') # Get connection from Phase 2
+    phase_name = "Configuration Audit"
+    print(f"Starting Phase 3: {phase_name} for {hostname}")
+    start_time = datetime.datetime.now()
+    collected_data = {}
+
+    if phase2_result.get('status') != "SUCCESS" or not net_connect:
+        status = "SKIPPED"
+        summary = "Skipped due to Phase 2 (Authentication) failure or no connection object."
+        details = None
+        error = phase2_result.get('error', "Authentication failed or connection not available.")
+        if net_connect: # Should not happen if status is not SUCCESS, but good practice to close if it exists and we skip
+            try:
+                net_connect.disconnect()
+                print(f"  Closed stray connection to {hostname} before skipping Phase 3.")
+            except Exception as e_disc:
+                print(f"  Error disconnecting stray connection for {hostname}: {e_disc}")
+        log_phase_result(audit_run_id, hostname, ip_address, 3, phase_name, status, summary, details, error, start_time)
+        return {"status": status, "details": details, "error": error}
+
+    try:
+        # Correctly access secret from router_config for enable mode
+        enable_secret = router_config.get('secret', '')
+        if net_connect.check_enable_mode() is False:
+            if enable_secret:
+                print(f"  Entering enable mode on {hostname}...")
+                net_connect.enable()
+            else:
+                print(f"  Enable mode not entered on {hostname} as no secret was provided. Skipping enable-only commands or proceeding with caution.")
+
+        # Define commands for AUX port security audit
+        # These are examples; actual commands might vary based on audit depth
+        commands_to_run = [
+            "show line aux 0",
+            "show running-config | include line aux 0",
+            "show running-config | include aaa new-model", # Check if modern AAA is enabled
+            "show running-config | include aaa authentication login default", # Check default login auth methods
+            "show running-config | include aaa authentication login CONSOLE", # Check console specific (often AUX shares this)
+            "show running-config | include username", # Look for local users
+            "show running-config | include privilege exec level 0", # Check exec privilege levels
+            "show ip interface brief | include AUX", # If AUX has an IP (rare, but possible)
+            "show users", # See current logged-in users (might show AUX activity)
+            "show version" # General device info
+        ]
+
+        print(f"  Collecting configurations from {hostname}...")
+        for cmd in commands_to_run:
+            print(f"    Executing: {cmd}")
+            try:
+                # For commands that might not exist or fail on some devices/privilege levels, 
+                # use send_command_timing or add error handling per command if needed.
+                # For simplicity, direct send_command is used here.
+                output = net_connect.send_command(cmd, read_timeout=20) # Increased read_timeout for potentially long configs
+                collected_data[cmd] = output
+            except Exception as cmd_e:
+                print(f"    Error executing command '{cmd}': {str(cmd_e)}")
+                collected_data[cmd] = f"ERROR: {str(cmd_e)}"
+        
+        status = "SUCCESS"
+        summary = f"Successfully collected {len(collected_data)} configurations from {hostname}."
+        details = {"collected_configs": collected_data, "findings_count": 0} # Placeholder for findings
+        error = ""
+        print(f"  Finished collecting configurations from {hostname}.")
+
+    except Exception as e:
+        status = "FAILURE"
+        summary = f"Error during configuration collection from {hostname}."
+        details = {"exception_type": str(type(e).__name__)}
+        error = str(e)
+        print(f"  Error in Phase 3 for {hostname}: {error}")
+    finally:
+        # IMPORTANT: Close the connection after Phase 3 is done with it.
+        if net_connect:
+            try:
+                net_connect.disconnect()
+                print(f"  Disconnected SSH session from {hostname} after Phase 3.")
+            except Exception as e_disc:
+                print(f"  Error disconnecting from {hostname} after Phase 3: {e_disc}")
+
+    log_phase_result(audit_run_id, hostname, ip_address, 3, phase_name, status, summary, details, error, start_time)
+    return {"status": status, "details": details, "error": error}
+
+# --- Phase 4: Risk Assessment ---
+def execute_phase4_risk_assessment(audit_run_id, router_config, phase3_result):
+    """Assesses risks based on findings from the configuration audit."""
+    hostname = router_config.get('hostname')
+    ip_address = router_config.get('ip')
+    phase_name = "Risk Assessment"
+    print(f"Starting Phase 4: {phase_name} for {hostname}")
+    start_time = datetime.datetime.now()
+    risks_found = []
+    overall_risk_level = "LOW" # Default
+
+    if phase3_result.get('status') != "SUCCESS":
+        status = "SKIPPED"
+        summary = "Skipped due to Phase 3 (Configuration Audit) failure."
+        details = {"risks": [], "overall_risk": "UNKNOWN"}
+        error = phase3_result.get('error', "Configuration audit failed or was skipped.")
+        log_phase_result(audit_run_id, hostname, ip_address, 4, phase_name, status, summary, details, error, start_time)
+        return {"status": status, "details": details, "error": error}
+
+    collected_configs = phase3_result.get('details', {}).get('collected_configs', {})
+    if not collected_configs:
+        status = "FAILURE"
+        summary = "No configuration data available from Phase 3 to assess risks."
+        details = {"risks": [], "overall_risk": "UNKNOWN"}
+        error = "Missing collected_configs in Phase 3 results."
+        log_phase_result(audit_run_id, hostname, ip_address, 4, phase_name, status, summary, details, error, start_time)
+        return {"status": status, "details": details, "error": error}
+
+    # --- Perform Risk Checks ---
+    # Check 1: AAA New-Model
+    aaa_new_model_config = collected_configs.get("show running-config | include aaa new-model", "")
+    if "aaa new-model" not in aaa_new_model_config.lower():
+        risks_found.append({
+            "risk_id": "RA001",
+            "description": "AAA New-Model is not enabled. Legacy authentication/authorization methods may be in use, which are less secure.",
+            "severity": "MEDIUM",
+            "evidence": aaa_new_model_config
+        })
+
+    # Check 2: Line AUX 0 specific configuration
+    line_aux_config = collected_configs.get("show line aux 0", "")
+    if "no login" in line_aux_config.lower(): # This is a very direct and insecure setting
+        risks_found.append({
+            "risk_id": "RA002",
+            "description": "Line AUX 0 is configured with 'no login', allowing access without authentication.",
+            "severity": "HIGH",
+            "evidence": line_aux_config
+        })
+    elif "login local" not in line_aux_config.lower() and "login authentication" not in line_aux_config.lower():
+        # If not using 'login local' or 'login authentication <list>', it might be using default (password only) or just password.
+        # This check is simplified; a more robust check would parse 'login' and 'password' lines.
+        if "password" not in line_aux_config.lower(): # No explicit password and not AAA/local
+             risks_found.append({
+                "risk_id": "RA003",
+                "description": "Line AUX 0 does not appear to have explicit 'login local', 'login authentication', or a direct password set. It may be unsecured or relying on global defaults that could be weak.",
+                "severity": "MEDIUM",
+                "evidence": line_aux_config
+            })
+
+    if "transport input all" in line_aux_config.lower():
+        risks_found.append({
+            "risk_id": "RA004",
+            "description": "Line AUX 0 allows 'transport input all'. This could enable insecure protocols like Telnet if not otherwise restricted.",
+            "severity": "MEDIUM",
+            "evidence": line_aux_config
+        })
+    elif "transport input telnet" in line_aux_config.lower() or ("transport input ssh telnet" in line_aux_config.lower()):
+         risks_found.append({
+            "risk_id": "RA005",
+            "description": "Line AUX 0 explicitly allows Telnet. Telnet is an insecure protocol.",
+            "severity": "HIGH",
+            "evidence": line_aux_config
+        })
+
+    # Determine overall risk level (simplified)
+    if any(r['severity'] == "HIGH" for r in risks_found):
+        overall_risk_level = "HIGH"
+    elif any(r['severity'] == "MEDIUM" for r in risks_found):
+        overall_risk_level = "MEDIUM"
+
+    status = "SUCCESS"
+    summary = f"Risk assessment completed. Found {len(risks_found)} potential risk(s). Overall risk: {overall_risk_level}."
+    details = {"risks": risks_found, "overall_risk": overall_risk_level, "config_source_count": len(collected_configs)}
+    error = ""
+
+    log_phase_result(audit_run_id, hostname, ip_address, 4, phase_name, status, summary, details, error, start_time)
+    return {"status": status, "details": details, "error": error}
+
+# --- Phase 5: Reporting and Recommendations ---
+def execute_phase5_reporting(audit_run_id, router_config, phase1_res, phase2_res, phase3_res, phase4_res):
+    """Generates a final report and recommendations based on all audit phases."""
+    hostname = router_config.get('hostname')
+    ip_address = router_config.get('ip')
+    phase_name = "Reporting and Recommendations"
+    print(f"Starting Phase 5: {phase_name} for {hostname}")
+    start_time = datetime.datetime.now()
+
+    report_summary = f"Audit Report for {hostname} ({ip_address})\n"
+    report_summary += f"Audit Run ID: {audit_run_id}\n"
+    report_summary += f"Timestamp: {start_time.strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+
+    # Summarize each phase
+    report_summary += "--- Phase Summaries ---\n"
+    report_summary += f"Phase 1 (Connectivity): {phase1_res.get('status')} - {(phase1_res.get('details') or {}).get('summary', 'N/A')}\n"
+    report_summary += f"Phase 2 (Authentication): {phase2_res.get('status')} - {(phase2_res.get('details') or {}).get('summary', 'N/A')}\n"
+    report_summary += f"Phase 3 (Config Audit): {phase3_res.get('status')} - {(phase3_res.get('details') or {}).get('summary', 'N/A')}\n"
+    report_summary += f"Phase 4 (Risk Assessment): {phase4_res.get('status')} - {(phase4_res.get('details') or {}).get('summary', 'N/A')}\n"
+    report_summary += f"  Overall Risk Level: {(phase4_res.get('details') or {}).get('overall_risk', 'UNKNOWN')}\n\n"
+
+    recommendations = []
+    # Ensure risks are retrieved safely if phase4_res.details is None
+    risks = (phase4_res.get('details') or {}).get('risks', [])
+
+    if not risks and phase4_res.get('status') == "SUCCESS":
+        report_summary += "--- Risks Found ---\nNo significant security risks identified based on the performed checks.\n\n"
+    elif risks:
+        report_summary += "--- Risks Found ---\n"
+        for risk in risks:
+            report_summary += f"  - Risk ID: {risk.get('risk_id')}\n"
+            report_summary += f"    Description: {risk.get('description')}\n"
+            report_summary += f"    Severity: {risk.get('severity')}\n"
+            report_summary += f"    Evidence Snippet: {str(risk.get('evidence', '')).strip()[:100]}...\n\n"
+
+            # Generate Recommendations (Generic)
+            if risk.get('risk_id') == "RA001": # AAA New-Model not enabled
+                recommendations.append(
+                    f"Recommendation for {risk.get('risk_id')}: Enable 'aaa new-model' globally to leverage modern AAA features for authentication, authorization, and accounting."
+                )
+            elif risk.get('risk_id') == "RA002": # Line AUX 0 with 'no login'
+                recommendations.append(
+                    f"Recommendation for {risk.get('risk_id')}: Remove 'no login' from Line AUX 0. Configure strong authentication (e.g., 'login authentication <AAA_list>' or 'login local') and a secure password if local auth is used."
+                )
+            elif risk.get('risk_id') == "RA003": # Line AUX 0 insecure default login
+                recommendations.append(
+                    f"Recommendation for {risk.get('risk_id')}: Secure Line AUX 0 by explicitly configuring 'login local' (with strong local users) or 'login authentication <AAA_list>'. If a direct password is set, ensure it is strong."
+                )
+            elif risk.get('risk_id') == "RA004": # Line AUX 0 transport input all
+                recommendations.append(
+                    f"Recommendation for {risk.get('risk_id')}: On Line AUX 0, restrict 'transport input' to only necessary protocols (e.g., 'transport input ssh'). Avoid 'transport input all'."
+                )
+            elif risk.get('risk_id') == "RA005": # Line AUX 0 transport input telnet
+                recommendations.append(
+                    f"Recommendation for {risk.get('risk_id')}: Disable Telnet on Line AUX 0 ('no transport input telnet' or restrict to 'transport input ssh'). Use SSH for secure access."
+                )
+    else:
+        report_summary += "--- Risks Found ---\nRisk assessment was skipped or failed, so no specific risks can be listed.\n\n"
+
+
+    if recommendations:
+        report_summary += "--- Recommendations ---\n"
+        for rec in recommendations:
+            report_summary += f"- {rec}\n"
+    else:
+        report_summary += "--- Recommendations ---\nNo specific recommendations generated based on the findings.\n"
+
+    status = "SUCCESS"
+    summary = f"Report generated for {hostname}. Overall risk: {(phase4_res.get('details') or {}).get('overall_risk', 'UNKNOWN')}. {len(recommendations)} recommendation(s) made."
+    details = {"report_text": report_summary, "recommendations_list": recommendations}
+    error = ""
+
+    # For now, we'll print the report to console. In a real tool, this might be written to a file or a more structured output.
+    print("\n" + "-"*20 + f" Audit Report for {hostname} " + "-"*20)
+    print(report_summary)
+    print("-"* (40 + len(f" Audit Report for {hostname} ")) + "\n")
+
+    log_phase_result(audit_run_id, hostname, ip_address, 5, phase_name, status, summary, details, error, start_time)
+    return {"status": status, "details": details, "error": error}
+
+
+# --- Web Interface Routes ---
+@app.route('/')
+def index():
+    """Main page of the Phased Audit Tool web interface."""
+    # Create a simple HTML response since we don't have templates
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Phased Audit Tool</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #2c3e50; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            .btn { 
+                display: inline-block; 
+                padding: 10px 15px; 
+                background-color: #3498db; 
+                color: white; 
+                text-decoration: none; 
+                border-radius: 4px;
+                margin: 10px 0;
+            }
+            .results { 
+                margin-top: 20px; 
+                border: 1px solid #ddd; 
+                padding: 15px;
+                border-radius: 4px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Phased Audit Tool</h1>
+            <p>This tool performs a 5-phase security audit on network devices:</p>
+            <ol>
+                <li>Connectivity Verification</li>
+                <li>Authentication Testing</li>
+                <li>Configuration Audit</li>
+                <li>Risk Assessment</li>
+                <li>Reporting and Recommendations</li>
+            </ol>
+            <a href="/run-audit" class="btn">Run Audit with Sample Data</a>
+            <a href="/view-results" class="btn">View Past Results</a>
+            
+            <div class="results" id="results">
+                <h2>Results will appear here</h2>
+                <p>Click "Run Audit" to start a new audit with sample data.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    return html
+
+@app.route('/run-audit')
+def run_audit():
+    """Run the phased audit with sample data and return results."""
+    # Sample router data for testing
+    sample_routers = [
+        {
+            'hostname': 'Router1-Lab',
+            'ip': '192.168.1.1',
+            'username': 'admin',
+            'password': 'cisco123',
+            'device_type': 'cisco_ios',
+            'secret': 'enable_secret',
+            'port': 22
+        }
+    ]
+    
+    audit_results = perform_phased_audit(sample_routers)
+    
+    # Format results for display
+    html_results = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Audit Results</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1, h2, h3 { color: #2c3e50; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            .results { margin-top: 20px; }
+            .phase { 
+                margin: 10px 0;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            .success { color: green; }
+            .failure { color: red; }
+            .skipped { color: orange; }
+            .error { color: red; font-weight: bold; }
+            .back-btn {
+                display: inline-block; 
+                padding: 10px 15px; 
+                background-color: #3498db; 
+                color: white; 
+                text-decoration: none; 
+                border-radius: 4px;
+                margin: 10px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Audit Results</h1>
+            <a href="/" class="back-btn">Back to Home</a>
+            <div class="results">
+    """
+    
+    for router_name, results in audit_results.items():
+        html_results += f"<h2>Results for {router_name}:</h2>"
+        for phase, result in results.items():
+            status_class = "success" if result.get('status') == "SUCCESS" else "failure" if result.get('status') == "FAILURE" else "skipped"
+            summary_text = (result.get('details') or {}).get('summary', 'No summary')
+            html_results += f"<div class='phase'>"
+            html_results += f"<h3>{phase.capitalize()}</h3>"
+            html_results += f"<p class='{status_class}'>Status: {result.get('status')}</p>"
+            html_results += f"<p>Summary: {summary_text}</p>"
+            if result.get('error'):
+                html_results += f"<p class='error'>Error: {result.get('error')}</p>"
+            html_results += "</div>"
+    
+    html_results += """
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    return html_results
+
+@app.route('/view-results')
+def view_results():
+    """View past audit results from the database."""
+    conn = sqlite3.connect(DATABASE_NAME)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    
+    # Get unique audit run IDs
+    cursor.execute("SELECT DISTINCT audit_run_id FROM audit_phase_results ORDER BY timestamp DESC")
+    audit_runs = cursor.fetchall()
+    
+    html = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Past Audit Results</title>
+        <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1, h2 { color: #2c3e50; }
+            .container { max-width: 1200px; margin: 0 auto; }
+            .audit-run { 
+                margin: 20px 0; 
+                padding: 15px; 
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+            .phase { margin-left: 20px; }
+            .success { color: green; }
+            .failure { color: red; }
+            .skipped { color: orange; }
+            .back-btn {
+                display: inline-block; 
+                padding: 10px 15px; 
+                background-color: #3498db; 
+                color: white; 
+                text-decoration: none; 
+                border-radius: 4px;
+                margin: 10px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>Past Audit Results</h1>
+            <a href="/" class="back-btn">Back to Home</a>
+    """
+    
+    if not audit_runs:
+        html += "<p>No audit results found in the database.</p>"
+    else:
+        for audit_run in audit_runs:
+            audit_run_id = audit_run['audit_run_id']
+            html += f'<div class="audit-run"><h2>Audit Run: {audit_run_id}</h2>'
+            
+            # Get results for this audit run
+            cursor.execute("""
+                SELECT * FROM audit_phase_results 
+                WHERE audit_run_id = ? 
+                ORDER BY hostname, phase_number
+            """, (audit_run_id,))
+            results = cursor.fetchall()
+            
+            current_hostname = None
+            for result in results:
+                if result['hostname'] != current_hostname:
+                    if current_hostname:
+                        html += '</div>'  # Close previous device div
+                    current_hostname = result['hostname']
+                    html += f'<div class="device"><h3>Device: {current_hostname} ({result["ip_address"]})</h3>'
+                
+                status_class = "success" if result['status'] == "SUCCESS" else "failure" if result['status'] == "FAILURE" else "skipped"
+                html += f'<div class="phase"><h4>Phase {result["phase_number"]}: {result["phase_name"]}</h4>'
+                html += f'<p class="{status_class}">Status: {result["status"]}</p>'
+                html += f'<p>Summary: {result["summary"]}</p>'
+                if result['error']:
+                    html += f'<p class="failure">Error: {result["error"]}</p>'
+                html += '</div>'  # Close phase div
+            
+            if current_hostname:
+                html += '</div>'  # Close last device div
+            html += '</div>'  # Close audit run div
+    
+    html += """
+        </div>
+    </body>
+    </html>
+    """
+    
+    conn.close()
+    return html
+
+# --- Main Audit Orchestrator ---
+def perform_phased_audit(routers_to_audit):
+    """Orchestrates the 5-phase audit for a list of routers."""
+    initialize_database()
+    audit_run_id = str(uuid.uuid4()) # Unique ID for this entire audit run
+    print(f"Starting phased audit run ID: {audit_run_id}")
+
+    overall_results = {}
+
+    for router_config in routers_to_audit:
+        hostname = router_config.get('hostname', 'UnknownRouter')
+        print(f"\n--- Auditing Router: {hostname} ---")
+        router_results = {}
+
+        # Phase 1
+        phase1_res = execute_phase1_connectivity(audit_run_id, router_config)
+        router_results['phase1'] = phase1_res
+
+        # Phase 2
+        phase2_res = execute_phase2_authentication(audit_run_id, router_config, phase1_res)
+        router_results['phase2'] = phase2_res
+
+        # Phase 3
+        phase3_res = execute_phase3_config_audit(audit_run_id, router_config, phase2_res) # phase2_res now contains 'connection'
+        router_results['phase3'] = phase3_res
+
+        # Phase 4
+        phase4_res = execute_phase4_risk_assessment(audit_run_id, router_config, phase3_res)
+        router_results['phase4'] = phase4_res
+
+        # Phase 5
+        phase5_res = execute_phase5_reporting(audit_run_id, router_config, phase1_res, phase2_res, phase3_res, phase4_res)
+        router_results['phase5'] = phase5_res
+        
+        overall_results[hostname] = router_results
+        print(f"--- Finished auditing Router: {hostname} ---")
+
+    print(f"\nPhased audit run {audit_run_id} completed.")
+    # Placeholder: Add overall summary reporting here if needed
+    return overall_results
+
+if __name__ == '__main__':
+    # Example usage:
+    # Replace with actual router data, potentially loaded from CSV or other inventory source
+    sample_routers = [
+        {
+            'hostname': 'Router1-Lab',
+            'ip': '192.168.1.1',
+            'username': 'admin',
+            'password': 'cisco123',
+            'device_type': 'cisco_ios',
+            'secret': 'enable_secret',
+            'port': 22
+        }
+    ]
+    
+    # Check if running as a script or as a web server
+    import sys
+    if len(sys.argv) > 1 and sys.argv[1] == '--cli':
+        # Run in CLI mode
+        print("Starting Phased Audit Tool...")
+        init_database()
+        audit_summary = perform_phased_audit(sample_routers)
+
+        print("\n--- Audit Summary ---")
+        for router_name, results in audit_summary.items():
+            print(f"\nResults for {router_name}:")
+            for phase, result in results.items():
+                # Apply the same fix here for accessing summary safely
+                summary_text = (result.get('details') or {}).get('summary', 'No summary')
+                print(f"  {phase.capitalize()}: {result.get('status')} - {summary_text}")
+                if result.get('error'):
+                    print(f"    Error: {result.get('error')}")
+
+        print("\nTo view detailed results, query the database: phased_audit_results.sqlite, table: audit_phase_results")
+    else:
+        # Run as web server
+        print(f"Starting Phased Audit Tool Web Server on port {app.config['PORT']}...")
+        init_database()
+        socketio.run(app, host='0.0.0.0', port=app.config['PORT'], debug=True)

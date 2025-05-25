@@ -1,0 +1,375 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Command Builder - Router Audit Pro{% endblock %}
+{% block nav_command_builder %}active{% endblock %}
+
+{% block extra_styles %}
+.command-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f8f9fa;
+}
+
+.command-item {
+    padding: 5px 10px;
+    margin: 2px 0;
+    background-color: white;
+    border: 1px solid #e9ecef;
+    border-radius: 3px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.command-item:hover {
+    background-color: #e3f2fd;
+}
+
+.command-preview {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    background-color: #2d3748;
+    color: #e2e8f0;
+    border-radius: 5px;
+    padding: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.device-selector {
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.execution-status {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h2><i class="fas fa-code"></i> Command Builder</h2>
+        <p class="text-muted">Preview, customize, and execute commands on network devices</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Command Templates Section -->
+    <div class="col-md-6">
+        <div class="card status-card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-list"></i> Command Templates</h5>
+            </div>
+            <div class="card-body">
+                <!-- Device Type Selector -->
+                <div class="mb-3">
+                    <label for="deviceTypeSelect" class="form-label">Device Type:</label>
+                    <select class="form-select" id="deviceTypeSelect" onchange="updateCommandTemplates()">
+                        <option value="">Select Device Type</option>
+                        {% for device_type in device_types %}
+                        <option value="{{ device_type }}">{{ device_type }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Show Commands -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-eye"></i> Show Commands:</label>
+                    <div class="command-list" id="showCommandsList">
+                        <em>Select a device type to view commands</em>
+                    </div>
+                </div>
+
+                <!-- Show Running-Config Commands -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-cog"></i> Show Running-Config Commands:</label>
+                    <div class="command-list" id="runCommandsList">
+                        <em>Select a device type to view commands</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Commands Section -->
+    <div class="col-md-6">
+        <div class="card status-card">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-plus-circle"></i> Custom Commands</h5>
+            </div>
+            <div class="card-body">
+                <!-- Add Custom Command Form -->
+                <form method="POST" action="/command_builder" class="mb-3">
+                    <input type="hidden" name="action" value="add_custom_command">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <select class="form-select" name="command_type" required>
+                                <option value="show_commands">Show Commands</option>
+                                <option value="show_run_commands">Show Running-Config</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="custom_command" 
+                                       placeholder="Enter custom command" required>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- User Custom Commands -->
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-star"></i> Your Custom Show Commands:</label>
+                    <div class="command-list">
+                        {% if user_custom_commands.show_commands %}
+                            {% for command in user_custom_commands.show_commands %}
+                            <div class="command-item">
+                                <code>{{ command }}</code>
+                                <form method="POST" action="/command_builder" style="display: inline;">
+                                    <input type="hidden" name="action" value="remove_custom_command">
+                                    <input type="hidden" name="command_type" value="show_commands">
+                                    <input type="hidden" name="command_to_remove" value="{{ command }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <em>No custom show commands added yet</em>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label"><i class="fas fa-star"></i> Your Custom Running-Config Commands:</label>
+                    <div class="command-list">
+                        {% if user_custom_commands.show_run_commands %}
+                            {% for command in user_custom_commands.show_run_commands %}
+                            <div class="command-item">
+                                <code>{{ command }}</code>
+                                <form method="POST" action="/command_builder" style="display: inline;">
+                                    <input type="hidden" name="action" value="remove_custom_command">
+                                    <input type="hidden" name="command_type" value="show_run_commands">
+                                    <input type="hidden" name="command_to_remove" value="{{ command }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <em>No custom running-config commands added yet</em>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Command Execution Section -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card status-card">
+            <div class="card-header bg-warning text-dark">
+                <h5><i class="fas fa-play"></i> Execute Commands</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/execute_custom_commands" id="executeForm">
+                    <div class="row">
+                        <!-- Device Selection -->
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="fas fa-server"></i> Select Devices:</label>
+                            <div class="device-selector">
+                                {% if inventory_devices %}
+                                    {% for device_name, device_info in inventory_devices.items() %}
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="selected_devices" 
+                                               value="{{ device_name }}" id="device_{{ device_name }}">
+                                        <label class="form-check-label" for="device_{{ device_name }}">
+                                            <strong>{{ device_name }}</strong><br>
+                                            <small class="text-muted">{{ device_info.ip_address }} ({{ device_info.device_type }})</small>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <em>No devices available in inventory</em>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Command Selection -->
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="fas fa-list-check"></i> Select Show Commands:</label>
+                            <div class="command-list" id="executableShowCommands">
+                                <em>Select a device type above to see available commands</em>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="fas fa-list-check"></i> Select Running-Config Commands:</label>
+                            <div class="command-list" id="executableRunCommands">
+                                <em>Select a device type above to see available commands</em>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Command Preview -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <label class="form-label"><i class="fas fa-preview"></i> Command Preview:</label>
+                            <div class="command-preview" id="commandPreview">
+                                No commands selected for preview
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Execute Button -->
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-warning btn-lg">
+                                <i class="fas fa-play"></i> Execute Selected Commands
+                            </button>
+                            <small class="text-muted d-block mt-2">
+                                Commands will be executed in the background. Check Command Logs for results.
+                            </small>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Command templates data
+const defaultTemplates = {{ default_templates | tojson }};
+const userCustomCommands = {{ user_custom_commands | tojson }};
+
+function updateCommandTemplates() {
+    const deviceType = document.getElementById('deviceTypeSelect').value;
+    const showCommandsList = document.getElementById('showCommandsList');
+    const runCommandsList = document.getElementById('runCommandsList');
+    const executableShowCommands = document.getElementById('executableShowCommands');
+    const executableRunCommands = document.getElementById('executableRunCommands');
+    
+    if (!deviceType || !defaultTemplates[deviceType]) {
+        showCommandsList.innerHTML = '<em>Select a device type to view commands</em>';
+        runCommandsList.innerHTML = '<em>Select a device type to view commands</em>';
+        executableShowCommands.innerHTML = '<em>Select a device type to view commands</em>';
+        executableRunCommands.innerHTML = '<em>Select a device type to view commands</em>';
+        return;
+    }
+    
+    // Update template display
+    updateCommandList(showCommandsList, defaultTemplates[deviceType].show_commands, 'template');
+    updateCommandList(runCommandsList, defaultTemplates[deviceType].show_run_commands, 'template');
+    
+    // Update executable command lists
+    const allShowCommands = [...defaultTemplates[deviceType].show_commands, ...(userCustomCommands.show_commands || [])];
+    const allRunCommands = [...defaultTemplates[deviceType].show_run_commands, ...(userCustomCommands.show_run_commands || [])];
+    
+    updateExecutableCommandList(executableShowCommands, allShowCommands, 'selected_show_commands');
+    updateExecutableCommandList(executableRunCommands, allRunCommands, 'selected_run_commands');
+    
+    updateCommandPreview();
+}
+
+function updateCommandList(container, commands, type) {
+    if (!commands || commands.length === 0) {
+        container.innerHTML = '<em>No commands available</em>';
+        return;
+    }
+    
+    container.innerHTML = commands.map(cmd => 
+        `<div class="command-item">
+            <code>${cmd}</code>
+            <span class="badge bg-secondary">${type}</span>
+        </div>`
+    ).join('');
+}
+
+function updateExecutableCommandList(container, commands, inputName) {
+    if (!commands || commands.length === 0) {
+        container.innerHTML = '<em>No commands available</em>';
+        return;
+    }
+    
+    container.innerHTML = commands.map(cmd => 
+        `<div class="form-check">
+            <input class="form-check-input" type="checkbox" name="${inputName}" 
+                   value="${cmd}" id="${inputName}_${cmd.replace(/[^a-zA-Z0-9]/g, '_')}" 
+                   onchange="updateCommandPreview()">
+            <label class="form-check-label" for="${inputName}_${cmd.replace(/[^a-zA-Z0-9]/g, '_')}">
+                <code>${cmd}</code>
+            </label>
+        </div>`
+    ).join('');
+}
+
+function updateCommandPreview() {
+    const selectedDevices = Array.from(document.querySelectorAll('input[name="selected_devices"]:checked')).map(cb => cb.value);
+    const selectedShowCommands = Array.from(document.querySelectorAll('input[name="selected_show_commands"]:checked')).map(cb => cb.value);
+    const selectedRunCommands = Array.from(document.querySelectorAll('input[name="selected_run_commands"]:checked')).map(cb => cb.value);
+    
+    const preview = document.getElementById('commandPreview');
+    
+    if (selectedDevices.length === 0 && selectedShowCommands.length === 0 && selectedRunCommands.length === 0) {
+        preview.innerHTML = 'No commands or devices selected for preview';
+        return;
+    }
+    
+    let previewText = '# Command Execution Preview\n\n';
+    
+    if (selectedDevices.length > 0) {
+        previewText += `# Selected Devices (${selectedDevices.length}):\n`;
+        selectedDevices.forEach(device => {
+            previewText += `#   - ${device}\n`;
+        });
+        previewText += '\n';
+    }
+    
+    if (selectedShowCommands.length > 0) {
+        previewText += `# Show Commands (${selectedShowCommands.length}):\n`;
+        selectedShowCommands.forEach(cmd => {
+            previewText += `${cmd}\n`;
+        });
+        previewText += '\n';
+    }
+    
+    if (selectedRunCommands.length > 0) {
+        previewText += `# Running-Config Commands (${selectedRunCommands.length}):\n`;
+        selectedRunCommands.forEach(cmd => {
+            previewText += `${cmd}\n`;
+        });
+        previewText += '\n';
+    }
+    
+    previewText += '# Execution will be performed in background\n';
+    previewText += '# Check Command Logs for detailed results';
+    
+    preview.textContent = previewText;
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    updateCommandTemplates();
+});
+</script>
+{% endblock %} 

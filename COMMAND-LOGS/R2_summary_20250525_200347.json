@@ -1,0 +1,38 @@
+{
+  "device_name": "R2",
+  "timestamp": "2025-05-25T20:03:47.866363",
+  "commands": {
+    "version": {
+      "command": "show version",
+      "output": "ERROR: BaseConnection.send_command() got an unexpected keyword argument 'timeout'",
+      "status": "error",
+      "timestamp": "2025-05-25T20:03:47.867419"
+    },
+    "interfaces": {
+      "command": "show interfaces status",
+      "output": "ERROR: BaseConnection.send_command() got an unexpected keyword argument 'timeout'",
+      "status": "error",
+      "timestamp": "2025-05-25T20:03:47.867944"
+    },
+    "ip_brief": {
+      "command": "show ip interface brief",
+      "output": "ERROR: BaseConnection.send_command() got an unexpected keyword argument 'timeout'",
+      "status": "error",
+      "timestamp": "2025-05-25T20:03:47.868353"
+    },
+    "line_config": {
+      "command": "show running-config | include line",
+      "output": "ERROR: BaseConnection.send_command() got an unexpected keyword argument 'timeout'",
+      "status": "error",
+      "timestamp": "2025-05-25T20:03:47.868854"
+    },
+    "line_status": {
+      "command": "show line",
+      "output": "ERROR: BaseConnection.send_command() got an unexpected keyword argument 'timeout'",
+      "status": "error",
+      "timestamp": "2025-05-25T20:03:47.869354"
+    }
+  },
+  "status": "failed",
+  "error_count": 5
+}

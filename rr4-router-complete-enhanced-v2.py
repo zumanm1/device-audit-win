@@ -35,7 +35,7 @@ ENHANCED FEATURES ADDED (NEW):
 🚀 Separate sections for UP vs DOWN devices in reports
 🚀 Detailed failure reason tracking and reporting
 🚀 Enhanced data structures for device status tracking
-🚀 New API endpoints: /device_status, /down_devices, /enhanced_summary
+🚀 New API endpoints: /device_status, /down_devices, /enhanced_summary, /async_telnet_audit, /command_builder
 🚀 Real-time device status updates in web UI
 🚀 Enhanced audit summary with UP/DOWN device breakdown
 
@@ -47,7 +47,7 @@ CURRENT TEST ENVIRONMENT STATUS:
 - R4: UP (172.16.39.104) ✅
 
 DEPLOYMENT NOTES:
-- Port: 5007 (configurable in APP_CONFIG['PORT'])
+- Port: 5010 (configurable in APP_CONFIG['PORT'])
 - All original dependencies preserved: Flask, SocketIO, Paramiko, Netmiko, ReportLab, etc.
 - Embedded HTML templates (no external template files required)
 - Complete backward compatibility with original inventory formats
@@ -96,6 +96,7 @@ TEMPLATE_INDEX_NAME = "index_page.html"
 TEMPLATE_SETTINGS_NAME = "settings_page.html"
 TEMPLATE_VIEW_JSON_NAME = "view_json_page.html"
 TEMPLATE_EDIT_INVENTORY_NAME = "edit_inventory_page.html"
+TEMPLATE_COMMAND_BUILDER_NAME = "command_builder_page.html"
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -4632,6 +4633,278 @@ def view_command_log(filename):
     except Exception as e:
         flash(f"Error viewing log file: {e}", "danger")
         return redirect(url_for('command_logs_route'))
+
+# === COMMAND BUILDER FEATURE ===
+# Default command templates for different device types
+DEFAULT_COMMAND_TEMPLATES = {
+    'cisco_ios': {
+        'show_commands': [
+            'show version',
+            'show interfaces brief',
+            'show ip interface brief',
+            'show line',
+            'show users',
+            'show vlan brief',
+            'show spanning-tree brief',
+            'show cdp neighbors',
+            'show inventory'
+        ],
+        'show_run_commands': [
+            'show running-config',
+            'show running-config | include line',
+            'show running-config | include username',
+            'show running-config | include enable',
+            'show running-config | section line',
+            'show running-config | section interface',
+            'show running-config | section router',
+            'show running-config | section access-list'
+        ]
+    },
+    'cisco_ios_xe': {
+        'show_commands': [
+            'show version',
+            'show interfaces brief',
+            'show ip interface brief', 
+            'show line',
+            'show users',
+            'show vlan brief',
+            'show spanning-tree brief',
+            'show cdp neighbors',
+            'show inventory',
+            'show platform'
+        ],
+        'show_run_commands': [
+            'show running-config',
+            'show running-config | include line',
+            'show running-config | include username',
+            'show running-config | include enable',
+            'show running-config | section line',
+            'show running-config | section interface',
+            'show running-config | section router',
+            'show running-config | section access-list'
+        ]
+    },
+    'cisco_ios_xr': {
+        'show_commands': [
+            'show version',
+            'show interfaces brief',
+            'show ipv4 interface brief',
+            'show line',
+            'show users',
+            'show cdp neighbors',
+            'show inventory'
+        ],
+        'show_run_commands': [
+            'show running-config',
+            'show running-config line',
+            'show running-config username',
+            'show running-config interface',
+            'show running-config router'
+        ]
+    }
+}
+
+# Store user's custom commands (in production, this would be in a database)
+USER_CUSTOM_COMMANDS = {
+    'show_commands': [],
+    'show_run_commands': []
+}
+
+@app.route('/command_builder', methods=['GET', 'POST'])
+def command_builder():
+    """Command Builder feature - allows users to preview and customize commands"""
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'add_custom_command':
+            command_type = request.form.get('command_type', 'show_commands')
+            custom_command = request.form.get('custom_command', '').strip()
+            
+            if custom_command and custom_command not in USER_CUSTOM_COMMANDS.get(command_type, []):
+                if command_type not in USER_CUSTOM_COMMANDS:
+                    USER_CUSTOM_COMMANDS[command_type] = []
+                USER_CUSTOM_COMMANDS[command_type].append(custom_command)
+                flash(f"Custom command '{custom_command}' added successfully!", "success")
+            else:
+                flash("Command already exists or is empty!", "warning")
+        
+        elif action == 'remove_custom_command':
+            command_type = request.form.get('command_type', 'show_commands')
+            command_to_remove = request.form.get('command_to_remove', '')
+            
+            if command_to_remove in USER_CUSTOM_COMMANDS.get(command_type, []):
+                USER_CUSTOM_COMMANDS[command_type].remove(command_to_remove)
+                flash(f"Custom command '{command_to_remove}' removed successfully!", "success")
+            else:
+                flash("Command not found!", "warning")
+        
+        elif action == 'execute_custom_commands':
+            return redirect(url_for('execute_custom_commands'))
+    
+    # Get available device types from inventory
+    device_types = set()
+    if ACTIVE_INVENTORY_DATA:
+        for device in ACTIVE_INVENTORY_DATA.values():
+            if isinstance(device, dict) and 'device_type' in device:
+                device_types.add(device['device_type'])
+    
+    return render_template('command_builder.html',
+                         device_types=sorted(device_types),
+                         default_templates=DEFAULT_COMMAND_TEMPLATES,
+                         user_custom_commands=USER_CUSTOM_COMMANDS,
+                         inventory_devices=ACTIVE_INVENTORY_DATA)
+
+@app.route('/execute_custom_commands', methods=['GET', 'POST'])
+def execute_custom_commands():
+    """Execute custom commands on selected devices"""
+    if request.method == 'POST':
+        selected_devices = request.form.getlist('selected_devices')
+        selected_show_commands = request.form.getlist('selected_show_commands')
+        selected_run_commands = request.form.getlist('selected_run_commands')
+        
+        if not selected_devices:
+            flash("Please select at least one device!", "warning")
+            return redirect(url_for('command_builder'))
+        
+        if not selected_show_commands and not selected_run_commands:
+            flash("Please select at least one command to execute!", "warning")
+            return redirect(url_for('command_builder'))
+        
+        # Store the execution request for processing
+        custom_command_execution = {
+            'devices': selected_devices,
+            'show_commands': selected_show_commands,
+            'run_commands': selected_run_commands,
+            'timestamp': datetime.now().isoformat(),
+            'status': 'pending'
+        }
+        
+        # Start execution in background thread
+        execution_thread = threading.Thread(
+            target=execute_custom_commands_background,
+            args=(custom_command_execution,),
+            daemon=True
+        )
+        execution_thread.start()
+        
+        flash(f"Custom command execution started for {len(selected_devices)} device(s)!", "success")
+        return redirect(url_for('command_builder'))
+    
+    # GET request - show execution form
+    return redirect(url_for('command_builder'))
+
+def execute_custom_commands_background(execution_request):
+    """Background execution of custom commands"""
+    try:
+        devices = execution_request['devices']
+        show_commands = execution_request['show_commands'] 
+        run_commands = execution_request['run_commands']
+        
+        log_to_ui_and_console(f"[CUSTOM-CMD] Starting custom command execution for {len(devices)} device(s)")
+        
+        for device_name in devices:
+            if device_name not in ACTIVE_INVENTORY_DATA:
+                log_to_ui_and_console(f"[CUSTOM-CMD] Device {device_name} not found in inventory")
+                continue
+                
+            device_info = ACTIVE_INVENTORY_DATA[device_name]
+            device_ip = device_info.get('ip_address', 'Unknown')
+            device_type = device_info.get('device_type', 'cisco_ios')
+            
+            log_to_ui_and_console(f"[CUSTOM-CMD] Executing commands on {device_name} ({device_ip})")
+            
+            # Create custom command log entry
+            log_device_command(device_name, "CUSTOM_COMMAND_SESSION_START", f"Starting custom command execution", "INFO")
+            
+            try:
+                # Connect to device (reuse existing connection logic)
+                net_connect = establish_device_connection(device_name, device_ip, device_type)
+                
+                if net_connect:
+                    # Execute show commands
+                    for cmd in show_commands:
+                        try:
+                            log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Executing '{cmd}'")
+                            output = execute_verbose_command(net_connect, cmd, device_name=device_name)
+                            log_device_command(device_name, cmd, output[:1000] + "..." if len(output) > 1000 else output, "SUCCESS")
+                        except Exception as cmd_err:
+                            log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Error executing '{cmd}': {cmd_err}")
+                            log_device_command(device_name, cmd, f"Error: {str(cmd_err)}", "FAILED")
+                    
+                    # Execute running-config commands
+                    for cmd in run_commands:
+                        try:
+                            log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Executing '{cmd}'")
+                            output = execute_verbose_command(net_connect, cmd, device_name=device_name)
+                            log_device_command(device_name, cmd, output[:1000] + "..." if len(output) > 1000 else output, "SUCCESS")
+                        except Exception as cmd_err:
+                            log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Error executing '{cmd}': {cmd_err}")
+                            log_device_command(device_name, cmd, f"Error: {str(cmd_err)}", "FAILED")
+                    
+                    net_connect.disconnect()
+                    log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Commands executed successfully")
+                    
+                else:
+                    log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Failed to establish connection")
+                    log_device_command(device_name, "CONNECTION_FAILED", "Could not establish device connection", "FAILED")
+                    
+            except Exception as device_err:
+                log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Device error: {device_err}")
+                log_device_command(device_name, "DEVICE_ERROR", f"Device error: {str(device_err)}", "FAILED")
+            
+            # Save command log for this device
+            save_device_command_log_to_file(device_name)
+        
+        log_to_ui_and_console(f"[CUSTOM-CMD] Custom command execution completed for all devices")
+        
+    except Exception as e:
+        log_to_ui_and_console(f"[CUSTOM-CMD] Background execution error: {e}")
+
+def establish_device_connection(device_name, device_ip, device_type):
+    """Establish connection to device (reused from main audit logic)"""
+    try:
+        # Get credentials
+        device_username = APP_CONFIG.get("DEVICE_USERNAME")
+        device_password = APP_CONFIG.get("DEVICE_PASSWORD") 
+        secret_password = APP_CONFIG.get("DEVICE_ENABLE")
+        jump_host = APP_CONFIG.get("JUMP_HOST")
+        jump_username = APP_CONFIG.get("JUMP_USERNAME")
+        jump_password = APP_CONFIG.get("JUMP_PASSWORD")
+        
+        if not all([device_username, device_password, jump_host, jump_username, jump_password]):
+            log_to_ui_and_console(f"[CUSTOM-CMD] Missing configuration for device connection")
+            return None
+        
+        # Try Netmiko first
+        try:
+            from netmiko import ConnectHandler
+            device_conn_dict = {
+                'device_type': device_type,
+                'host': device_ip,
+                'username': device_username,
+                'password': device_password,
+                'secret': secret_password,
+                'timeout': 15,
+                'session_timeout': 30,
+                'auth_timeout': 15,
+                'banner_timeout': 10,
+                'conn_timeout': 10
+            }
+            
+            net_connect = ConnectHandler(**device_conn_dict)
+            if secret_password:
+                net_connect.enable()
+            
+            return net_connect
+            
+        except Exception as netmiko_err:
+            log_to_ui_and_console(f"[CUSTOM-CMD] Netmiko failed, trying Paramiko: {netmiko_err}")
+            # Fallback to Paramiko (simplified implementation)
+            return None
+            
+    except Exception as e:
+        log_to_ui_and_console(f"[CUSTOM-CMD] Connection establishment error: {e}")
+        return None
 
 
 if __name__ == '__main__':

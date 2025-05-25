@@ -1,0 +1,117 @@
+# RR5 Router Auditing Framework Configuration
+# Version: 1.0.0
+
+# Connection settings
+jump_host: "172.16.39.128"
+jump_username: "cisco"
+jump_password: "cisco"
+device_username: "cisco"
+device_password: "cisco"
+device_enable: "cisco"
+
+# Inventory file (can be CSV or YAML)
+inventory_file: "inventory-list-v00.csv"
+
+# Output directory for audit results
+output_dir: "RR5-AUDIT-RESULTS"
+
+# Web interface settings
+web_port: 5015
+web_enabled: false
+
+# Timeout settings (seconds)
+timeout: 30
+ping_count: 10
+ping_timeout: 2
+ping_size: 1500
+
+# Health check thresholds
+health_thresholds:
+  cpu_max: 70          # CPU should be < 70%
+  memory_min: 30       # Memory should have > 30% free
+  disk_min: 20         # Disk should have > 20% free
+  temperature_max: 75  # Temperature should be < 75°C
+  bgp_prefix_delta: 2  # BGP prefix changes ≤ 2
+  cpu_delta: 10        # CPU delta ≤ 10%
+  crc_error_delta: 0   # CRC errors delta = 0
+
+# Custom command templates per device type
+command_templates:
+  cisco_ios:
+    health_checks:
+      - "show processes cpu history"
+      - "show processes memory"
+      - "show env all"
+      - "show inventory"
+      - "show disk0:"
+    
+    data_collection:
+      - "show ip interface brief"
+      - "show interfaces"
+      - "show ip route summary"
+      - "show ip ospf interface brief"
+      - "show ip ospf neighbor"
+      - "show bgp all summary"
+      - "show mpls ldp neighbors"
+      - "show mpls interfaces"
+      - "show ip vrf detail"
+      - "show ip route"
+      - "show ip route bgp"
+    
+    reachability_tests:
+      - "ping {target} repeat 10 timeout 2 size 1500"
+
+  cisco_ios_xe:
+    health_checks:
+      - "show processes cpu history"
+      - "show memory statistics"
+      - "show env all"
+      - "show platform"
+      - "show disk0:"
+    
+    data_collection:
+      - "show ip interface brief"
+      - "show interfaces"
+      - "show ip route summary"
+      - "show ip ospf interface brief"
+      - "show ip ospf neighbor"
+      - "show bgp all summary"
+      - "show mpls ldp neighbors"
+      - "show mpls interfaces"
+      - "show ip vrf detail"
+      - "show ip route"
+      - "show ip route bgp"
+
+  cisco_ios_xr:
+    health_checks:
+      - "show processes cpu"
+      - "show memory summary"
+      - "show environment all"
+      - "show platform"
+      - "show disk0:"
+    
+    data_collection:
+      - "show ipv4 interface brief"
+      - "show interfaces"
+      - "show route summary"
+      - "show ospf interface brief"
+      - "show ospf neighbor"
+      - "show bgp all summary"
+      - "show mpls ldp neighbor"
+      - "show mpls interfaces"
+      - "show vrf detail"
+      - "show route"
+      - "show route bgp"
+
+# Report settings
+reporting:
+  formats: ["cli", "json", "csv", "html"]
+  include_raw_output: true
+  compress_reports: false
+  
+# Logging settings
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file_rotation: true
+  max_file_size: "10MB"
+  backup_count: 5 
