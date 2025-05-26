@@ -1,0 +1,32 @@
+AUX Telnet Security Audit Results
+==================================
+
+Device: Cisco 2921
+Timestamp: 2025-05-26T17:52:40.817972
+Status: success
+Error Count: 0
+
+🔍 TELNET AUDIT SUMMARY
+==================================================
+Hostname: R2
+AUX Line: N/A
+Telnet Allowed: NO
+Transport Input: transport input ssh
+Analysis: ✅ SECURE: Telnet disabled or SSH-only
+
+Command: aux_telnet_audit
+==================================================
+Executed: show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout
+Status: success
+Timestamp: 2025-05-26T17:52:45.408722
+
+Output:
+------------------------------
+hostname R2
+ login local
+line aux 0
+ login local
+ transport input ssh
+ login local
+------------------------------
+

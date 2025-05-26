@@ -1,0 +1,27 @@
+{
+  "device_name": "Cisco 2921",
+  "timestamp": "2025-05-26T17:52:40.817972",
+  "commands": {
+    "aux_telnet_audit": {
+      "command": "show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout",
+      "output": "hostname R2\n login local\nline aux 0\n login local\n transport input ssh\n login local",
+      "status": "success",
+      "timestamp": "2025-05-26T17:52:45.408722"
+    }
+  },
+  "telnet_audit": {
+    "hostname": "R2",
+    "ip_address": "172.16.39.102",
+    "line": "line aux 0",
+    "telnet_allowed": "NO",
+    "login_method": "local",
+    "exec_timeout": "default",
+    "risk_level": "LOW",
+    "transport_input": "transport input ssh",
+    "analysis": "✅ SECURE: Telnet disabled or SSH-only",
+    "timestamp": "2025-05-26 17:52:45",
+    "connection_method": "jump_host"
+  },
+  "status": "success",
+  "error_count": 0
+}

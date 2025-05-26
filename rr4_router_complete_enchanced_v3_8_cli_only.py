@@ -11,7 +11,7 @@ import os
 import sys
 import getpass
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
 import re
@@ -74,112 +74,7 @@ class JumpHostAuditor:
         self.routers = []
         self.results = []
         self.env_file = Path(".env")
-        
-        # Timing variables
-        self.start_time = None
-        self.end_time = None
-        self.pause_start_time = None
-        self.total_pause_duration = timedelta(0)
-        self.is_paused = False
-        self.phase_times = {
-            "connectivity": None,
-            "authentication": None,
-            "config_audit": None,
-            "risk_assessment": None,
-            "reporting": None
-        }
 
-    # Timing Management Methods
-    def start_timer(self):
-        """Start the audit timer"""
-        self.start_time = datetime.now()
-        self.end_time = None
-        self.total_pause_duration = timedelta(0)
-        self.is_paused = False
-        logger.info(f"Audit started at {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        return self.start_time
-    
-    def pause_timer(self):
-        """Pause the audit timer"""
-        if not self.is_paused and self.start_time is not None:
-            self.pause_start_time = datetime.now()
-            self.is_paused = True
-            logger.info(f"Audit paused at {self.pause_start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-            return self.pause_start_time
-        return None
-    
-    def resume_timer(self):
-        """Resume the audit timer"""
-        if self.is_paused and self.pause_start_time is not None:
-            pause_end_time = datetime.now()
-            pause_duration = pause_end_time - self.pause_start_time
-            self.total_pause_duration += pause_duration
-            self.is_paused = False
-            logger.info(f"Audit resumed at {pause_end_time.strftime('%Y-%m-%d %H:%M:%S')} after {pause_duration.total_seconds():.2f} seconds")
-            return pause_duration
-        return None
-    
-    def stop_timer(self):
-        """Stop the audit timer and calculate elapsed time"""
-        if self.start_time is not None:
-            if self.is_paused:
-                self.resume_timer()
-            self.end_time = datetime.now()
-            elapsed_time = self.end_time - self.start_time - self.total_pause_duration
-            logger.info(f"Audit completed at {self.end_time.strftime('%Y-%m-%d %H:%M:%S')}")
-            logger.info(f"Total audit duration: {elapsed_time.total_seconds():.2f} seconds (excluding pauses)")
-            return elapsed_time
-        return None
-    
-    def format_elapsed_time(self, elapsed_time):
-        """Format elapsed time into a readable string"""
-        if elapsed_time is None:
-            return "N/A"
-        
-        total_seconds = int(elapsed_time.total_seconds())
-        hours, remainder = divmod(total_seconds, 3600)
-        minutes, seconds = divmod(remainder, 60)
-        
-        if hours > 0:
-            return f"{hours}h {minutes}m {seconds}s"
-        elif minutes > 0:
-            return f"{minutes}m {seconds}s"
-        else:
-            return f"{seconds}s"
-    
-    def get_timing_summary(self):
-        """Get a summary of timing information"""
-        if self.start_time is None:
-            return "Audit has not started"
-        
-        current_time = datetime.now()
-        if self.end_time is None:
-            if self.is_paused:
-                current_duration = self.pause_start_time - self.start_time - self.total_pause_duration
-                status = "PAUSED"
-            else:
-                current_duration = current_time - self.start_time - self.total_pause_duration
-                status = "RUNNING"
-        else:
-            current_duration = self.end_time - self.start_time - self.total_pause_duration
-            status = "COMPLETED"
-        
-        return {
-            "status": status,
-            "start_time": self.start_time.strftime("%Y-%m-%d %H:%M:%S"),
-            "current_time": current_time.strftime("%Y-%m-%d %H:%M:%S"),
-            "end_time": self.end_time.strftime("%Y-%m-%d %H:%M:%S") if self.end_time else "N/A",
-            "elapsed_time": self.format_elapsed_time(current_duration),
-            "total_pause_duration": self.format_elapsed_time(self.total_pause_duration),
-            "phase_times": {phase: self.format_elapsed_time(time) for phase, time in self.phase_times.items() if time is not None}
-        }
-    
-    def record_phase_time(self, phase, duration):
-        """Record time for a specific audit phase"""
-        if phase in self.phase_times:
-            self.phase_times[phase] = duration
-            logger.info(f"Phase '{phase}' completed in {self.format_elapsed_time(duration)}")
-    
     def load_environment(self):
         """Load or create .env file with jump host configuration"""
         env_data = {}
@@ -358,15 +253,16 @@ class JumpHostAuditor:
                     output = jump_conn.send_command_timing(ssh_command, delay_factor=2, max_loops=10)
                     print(f"{Fore.YELLOW}📤 Command sent: {ssh_command}{Style.RESET_ALL}")
                     print(f"{Fore.YELLOW}📥 Initial response received ({len(output)} chars){Style.RESET_ALL}")
-                    
+
                     # Check if we got a router prompt
                     if '>' not in output and '#' not in output:
                         # If sshpass failed, try expect-style login
                         print(f"{Fore.YELLOW}⚠️ sshpass method failed, switching to manual SSH method{Style.RESET_ALL}")
                         raise Exception("sshpass method failed, trying manual SSH")
-                except Exception as ssh_err:
+
+                except:
                     # Method 2: Manual SSH with expect-style interaction
-                    logger.info(f"Trying manual SSH for {router_name}: {ssh_err}")
+                    logger.info(f"Trying manual SSH for {router_name}...")
                     print(f"{Fore.YELLOW}🔄 Switching to manual SSH with interactive login{Style.RESET_ALL}")
                     ssh_command = f"ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 {router_config['username']}@{router_ip}"
                     print(f"{Fore.YELLOW}📤 Command: {ssh_command}{Style.RESET_ALL}")
@@ -564,64 +460,21 @@ class JumpHostAuditor:
         return "MEDIUM"
 
     def run_audit(self, max_workers=3):
-        """Run audit across all routers via jump host using the 5-phase approach"""
-        # Start the timer for the entire audit
-        self.start_timer()
-        
-        # Display audit initiation header
+        """Run audit across all routers via jump host"""
+        if not self.test_jump_host_connection():
+            logger.error("Jump host connection failed, cannot continue")
+            return False
+
         total_routers = len(self.routers)
         print(f"\n{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
         print(f"{Fore.CYAN}🚀 STARTING FULL AUDIT PROCESS{Style.RESET_ALL}")
         print(f"{Fore.CYAN}📡 Jump Host: {self.jump_host['host']}{Style.RESET_ALL}")
         print(f"{Fore.CYAN}🖥️  Total Routers: {total_routers}{Style.RESET_ALL}")
         print(f"{Fore.CYAN}⚙️  Concurrent Workers: {max_workers}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}🕒 Start Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}{Style.RESET_ALL}")
         print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
         
         logger.info(f"Starting audit of {total_routers} routers with {max_workers} workers...")
-        
-        # Phase 1: Connectivity
-        phase1_start = datetime.now()
-        print(f"\n{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}🔗 PHASE 1: CONNECTIVITY TESTING{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-        
-        # Test jump host connection
-        connectivity_success = self.test_jump_host_connection()
-        if not connectivity_success:
-            logger.error("Jump host connection failed, cannot continue")
-            self.record_phase_time("connectivity", datetime.now() - phase1_start)
-            self.stop_timer()
-            return False
-            
-        print(f"{Fore.GREEN}✅ Jump host connectivity test passed{Style.RESET_ALL}")
-        self.record_phase_time("connectivity", datetime.now() - phase1_start)
 
-        # Phase 2: Authentication
-        phase2_start = datetime.now()
-        print(f"\n{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}🔑 PHASE 2: AUTHENTICATION{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-        
-        # Verify credentials are loaded
-        auth_success = True
-        if not self.jump_host.get('password'):
-            print(f"{Fore.RED}❌ Jump host credentials not configured{Style.RESET_ALL}")
-            auth_success = False
-        else:
-            print(f"{Fore.GREEN}✅ Jump host credentials verified{Style.RESET_ALL}")
-            
-        self.record_phase_time("authentication", datetime.now() - phase2_start)
-        if not auth_success:
-            self.stop_timer()
-            return False
-            
-        # Phase 3: Configuration Audit
-        phase3_start = datetime.now()
-        print(f"\n{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}📝 PHASE 3: CONFIGURATION AUDIT{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-        
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
             print(f"{Fore.YELLOW}🔄 Submitting audit tasks to thread pool...{Style.RESET_ALL}")
             futures = {executor.submit(self.audit_router_via_jump, router): router for router in self.routers}
@@ -663,92 +516,27 @@ class JumpHostAuditor:
                         "error": error_message,
                         "connection_method": "jump_host"
                     })
-                    
-        self.record_phase_time("config_audit", datetime.now() - phase3_start)
 
-        # Phase 4: Risk Assessment
-        phase4_start = datetime.now()
-        print(f"\n{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}🛡 PHASE 4: RISK ASSESSMENT{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-        
-        risk_counts = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0, "SECURE": 0, "UNKNOWN": 0}
-        for result in self.results:
-            risk_level = result["risk_level"]
-            risk_counts[risk_level] += 1
-            
-        total_assessed = len(self.results)
-        high_risk_percent = ((risk_counts["CRITICAL"] + risk_counts["HIGH"]) / total_assessed * 100) if total_assessed > 0 else 0
-        medium_risk_percent = (risk_counts["MEDIUM"] / total_assessed * 100) if total_assessed > 0 else 0
-        low_risk_percent = ((risk_counts["LOW"] + risk_counts["SECURE"]) / total_assessed * 100) if total_assessed > 0 else 0
-        unknown_risk_percent = (risk_counts["UNKNOWN"] / total_assessed * 100) if total_assessed > 0 else 0
-        
-        print(f"{Fore.YELLOW}Risk Assessment Summary:{Style.RESET_ALL}")
-        print(f"• High Risk (CRITICAL/HIGH): {risk_counts['CRITICAL'] + risk_counts['HIGH']} devices ({high_risk_percent:.1f}%)")
-        print(f"• Medium Risk: {risk_counts['MEDIUM']} devices ({medium_risk_percent:.1f}%)")
-        print(f"• Low Risk (LOW/SECURE): {risk_counts['LOW'] + risk_counts['SECURE']} devices ({low_risk_percent:.1f}%)")
-        print(f"• Unknown Risk: {risk_counts['UNKNOWN']} devices ({unknown_risk_percent:.1f}%)")
-        
-        self.record_phase_time("risk_assessment", datetime.now() - phase4_start)
-        
-        # Phase 5: Reporting
-        phase5_start = datetime.now()
-        print(f"\n{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}📊 PHASE 5: REPORTING{Style.RESET_ALL}")
-        print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
-        
-        # Reporting will be handled by generate_reports and print_summary
-        # which are called after this method
-        
-        self.record_phase_time("reporting", datetime.now() - phase5_start)
-        
-        # Stop the timer for the entire audit
-        elapsed_time = self.stop_timer()
-        
-        print(f"\n{Fore.GREEN}✓ Audit completed successfully in {self.format_elapsed_time(elapsed_time)}{Style.RESET_ALL}")
         return True
 
     def generate_reports(self):
         """Generate CSV report and summary"""
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         csv_filename = f"aux_telnet_audit_{timestamp}.csv"
-        
-        try:
-            with open(csv_filename, 'w', newline='') as f:
-                # Add timing information to the field names
-                fieldnames = ['hostname', 'ip_address', 'line', 'telnet_allowed', 'login_method', 
-                              'exec_timeout', 'risk_level', 'timestamp', 'error', 'model',
-                              'audit_start_time', 'audit_end_time', 'audit_duration']
-                writer = csv.DictWriter(f, fieldnames=fieldnames)
-                writer.writeheader()
-                
-                # Get timing information for the report
-                timing_info = self.get_timing_summary()
-                start_time = self.start_time.strftime("%Y-%m-%d %H:%M:%S") if self.start_time else "N/A"
-                end_time = self.end_time.strftime("%Y-%m-%d %H:%M:%S") if self.end_time else "N/A"
-                
-                for result in self.results:
-                    writer.writerow({
-                        'hostname': result['hostname'],
-                        'ip_address': result['ip_address'],
-                        'line': result.get('line', ''),
-                        'telnet_allowed': result['telnet_allowed'],
-                        'login_method': result['login_method'],
-                        'exec_timeout': result['exec_timeout'],
-                        'risk_level': result['risk_level'],
-                        'timestamp': result.get('timestamp', datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
-                        'error': result.get('error', ''),
-                        'model': result.get('model', 'Unknown'),
-                        'audit_start_time': start_time,
-                        'audit_end_time': end_time,
-                        'audit_duration': timing_info.get('elapsed_time', 'N/A') if isinstance(timing_info, dict) else 'N/A'
-                    })
-                    
-            logger.info(f"Detailed report saved to: {csv_filename}")
-            
-        except Exception as e:
-            logger.error(f"Error generating CSV report: {e}")
-            
+
+        # CSV Report
+        fieldnames = ["hostname", "ip_address", "line", "telnet_allowed", "login_method",
+                      "exec_timeout", "risk_level", "connection_method", "timestamp", "error"]
+
+        with open(csv_filename, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(self.results)
+
+        # Console Summary
+        self.print_summary()
+
+        logger.info(f"Detailed report saved to: {csv_filename}")
         return csv_filename
 
     def print_summary(self):
@@ -788,36 +576,6 @@ class JumpHostAuditor:
         print(f"{'CISCO ROUTER SECURITY AUDIT REPORT':^80}")
         print(f"{'GENERATED VIA JUMP HOST':^80}")
         print("═" * 80)
-        
-        # TIMING INFORMATION
-        timing_summary = self.get_timing_summary()
-        if isinstance(timing_summary, dict):
-            print(f"\n{'🕐 AUDIT TIMING INFORMATION':^80}")
-            print("-" * 80)
-            print(f"🕒 Start Time:       {timing_summary.get('start_time', 'N/A')}")
-            print(f"🕓 End Time:         {timing_summary.get('end_time', 'N/A')}")
-            print(f"⏱ Total Duration:    {timing_summary.get('elapsed_time', 'N/A')}")
-            print(f"⏸ Pause Duration:    {timing_summary.get('total_pause_duration', 'N/A')}")
-            print(f"💡 Status:           {timing_summary.get('status', 'N/A')}")
-            
-            # Phase timing information
-            phase_times = timing_summary.get('phase_times', {})
-            if phase_times:
-                print("\nPhase Durations:")
-                for phase, duration in phase_times.items():
-                    if phase == "connectivity":
-                        icon = "🔗"  # Chain link
-                    elif phase == "authentication":
-                        icon = "🔑"  # Key
-                    elif phase == "config_audit":
-                        icon = "📝"  # Clipboard
-                    elif phase == "risk_assessment":
-                        icon = "🛡"  # Shield
-                    elif phase == "reporting":
-                        icon = "📊"  # Chart
-                    else:
-                        icon = "•"  # Bullet
-                    print(f"  {icon} {phase.capitalize()}: {duration}")
         
         # AUDIT INFORMATION
         print(f"\n{'📊 AUDIT SUMMARY':^80}")
@@ -939,11 +697,8 @@ def main():
     # Print header
     print("=" * 60)
     print("Cisco AUX Port Telnet Audit Script")
-    print("5-Phase Audit with Timing - Press CTRL+C to pause/stop")
+    print("Connects via Jump Host: 172.16.39.128")
     print("=" * 60)
-    
-    # Initialize auditor at the top level so it's accessible in all blocks
-    auditor = None
 
     # Check for required tools
     if os.name == 'nt':  # Windows
@@ -958,12 +713,7 @@ def main():
 
     try:
         auditor = JumpHostAuditor()
-        
-        # Display start prompt and current time
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(f"\nCurrent Date/Time: {current_time}")
-        input("Press Enter to start the audit...")
-        
+
         # Load configuration
         auditor.load_environment()
         auditor.load_routers_from_csv()
@@ -972,49 +722,18 @@ def main():
             logger.error("No routers loaded from CSV file")
             return
 
-        # Run audit with timing
+        # Run audit
         if auditor.run_audit():
-            # Generate reports (phase 5 completion)
-            csv_report = auditor.generate_reports()
-            auditor.print_summary()
+            auditor.generate_reports()
             print(f"\n✅ Audit completed successfully!")
-            print(f"Report saved to: {csv_report}")
         else:
             print(f"\n❌ Audit failed - check logs for details")
 
     except KeyboardInterrupt:
-        # Handle keyboard interrupt for pause/resume functionality
-        if hasattr(auditor, 'is_paused') and auditor.is_paused:
-            print("\n\n▶ Resuming audit...")
-            auditor.resume_timer()
-            # Continue with audit where we left off
-            if auditor.run_audit():
-                csv_report = auditor.generate_reports()
-                auditor.print_summary()
-                print(f"\n✅ Audit completed successfully!")
-                print(f"Report saved to: {csv_report}")
-        else:
-            print("\n\n🛑 Audit paused by user")
-            auditor.pause_timer()
-            resume = input("Press Enter to resume or 'q' to quit: ")
-            if resume.lower() != 'q':
-                print("\n▶ Resuming audit...")
-                auditor.resume_timer()
-                # Continue with audit
-                if auditor.run_audit():
-                    csv_report = auditor.generate_reports()
-                    auditor.print_summary()
-                    print(f"\n✅ Audit completed successfully!")
-                    print(f"Report saved to: {csv_report}")
-            else:
-                print("\n🛑 Audit terminated by user")
-                elapsed = auditor.stop_timer()
-                print(f"Partial audit duration: {auditor.format_elapsed_time(elapsed)}")
+        print("\n\n🛑 Audit interrupted by user")
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         print(f"\n❌ Audit failed: {e}")
-
-
 
 
 if __name__ == "__main__":

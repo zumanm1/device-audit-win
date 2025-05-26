@@ -144,7 +144,7 @@ colorama_init(autoreset=True)
 # ====================================================================
 
 # Application configuration
-APP_VERSION = "v3.0.0-PHASE5"
+APP_VERSION = "3.0.0-PHASE5"
 APP_NAME = "NetAuditPro AUX Telnet Security Audit v3"
 DEFAULT_PORT = 5011
 
@@ -153,13 +153,13 @@ BASE_DIR_NAME = "REPORTS"
 COMMAND_LOGS_DIR_NAME = "COMMAND-LOGS"
 SUMMARY_FILENAME = "audit_summary.txt"
 INVENTORY_DIR = "inventories"
-DEFAULT_CSV_FILENAME = "routers01.csv"
+DEFAULT_CSV_FILENAME = "router.csv"
 
 # Phase 5 Performance Constants
 MAX_CONCURRENT_CONNECTIONS = 10
 CONNECTION_POOL_SIZE = 5
 MEMORY_THRESHOLD_MB = 500
-CLEANUP_INTERVAL_SECONDS = 300  # 5 minutes
+AUTO_CLEANUP_INTERVAL = 300  # 5 minutes
 MAX_LOG_ENTRIES = 500
 PERFORMANCE_SAMPLE_RATE = 30  # seconds
 
@@ -175,13 +175,11 @@ if IS_WINDOWS:
     NEWLINE = "\r\n"
     PATH_ENCODING = "utf-8"
     MAX_PATH_LENGTH = 260  # Windows MAX_PATH limitation
-    SCRIPT_EXT = ".bat"
 else:
     PING_CMD = ["ping", "-c", "1", "-W", "3"]     # Linux/Unix ping command as list
     NEWLINE = "\n"
     PATH_ENCODING = "utf-8"
     MAX_PATH_LENGTH = 4096  # Unix/Linux path limitation
-    SCRIPT_EXT = ".sh"
 
 # Core Cisco AUX Telnet Audit Command (focused security audit)
 CORE_COMMANDS = {
@@ -301,7 +299,7 @@ class PerformanceMonitor:
         """Perform cleanup if threshold exceeded or interval reached"""
         current_time = time.time()
         
-        if (current_time - self.last_cleanup > CLEANUP_INTERVAL_SECONDS or 
+        if (current_time - self.last_cleanup > AUTO_CLEANUP_INTERVAL or 
             self.check_memory_threshold()):
             
             self.perform_cleanup()
@@ -594,179 +592,6 @@ def format_duration(seconds: float) -> str:
         minutes = int((seconds % 3600) // 60)
         return f"{hours}h {minutes}m"
 
-def format_time_hms(seconds: float) -> str:
-    """Format seconds into HH:MM:SS format"""
-    if seconds < 0:
-        seconds = 0
-    hours = int(seconds // 3600)
-    minutes = int((seconds % 3600) // 60)
-    secs = int(seconds % 60)
-    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
-
-def start_audit_timing():
-    """Initialize audit timing when audit starts"""
-    global audit_timing
-    current_time = time.time()
-    current_dt = datetime.now()
-    
-    audit_timing.update({
-        "start_time": current_time,
-        "completion_time": None,
-        "pause_start_time": None,
-        "total_pause_duration": 0.0,
-        "current_pause_duration": 0.0,
-        "elapsed_time": 0.0,
-        "total_duration": 0.0,
-        "last_activity_time": current_time,
-        "start_date_string": current_dt.strftime("%Y-%m-%d"),
-        "completion_date_string": "",
-        "formatted_start_time": current_dt.strftime("%H:%M:%S"),
-        "formatted_completion_time": "",
-        "formatted_duration": "00:00:00",
-        "formatted_pause_duration": "00:00:00"
-    })
-    
-    log_raw_trace(f"Audit timing started at {audit_timing['formatted_start_time']}", "TIMING", "SYSTEM")
-    log_to_ui_and_console(f"⏱️ Audit started at {audit_timing['formatted_start_time']} on {audit_timing['start_date_string']}")
-
-def pause_audit_timing():
-    """Record audit pause start time"""
-    global audit_timing
-    if audit_timing["start_time"] and not audit_timing["pause_start_time"]:
-        current_time = time.time()
-        audit_timing["pause_start_time"] = current_time
-        audit_timing["last_activity_time"] = current_time
-        
-        # Update elapsed time up to pause point
-        elapsed = current_time - audit_timing["start_time"] - audit_timing["total_pause_duration"]
-        audit_timing["elapsed_time"] = elapsed
-        audit_timing["formatted_duration"] = format_time_hms(elapsed)
-        
-        log_raw_trace(f"Audit paused at {datetime.now().strftime('%H:%M:%S')}", "TIMING", "SYSTEM")
-        log_to_ui_and_console("⏸️ Audit paused")
-
-def resume_audit_timing():
-    """Record audit resume and add pause duration to total"""
-    global audit_timing
-    if audit_timing["pause_start_time"]:
-        current_time = time.time()
-        pause_duration = current_time - audit_timing["pause_start_time"]
-        
-        audit_timing["total_pause_duration"] += pause_duration
-        audit_timing["current_pause_duration"] = 0.0
-        audit_timing["pause_start_time"] = None
-        audit_timing["last_activity_time"] = current_time
-        audit_timing["formatted_pause_duration"] = format_time_hms(audit_timing["total_pause_duration"])
-        
-        log_raw_trace(f"Audit resumed at {datetime.now().strftime('%H:%M:%S')}, pause duration: {format_time_hms(pause_duration)}", "TIMING", "SYSTEM")
-        log_to_ui_and_console(f"▶️ Audit resumed (paused for {format_time_hms(pause_duration)})")
-
-def complete_audit_timing():
-    """Finalize audit timing when audit completes"""
-    global audit_timing
-    if audit_timing["start_time"]:
-        current_time = time.time()
-        current_dt = datetime.now()
-        
-        # If currently paused, add final pause duration
-        if audit_timing["pause_start_time"]:
-            final_pause = current_time - audit_timing["pause_start_time"]
-            audit_timing["total_pause_duration"] += final_pause
-            audit_timing["pause_start_time"] = None
-        
-        # Calculate final timings
-        total_duration = current_time - audit_timing["start_time"]
-        elapsed_time = total_duration - audit_timing["total_pause_duration"]
-        
-        audit_timing.update({
-            "completion_time": current_time,
-            "total_duration": total_duration,
-            "elapsed_time": elapsed_time,
-            "completion_date_string": current_dt.strftime("%Y-%m-%d"),
-            "formatted_completion_time": current_dt.strftime("%H:%M:%S"),
-            "formatted_duration": format_time_hms(elapsed_time),
-            "formatted_pause_duration": format_time_hms(audit_timing["total_pause_duration"]),
-            "last_activity_time": current_time
-        })
-        
-        log_raw_trace(f"Audit completed at {audit_timing['formatted_completion_time']}, total duration: {audit_timing['formatted_duration']}", "TIMING", "SYSTEM")
-        log_to_ui_and_console(f"🏁 Audit completed at {audit_timing['formatted_completion_time']} (Duration: {audit_timing['formatted_duration']})")
-
-def update_current_timing():
-    """Update current timing information for live display"""
-    global audit_timing
-    if audit_timing["start_time"]:
-        current_time = time.time()
-        
-        # Update current pause duration if paused
-        if audit_timing["pause_start_time"]:
-            audit_timing["current_pause_duration"] = current_time - audit_timing["pause_start_time"]
-        
-        # Calculate current elapsed and total duration
-        total_duration = current_time - audit_timing["start_time"]
-        elapsed_time = total_duration - audit_timing["total_pause_duration"] - audit_timing["current_pause_duration"]
-        
-        audit_timing["elapsed_time"] = elapsed_time
-        audit_timing["total_duration"] = total_duration
-        audit_timing["formatted_duration"] = format_time_hms(elapsed_time)
-        
-        return {
-            "elapsed_time": audit_timing["formatted_duration"],
-            "total_duration": format_time_hms(total_duration),
-            "pause_duration": format_time_hms(audit_timing["total_pause_duration"] + audit_timing["current_pause_duration"]),
-            "start_time": audit_timing["formatted_start_time"],
-            "start_date": audit_timing["start_date_string"]
-        }
-    
-    return {
-        "elapsed_time": "00:00:00",
-        "total_duration": "00:00:00", 
-        "pause_duration": "00:00:00",
-        "start_time": "",
-        "start_date": ""
-    }
-
-def reset_audit_timing():
-    """Reset all timing information for fresh audit start"""
-    global audit_timing
-    audit_timing.update({
-        "start_time": None,
-        "completion_time": None,
-        "pause_start_time": None,
-        "total_pause_duration": 0.0,
-        "current_pause_duration": 0.0,
-        "elapsed_time": 0.0,
-        "total_duration": 0.0,
-        "last_activity_time": None,
-        "start_date_string": "",
-        "completion_date_string": "",
-        "formatted_start_time": "",
-        "formatted_completion_time": "",
-        "formatted_duration": "00:00:00",
-        "formatted_pause_duration": "00:00:00"
-    })
-    
-    log_raw_trace("Audit timing reset", "TIMING", "SYSTEM")
-
-def get_timing_summary() -> Dict[str, Any]:
-    """Get comprehensive timing summary for reports and dashboard"""
-    update_current_timing()
-    return {
-        "start_time": audit_timing["formatted_start_time"],
-        "start_date": audit_timing["start_date_string"],
-        "completion_time": audit_timing["formatted_completion_time"],
-        "completion_date": audit_timing["completion_date_string"],
-        "elapsed_time": audit_timing["formatted_duration"],
-        "pause_duration": audit_timing["formatted_pause_duration"],
-        "total_duration": format_time_hms(audit_timing["total_duration"]),
-        "is_running": audit_timing["start_time"] is not None and audit_timing["completion_time"] is None,
-        "is_paused": audit_timing["pause_start_time"] is not None,
-        "raw_start_time": audit_timing["start_time"],
-        "raw_completion_time": audit_timing["completion_time"],
-        "raw_elapsed_seconds": audit_timing["elapsed_time"],
-        "raw_pause_seconds": audit_timing["total_pause_duration"]
-    }
-
 # ====================================================================
 # FLASK APPLICATION SETUP
 # ====================================================================
@@ -806,24 +631,6 @@ audit_status = "Idle"
 audit_paused = False
 audit_pause_event = threading.Event()
 audit_pause_event.set()  # Start unpaused
-
-# Comprehensive audit timing tracking
-audit_timing = {
-    "start_time": None,
-    "completion_time": None,
-    "pause_start_time": None,
-    "total_pause_duration": 0.0,  # Total time paused in seconds
-    "current_pause_duration": 0.0,  # Current pause session duration
-    "elapsed_time": 0.0,  # Active audit time (excluding pauses)
-    "total_duration": 0.0,  # Total wall clock time including pauses
-    "last_activity_time": None,
-    "start_date_string": "",
-    "completion_date_string": "",
-    "formatted_start_time": "",
-    "formatted_completion_time": "",
-    "formatted_duration": "00:00:00",
-    "formatted_pause_duration": "00:00:00"
-}
 
 # Progress tracking structures
 current_audit_progress = {
@@ -869,10 +676,6 @@ audit_results_summary: Dict[str, Any] = {}
 
 # Security - sensitive strings to sanitize
 sensitive_strings_to_redact: List[str] = []
-
-# Additional trace logging for raw logs (NEW - no interference with existing)
-ui_raw_logs = []  # Raw trace logs for debugging/detailed view
-MAX_RAW_LOG_ENTRIES = 1000  # Higher limit for detailed logs
 
 # ====================================================================
 # UTILITY FUNCTIONS
@@ -949,8 +752,7 @@ def validate_inventory_security(inventory_data: Dict[str, Any]) -> Dict[str, Any
                     if (len(field_value) > 6 and 
                         any(char.isdigit() for char in field_value) and
                         any(char.isalpha() for char in field_value) and
-                        field_name.lower() not in ['hostname', 'ip_address', 'description', 'device_type', 
-                                                  'management_ip', 'wan_ip', 'cisco_model', 'index']):
+                        field_name.lower() not in ['hostname', 'ip_address', 'description', 'device_type']):
                         validation_result["warnings"].append(
                             f"Row {i+1}, field '{field_name}': Value looks like a credential. "
                             f"Ensure this is not a password field."
@@ -961,18 +763,9 @@ def validate_inventory_security(inventory_data: Dict[str, Any]) -> Dict[str, Any
     missing_required = []
     
     if headers:
-        # Check for new CSV format first
-        if 'management_ip' in headers:
-            # New format: index, management_ip, wan_ip, cisco_model, description
-            new_format_required = ['management_ip', 'cisco_model']
-            for required_field in new_format_required:
-                if required_field not in headers:
-                    missing_required.append(required_field)
-        else:
-            # Legacy format: hostname, ip_address, device_type, description
-            for required_field in required_fields:
-                if required_field not in headers:
-                    missing_required.append(required_field)
+        for required_field in required_fields:
+            if required_field not in headers:
+                missing_required.append(required_field)
     
     if missing_required:
         validation_result["warnings"].append(
@@ -1019,39 +812,6 @@ def validate_device_credentials() -> Dict[str, Any]:
     
     return validation_result
 
-def map_csv_columns(device_data: Dict[str, str]) -> Dict[str, str]:
-    """
-    Map new CSV column format to internal system format
-    Supports both old and new CSV formats for backward compatibility
-    """
-    mapped_device = {}
-    
-    # New CSV format: index, management_ip, wan_ip, cisco_model, description
-    if "management_ip" in device_data:
-        mapped_device["hostname"] = device_data.get("cisco_model", f"Device-{device_data.get('index', 'Unknown')}")
-        mapped_device["ip_address"] = device_data.get("management_ip", "")
-        mapped_device["wan_ip"] = device_data.get("wan_ip", "")
-        mapped_device["cisco_model"] = device_data.get("cisco_model", "")
-        mapped_device["description"] = device_data.get("description", "")
-        mapped_device["index"] = device_data.get("index", "")
-        
-        # Set device_type based on configuration or default to cisco_xe
-        mapped_device["device_type"] = app_config.get("DEFAULT_DEVICE_TYPE", "cisco_xe")
-        
-    # Legacy CSV format: hostname, ip_address, device_type, description
-    elif "hostname" in device_data:
-        mapped_device["hostname"] = device_data.get("hostname", "")
-        mapped_device["ip_address"] = device_data.get("ip_address", "")
-        mapped_device["device_type"] = device_data.get("device_type", "cisco_ios")
-        mapped_device["description"] = device_data.get("description", "")
-        
-    # Handle any other fields that might exist
-    for key, value in device_data.items():
-        if key not in mapped_device:
-            mapped_device[key] = value
-    
-    return mapped_device
-
 @error_handler(ErrorCategory.SYSTEM)
 def log_to_ui_and_console(msg, console_only=False, is_sensitive=False, end="\n", **kwargs):
     """Enhanced logging with sanitization and real-time UI updates"""
@@ -1079,40 +839,6 @@ def log_to_ui_and_console(msg, console_only=False, is_sensitive=False, end="\n",
         except Exception as e:
             print(f"Error emitting log update: {e}")
 
-# NEW: Raw trace logging function (no interference with existing code)
-@error_handler(ErrorCategory.SYSTEM)
-def log_raw_trace(msg, command_type="TRACE", device=None, **kwargs):
-    """
-    Raw trace logging for detailed debugging and jump host command tracking
-    Captures all jump host executions, SSH commands, and detailed operations
-    """
-    global ui_raw_logs
-    
-    # Create detailed timestamp
-    timestamp = datetime.now().strftime('%H:%M:%S.%f')[:-3]  # Include milliseconds
-    
-    # Build detailed trace message
-    if device:
-        trace_msg = f"[{timestamp}] [{command_type}] [{device}] {msg}"
-    else:
-        trace_msg = f"[{timestamp}] [{command_type}] {msg}"
-    
-    # Add to raw logs
-    ui_raw_logs.append(trace_msg)
-    
-    # Keep only last MAX_RAW_LOG_ENTRIES for performance
-    if len(ui_raw_logs) > MAX_RAW_LOG_ENTRIES:
-        ui_raw_logs = ui_raw_logs[-MAX_RAW_LOG_ENTRIES:]
-    
-    # Emit to WebSocket clients for real-time raw logs updates
-    try:
-        socketio.emit('raw_log_update', {'message': trace_msg})
-    except Exception as e:
-        print(f"Error emitting raw log update: {e}")
-    
-    # Also log to console for debugging (optional - can be disabled)
-    print(f"RAW: {trace_msg}", **kwargs)
-
 @error_handler(ErrorCategory.CONFIGURATION)
 def load_app_config():
     """Load application configuration from environment - CREDENTIALS ONLY FROM .ENV OR WEB UI"""
@@ -1129,9 +855,6 @@ def load_app_config():
         "DEVICE_USERNAME": os.getenv("DEVICE_USERNAME", ""),
         "DEVICE_PASSWORD": os.getenv("DEVICE_PASSWORD", ""),
         "DEVICE_ENABLE": os.getenv("DEVICE_ENABLE", ""),
-        
-        # Device type configuration for new CSV format
-        "DEFAULT_DEVICE_TYPE": os.getenv("DEFAULT_DEVICE_TYPE", "cisco_xe"),
         
         # Inventory configuration
         "ACTIVE_INVENTORY_FILE": os.getenv("ACTIVE_INVENTORY_FILE", DEFAULT_CSV_FILENAME),
@@ -1218,10 +941,7 @@ def load_active_inventory():
         with open(inventory_path, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             active_inventory_data["headers"] = reader.fieldnames or []
-            raw_data = list(reader)
-            
-            # Apply column mapping to convert new CSV format to internal format
-            active_inventory_data["data"] = [map_csv_columns(device) for device in raw_data]
+            active_inventory_data["data"] = list(reader)
         
         # SECURITY: Validate that CSV doesn't contain credential fields
         security_validation = validate_inventory_security(active_inventory_data)
@@ -1807,590 +1527,6 @@ HTML_BASE_LAYOUT = r"""<!DOCTYPE html>
                 }
             }
         });
-
-        // NEW: Raw trace logs functionality
-        var rawLogsAutoScroll = true;
-
-        // NEW: Auto-refresh functionality for both log windows
-        var liveLogsAutoRefresh = true;
-        var rawLogsAutoRefresh = true;
-        var liveRefreshInterval = 15; // seconds
-        var rawRefreshInterval = 15; // seconds
-        var liveRefreshTimer = null;
-        var rawRefreshTimer = null;
-
-        // Manual refresh functions
-        function refreshLiveLogs() {
-            const btn = $('#refresh-live-btn');
-            btn.html('<i class="fas fa-spinner fa-spin"></i> Refreshing...');
-            btn.prop('disabled', true);
-            
-            fetch('/api/live-logs')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const logsContainer = $('#logs-container');
-                        logsContainer.empty();
-                        data.logs.forEach(log => {
-                            logsContainer.append($('<div></div>').text(log));
-                        });
-                        // Auto-scroll to bottom
-                        logsContainer.scrollTop(logsContainer[0].scrollHeight);
-                        announceToScreenReader('Live logs refreshed');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error refreshing live logs:', error);
-                })
-                .finally(() => {
-                    btn.html('<i class="fas fa-sync"></i> Refresh');
-                    btn.prop('disabled', false);
-                });
-        }
-
-        function refreshRawLogs() {
-            const btn = $('#refresh-raw-btn');
-            btn.html('<i class="fas fa-spinner fa-spin"></i> Refreshing...');
-            btn.prop('disabled', true);
-            
-            fetch('/api/raw-logs')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const rawLogsContainer = $('#raw-logs-container');
-                        rawLogsContainer.empty();
-                        data.logs.forEach(log => {
-                            rawLogsContainer.append($('<div class="text-muted"></div>').text(log));
-                        });
-                        // Auto-scroll to bottom if enabled
-                        if (rawLogsAutoScroll) {
-                            rawLogsContainer.scrollTop(rawLogsContainer[0].scrollHeight);
-                        }
-                        announceToScreenReader('Raw logs refreshed');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error refreshing raw logs:', error);
-                })
-                .finally(() => {
-                    btn.html('<i class="fas fa-sync"></i> Refresh');
-                    btn.prop('disabled', false);
-                });
-        }
-
-        // Auto-refresh toggle functions
-        function toggleLiveLogsAutoRefresh() {
-            liveLogsAutoRefresh = !liveLogsAutoRefresh;
-            const btn = $('#live-autorefresh-btn');
-            
-            if (liveLogsAutoRefresh) {
-                btn.html(`<i class="fas fa-clock"></i> Auto: ${liveRefreshInterval}s`);
-                btn.removeClass('btn-outline-warning').addClass('btn-outline-info');
-                startLiveLogsAutoRefresh();
-            } else {
-                btn.html('<i class="fas fa-pause"></i> Manual');
-                btn.removeClass('btn-outline-info').addClass('btn-outline-warning');
-                stopLiveLogsAutoRefresh();
-            }
-            announceToScreenReader('Live logs auto-refresh ' + (liveLogsAutoRefresh ? 'enabled' : 'disabled'));
-        }
-
-        function toggleRawLogsAutoRefresh() {
-            rawLogsAutoRefresh = !rawLogsAutoRefresh;
-            const btn = $('#raw-autorefresh-btn');
-            
-            if (rawLogsAutoRefresh) {
-                btn.html(`<i class="fas fa-clock"></i> Auto: ${rawRefreshInterval}s`);
-                btn.removeClass('btn-outline-warning').addClass('btn-outline-info');
-                startRawLogsAutoRefresh();
-            } else {
-                btn.html('<i class="fas fa-pause"></i> Manual');
-                btn.removeClass('btn-outline-info').addClass('btn-outline-warning');
-                stopRawLogsAutoRefresh();
-            }
-            announceToScreenReader('Raw logs auto-refresh ' + (rawLogsAutoRefresh ? 'enabled' : 'disabled'));
-        }
-
-        // Auto-refresh timer functions
-        function startLiveLogsAutoRefresh() {
-            stopLiveLogsAutoRefresh(); // Clear any existing timer
-            if (liveLogsAutoRefresh && liveRefreshInterval > 0) {
-                liveRefreshTimer = setInterval(() => {
-                    refreshLiveLogs();
-                }, liveRefreshInterval * 1000);
-            }
-        }
-
-        function stopLiveLogsAutoRefresh() {
-            if (liveRefreshTimer) {
-                clearInterval(liveRefreshTimer);
-                liveRefreshTimer = null;
-            }
-        }
-
-        function startRawLogsAutoRefresh() {
-            stopRawLogsAutoRefresh(); // Clear any existing timer
-            if (rawLogsAutoRefresh && rawRefreshInterval > 0) {
-                rawRefreshTimer = setInterval(() => {
-                    refreshRawLogs();
-                }, rawRefreshInterval * 1000);
-            }
-        }
-
-        function stopRawLogsAutoRefresh() {
-            if (rawRefreshTimer) {
-                clearInterval(rawRefreshTimer);
-                rawRefreshTimer = null;
-            }
-        }
-
-        // Interval setting functions
-        function setLiveRefreshInterval(seconds) {
-            liveRefreshInterval = seconds;
-            const btn = $('#live-autorefresh-btn');
-            
-            if (liveLogsAutoRefresh) {
-                btn.html(`<i class="fas fa-clock"></i> Auto: ${seconds}s`);
-                startLiveLogsAutoRefresh(); // Restart with new interval
-            }
-            
-            announceToScreenReader(`Live logs refresh interval set to ${seconds} seconds`);
-        }
-
-        function setRawRefreshInterval(seconds) {
-            rawRefreshInterval = seconds;
-            const btn = $('#raw-autorefresh-btn');
-            
-            if (rawLogsAutoRefresh) {
-                btn.html(`<i class="fas fa-clock"></i> Auto: ${seconds}s`);
-                startRawLogsAutoRefresh(); // Restart with new interval
-            }
-            
-            announceToScreenReader(`Raw logs refresh interval set to ${seconds} seconds`);
-        }
-
-        // Initialize auto-refresh on page load
-        $(document).ready(function() {
-            // Start auto-refresh timers
-            startLiveLogsAutoRefresh();
-            startRawLogsAutoRefresh();
-            
-            // Clean up timers when page unloads
-            $(window).on('beforeunload', function() {
-                stopLiveLogsAutoRefresh();
-                stopRawLogsAutoRefresh();
-            });
-        });
-
-        function clearRawLogs() {
-            fetch('/api/clear-raw-logs', {method: 'POST'})
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        $('#raw-logs-container').empty();
-                        announceToScreenReader('Raw logs cleared');
-                    }
-                });
-        }
-
-        function toggleRawLogsAutoScroll() {
-            rawLogsAutoScroll = !rawLogsAutoScroll;
-            const btn = $('#raw-autoscroll-btn');
-            if (rawLogsAutoScroll) {
-                btn.html('<i class="fas fa-arrow-down"></i> Auto');
-                btn.removeClass('btn-outline-warning').addClass('btn-outline-info');
-            } else {
-                btn.html('<i class="fas fa-pause"></i> Manual');
-                btn.removeClass('btn-outline-info').addClass('btn-outline-warning');
-            }
-            announceToScreenReader('Raw logs auto-scroll ' + (rawLogsAutoScroll ? 'enabled' : 'disabled'));
-        }
-        
-        // WebSocket event handlers for real-time updates (complementing auto-refresh)
-        socket.on('log_update', function(data) {
-            const logsContainer = $('#logs-container');
-            const newLog = $('<div></div>').text(data.message);
-            logsContainer.append(newLog);
-            
-            // Keep only last entries for performance
-            const maxEntries = 500;
-            const logs = logsContainer.children();
-            if (logs.length > maxEntries) {
-                logs.first().remove();
-            }
-            
-            // Auto-scroll to bottom
-            logsContainer.scrollTop(logsContainer[0].scrollHeight);
-        });
-        
-        socket.on('raw_log_update', function(data) {
-            const rawLogsContainer = $('#raw-logs-container');
-            const newLog = $('<div class="text-muted"></div>').text(data.message);
-            rawLogsContainer.append(newLog);
-            
-            // Keep only last MAX_RAW_LOG_ENTRIES for performance
-            const maxEntries = 1000;
-            const logs = rawLogsContainer.children();
-            if (logs.length > maxEntries) {
-                logs.first().remove();
-            }
-            
-            // Auto-scroll if enabled
-            if (rawLogsAutoScroll) {
-                rawLogsContainer.scrollTop(rawLogsContainer[0].scrollHeight);
-            }
-        });
-    </script>
-
-    <script>
-    // ========================================
-    // NEW: Comprehensive Timing Functions
-    // ========================================
-
-    // Global timing variables
-    var timingUpdateInterval = null;
-    var timingLastUpdate = null;
-
-    // Format time in HH:MM:SS
-    function formatTimeHMS(seconds) {
-        if (!seconds || seconds < 0) return "00:00:00";
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    // Format date and time for display
-    function formatDateTime(isoString) {
-        if (!isoString) return "--";
-        const date = new Date(isoString);
-        return date.toLocaleString();
-    }
-
-    // Format time only
-    function formatTimeOnly(isoString) {
-        if (!isoString) return "--";
-        const date = new Date(isoString);
-        return date.toLocaleTimeString();
-    }
-
-    // Format date only
-    function formatDateOnly(isoString) {
-        if (!isoString) return "--";
-        const date = new Date(isoString);
-        return date.toLocaleDateString();
-    }
-
-    // Update timing display with fetched data
-    function updateTimingDisplay(timingData) {
-        const timing = timingData.timing;
-        const formatted = timingData.formatted;
-        
-        // Start time and date
-        $('#audit-start-time').text(timing.start_time ? formatTimeOnly(timing.start_time) : "Not Started");
-        $('#audit-start-date').text(timing.start_date ? formatDateOnly(timing.start_time) : "--");
-        
-        // Elapsed and active time
-        $('#audit-elapsed-time').text(formatTimeHMS(timing.elapsed_time));
-        $('#audit-active-time').text(`Active: ${formatTimeHMS(timing.active_time)}`);
-        
-        // Pause duration and status
-        $('#audit-pause-duration').text(formatTimeHMS(timing.total_pause_duration));
-        
-        let pauseStatus = "Running";
-        if (timing.is_paused) {
-            pauseStatus = "Currently Paused";
-        } else if (timing.total_pause_duration > 0) {
-            pauseStatus = "Previously Paused";
-        }
-        $('#audit-pause-status').text(`Status: ${pauseStatus}`);
-        
-        // Completion time
-        if (timing.completion_time) {
-            $('#audit-completion-time').text(formatTimeOnly(timing.completion_time));
-            $('#audit-completion-date').text(formatDateOnly(timing.completion_time));
-        } else {
-            $('#audit-completion-time').text("Not Completed");
-            $('#audit-completion-date').text("--");
-        }
-        
-        // Update last refresh time
-        $('#timing-last-update').text(new Date().toLocaleTimeString());
-        
-        // Show timing indicator briefly
-        const indicator = $('#timing-indicator');
-        indicator.show();
-        setTimeout(() => indicator.hide(), 500);
-    }
-
-    // Fetch timing information from API
-    function fetchTimingData() {
-        fetch('/api/timing')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateTimingDisplay(data);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching timing data:', error);
-            });
-    }
-
-    // Enhanced progress display update to include timing
-    function updateProgressDisplay(data) {
-        // Update progress bar
-        const progressBar = document.querySelector('.progress-bar');
-        if (progressBar && data.percent_complete !== undefined) {
-            progressBar.style.width = data.percent_complete + '%';
-            progressBar.textContent = data.percent_complete.toFixed(1) + '%';
-            progressBar.setAttribute('aria-valuenow', data.percent_complete);
-        }
-        
-        // Update status text
-        const statusText = document.getElementById('audit-status');
-        if (statusText && data.status) {
-            statusText.textContent = data.status;
-            
-            // Update badge color based on status
-            statusText.className = 'badge ';
-            switch(data.status.toLowerCase()) {
-                case 'running':
-                    statusText.className += 'badge-success';
-                    break;
-                case 'paused':
-                    statusText.className += 'badge-warning';
-                    break;
-                case 'completed':
-                    statusText.className += 'badge-info';
-                    break;
-                case 'failed':
-                case 'stopped':
-                    statusText.className += 'badge-danger';
-                    break;
-                default:
-                    statusText.className += 'badge-secondary';
-            }
-        }
-        
-        // Update current device
-        const currentDevice = document.getElementById('current-device');
-        if (currentDevice && data.current_device) {
-            currentDevice.textContent = data.current_device;
-        }
-        
-        // Update timing if available in progress data
-        if (data.timing) {
-            updateTimingDisplay({
-                timing: data.timing,
-                formatted: data.timing  // Use same object for formatted
-            });
-        }
-    }
-
-    // Enhanced fetch progress data to include timing
-    function fetchProgressData() {
-        performanceData.requestCount++;
-        
-        fetch('/api/progress')
-            .then(response => handleApiError(response, 'progress'))
-            .then(data => {
-                updateProgressDisplay(data);
-            })
-            .catch(error => {
-                console.error('Error fetching progress:', error);
-            });
-    }
-
-    // Start timing updates
-    function startTimingUpdates() {
-        if (timingUpdateInterval) {
-            clearInterval(timingUpdateInterval);
-        }
-        
-        // Update timing every 2 seconds
-        timingUpdateInterval = setInterval(fetchTimingData, 2000);
-        
-        // Initial fetch
-        fetchTimingData();
-    }
-
-    // Stop timing updates
-    function stopTimingUpdates() {
-        if (timingUpdateInterval) {
-            clearInterval(timingUpdateInterval);
-            timingUpdateInterval = null;
-        }
-    }
-
-    // Enhanced audit control functions with timing integration
-    function startAudit() {
-        fetch('/api/start-audit', {method: 'POST'})
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    $('#start-audit').prop('disabled', true);
-                    $('#pause-audit').prop('disabled', false);
-                    $('#stop-audit').prop('disabled', false);
-                    $('#reset-audit').prop('disabled', true);
-                    
-                    // Start timing updates
-                    startTimingUpdates();
-                    
-                    announceToScreenReader('Audit started successfully');
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            });
-    }
-
-    function pauseAudit() {
-        fetch('/api/pause-audit', {method: 'POST'})
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update timing immediately
-                    fetchTimingData();
-                    announceToScreenReader(data.message);
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            });
-    }
-
-    function stopAudit() {
-        fetch('/api/stop-audit', {method: 'POST'})
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    $('#start-audit').prop('disabled', false);
-                    $('#pause-audit').prop('disabled', true);
-                    $('#stop-audit').prop('disabled', true);
-                    $('#reset-audit').prop('disabled', false);
-                    
-                    // Stop timing updates and do final fetch
-                    stopTimingUpdates();
-                    setTimeout(fetchTimingData, 1000);  // Final timing update
-                    
-                    announceToScreenReader('Audit stopped');
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            });
-    }
-
-    function resetAudit() {
-        // Confirm with user before resetting
-        if (!confirm('Are you sure you want to reset all audit progress? This will clear all logs, progress data, and results. This action cannot be undone.')) {
-            return;
-        }
-        
-        // Show loading state
-        const resetBtn = $('#reset-audit');
-        const originalText = resetBtn.html();
-        resetBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Resetting...');
-        
-        fetch('/api/reset-audit', {method: 'POST'})
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Reset button states
-                    $('#start-audit').prop('disabled', false);
-                    $('#pause-audit').prop('disabled', true);
-                    $('#stop-audit').prop('disabled', true);
-                    $('#reset-audit').prop('disabled', false);
-                    
-                    // Clear UI elements
-                    $('#logs-container').empty();
-                    $('#raw-logs-container').empty();
-                    
-                    // Reset progress displays
-                    $('#audit-status').removeClass().addClass('badge badge-info').text('Idle');
-                    $('.progress-bar').css('width', '0%').text('0.0%').attr('aria-valuenow', 0);
-                    $('#current-device').text('');
-                    
-                    // Reset timing display
-                    $('#audit-start-time').text('Not Started');
-                    $('#audit-start-date').text('--');
-                    $('#audit-elapsed-time').text('00:00:00');
-                    $('#audit-active-time').text('Active: 00:00:00');
-                    $('#audit-pause-duration').text('00:00:00');
-                    $('#audit-pause-status').text('Status: Ready');
-                    $('#audit-completion-time').text('Not Completed');
-                    $('#audit-completion-date').text('--');
-                    $('#timing-last-update').text('--');
-                    
-                    // Stop timing updates
-                    stopTimingUpdates();
-                    
-                    // Clear any progress charts if they exist
-                    if (typeof progressChart !== 'undefined') {
-                        progressChart.data.datasets[0].data = [0, 0, 0];
-                        progressChart.update();
-                    }
-                    
-                    // Show success message
-                    announceToScreenReader('Audit reset successfully');
-                    
-                    // Optional: Show a temporary success notification
-                    const notification = $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                        '<i class="fas fa-check-circle"></i> <strong>Success!</strong> Audit progress has been reset. Ready for a fresh start.' +
-                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-                        '<span aria-hidden="true">&times;</span></button></div>');
-                    
-                    $('.container-fluid').prepend(notification);
-                    
-                    // Auto-dismiss notification after 5 seconds
-                    setTimeout(() => {
-                        notification.alert('close');
-                    }, 5000);
-                    
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
-                console.error('Reset error:', error);
-                alert('Error resetting audit. Please try again.');
-            })
-            .finally(() => {
-                // Restore button state
-                resetBtn.prop('disabled', false).html(originalText);
-            });
-    }
-
-    // Initialize timing on page load
-    $(document).ready(function() {
-        initializeTooltips();
-        fetchProgressData();
-        updatePerformanceIndicator();
-        
-        // Initial timing fetch
-        fetchTimingData();
-        
-        // Start timing updates if audit is running
-        fetch('/api/progress')
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'Running' || data.status === 'Paused') {
-                    startTimingUpdates();
-                }
-            })
-            .catch(error => console.error('Error checking initial status:', error));
-        
-        // Set focus management
-        if (window.location.hash) {
-            const target = document.querySelector(window.location.hash);
-            if (target) {
-                target.focus();
-            }
-        }
-    });
-
-    // Cleanup on page unload
-    $(window).on('beforeunload', function() {
-        stopTimingUpdates();
-    });
     </script>
     {% endblock %}
 </body>
@@ -2449,11 +1585,6 @@ HTML_DASHBOARD = r"""{% extends "base.html" %}
                             {% if audit_status not in ["Running", "Paused"] %}disabled{% endif %}>
                         <i class="fas fa-stop"></i> Stop
                     </button>
-                    <button type="button" class="btn btn-info" id="reset-audit" 
-                            onclick="resetAudit()" 
-                            {% if audit_status == "Running" %}disabled{% endif %}>
-                        <i class="fas fa-refresh"></i> Reset Audit
-                    </button>
                 </div>
             </div>
         </div>
@@ -2481,137 +1612,20 @@ HTML_DASHBOARD = r"""{% extends "base.html" %}
     </div>
 </div>
 
-<!-- NEW: Timing Information Row -->
-<div class="row mt-4">
-    <div class="col-lg-12">
-        <div class="card border-info">
-            <div class="card-header bg-info text-white">
-                <h5><i class="fas fa-clock"></i> Audit Timing Information</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h6 class="text-info"><i class="fas fa-play-circle"></i> Start Time</h6>
-                            <p id="audit-start-time" class="font-weight-bold">Not Started</p>
-                            <small id="audit-start-date" class="text-muted">--</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h6 class="text-primary"><i class="fas fa-stopwatch"></i> Elapsed Time</h6>
-                            <p id="audit-elapsed-time" class="font-weight-bold text-primary">00:00:00</p>
-                            <small id="audit-active-time" class="text-muted">Active: 00:00:00</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h6 class="text-warning"><i class="fas fa-pause-circle"></i> Pause Duration</h6>
-                            <p id="audit-pause-duration" class="font-weight-bold text-warning">00:00:00</p>
-                            <small id="audit-pause-status" class="text-muted">Status: Running</small>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="text-center">
-                            <h6 class="text-success"><i class="fas fa-flag-checkered"></i> Completion</h6>
-                            <p id="audit-completion-time" class="font-weight-bold">Not Completed</p>
-                            <small id="audit-completion-date" class="text-muted">--</small>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Live timing indicator -->
-                <div class="mt-3 text-center">
-                    <small class="text-muted">
-                        <i class="fas fa-sync-alt fa-spin" id="timing-indicator" style="display: none;"></i>
-                        Last updated: <span id="timing-last-update">--</span>
-                    </small>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Live Logs -->
 <div class="row mt-4">
-    <div class="col-md-6">
+    <div class="col-12">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5><i class="fas fa-terminal"></i> Live Audit Logs</h5>
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-success" onclick="refreshLiveLogs()" id="refresh-live-btn">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-sm btn-outline-info" onclick="toggleLiveLogsAutoRefresh()" id="live-autorefresh-btn">
-                        <i class="fas fa-clock"></i> Auto: 15s
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="liveIntervalDropdown" data-toggle="dropdown">
-                            <i class="fas fa-cog"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <h6 class="dropdown-header">Refresh Interval</h6>
-                            <a class="dropdown-item" href="#" onclick="setLiveRefreshInterval(1)">1 second</a>
-                            <a class="dropdown-item" href="#" onclick="setLiveRefreshInterval(5)">5 seconds</a>
-                            <a class="dropdown-item" href="#" onclick="setLiveRefreshInterval(15)">15 seconds</a>
-                            <a class="dropdown-item" href="#" onclick="setLiveRefreshInterval(30)">30 seconds</a>
-                            <a class="dropdown-item" href="#" onclick="setLiveRefreshInterval(60)">1 minute</a>
-                            <a class="dropdown-item" href="#" onclick="setLiveRefreshInterval(300)">5 minutes</a>
-                        </div>
-                    </div>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="clearLogs()">
-                        <i class="fas fa-trash"></i> Clear
-                    </button>
-                </div>
+                <button class="btn btn-sm btn-outline-secondary" onclick="clearLogs()">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
             </div>
             <div class="card-body">
                 <div id="logs-container" class="log-container" style="height: 300px;">
                     {% for log in ui_logs %}
                     <div>{{ log }}</div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- NEW: Raw Trace Logs -->
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5><i class="fas fa-code"></i> Raw Trace Logs</h5>
-                <div class="btn-group">
-                    <button class="btn btn-sm btn-outline-success" onclick="refreshRawLogs()" id="refresh-raw-btn">
-                        <i class="fas fa-sync"></i> Refresh
-                    </button>
-                    <button class="btn btn-sm btn-outline-info" onclick="toggleRawLogsAutoRefresh()" id="raw-autorefresh-btn">
-                        <i class="fas fa-clock"></i> Auto: 15s
-                    </button>
-                    <div class="dropdown">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="rawIntervalDropdown" data-toggle="dropdown">
-                            <i class="fas fa-cog"></i>
-                        </button>
-                        <div class="dropdown-menu">
-                            <h6 class="dropdown-header">Refresh Interval</h6>
-                            <a class="dropdown-item" href="#" onclick="setRawRefreshInterval(1)">1 second</a>
-                            <a class="dropdown-item" href="#" onclick="setRawRefreshInterval(5)">5 seconds</a>
-                            <a class="dropdown-item" href="#" onclick="setRawRefreshInterval(15)">15 seconds</a>
-                            <a class="dropdown-item" href="#" onclick="setRawRefreshInterval(30)">30 seconds</a>
-                            <a class="dropdown-item" href="#" onclick="setRawRefreshInterval(60)">1 minute</a>
-                            <a class="dropdown-item" href="#" onclick="setRawRefreshInterval(300)">5 minutes</a>
-                        </div>
-                    </div>
-                    <button class="btn btn-sm btn-outline-info" onclick="toggleRawLogsAutoScroll()" id="raw-autoscroll-btn">
-                        <i class="fas fa-arrow-down"></i> Auto
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="clearRawLogs()">
-                        <i class="fas fa-trash"></i> Clear
-                    </button>
-                </div>
-            </div>
-            <div class="card-body">
-                <div id="raw-logs-container" class="log-container" style="height: 300px; font-family: 'Courier New', monospace; font-size: 12px;">
-                    {% for log in ui_raw_logs %}
-                    <div class="text-muted">{{ log }}</div>
                     {% endfor %}
                 </div>
             </div>
@@ -2670,70 +1684,6 @@ function clearLogs() {
                 $('#logs-container').empty();
                 announceToScreenReader('Logs cleared');
             }
-        });
-}
-
-function resetAudit() {
-    // Confirm with user before resetting
-    if (!confirm('Are you sure you want to reset all audit progress? This will clear all logs, progress data, and results. This action cannot be undone.')) {
-        return;
-    }
-    
-    // Show loading state
-    const resetBtn = $('#reset-audit');
-    const originalText = resetBtn.html();
-    resetBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Resetting...');
-    
-    fetch('/api/reset-audit', {method: 'POST'})
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Reset button states
-                $('#start-audit').prop('disabled', false);
-                $('#pause-audit').prop('disabled', true);
-                $('#stop-audit').prop('disabled', true);
-                $('#reset-audit').prop('disabled', false);
-                
-                // Clear UI elements
-                $('#logs-container').empty();
-                $('#raw-logs-container').empty();
-                
-                // Reset progress displays
-                $('#audit-status').removeClass().addClass('badge badge-info').text('Idle');
-                
-                // Clear any progress charts if they exist
-                if (typeof progressChart !== 'undefined') {
-                    progressChart.data.datasets[0].data = [0, 0, 0];
-                    progressChart.update();
-                }
-                
-                // Show success message
-                announceToScreenReader('Audit reset successfully');
-                
-                // Optional: Show a temporary success notification
-                const notification = $('<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                    '<i class="fas fa-check-circle"></i> <strong>Success!</strong> Audit progress has been reset. Ready for a fresh start.' +
-                    '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
-                    '<span aria-hidden="true">&times;</span></button></div>');
-                
-                $('.container-fluid').prepend(notification);
-                
-                // Auto-dismiss notification after 5 seconds
-                setTimeout(() => {
-                    notification.alert('close');
-                }, 5000);
-                
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Reset error:', error);
-            alert('Error resetting audit. Please try again.');
-        })
-        .finally(() => {
-            // Restore button state
-            resetBtn.prop('disabled', false).html(originalText);
         });
 }
 </script>
@@ -2830,19 +1780,6 @@ HTML_SETTINGS = r"""{% extends "base.html" %}
                         </small>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="default_device_type">Default Device Type</label>
-                        <select class="form-control" id="default_device_type" name="default_device_type">
-                            <option value="cisco_xe" {{ 'selected' if app_config.DEFAULT_DEVICE_TYPE == 'cisco_xe' else '' }}>Cisco IOS XE</option>
-                            <option value="cisco_ios" {{ 'selected' if app_config.DEFAULT_DEVICE_TYPE == 'cisco_ios' else '' }}>Cisco IOS</option>
-                            <option value="cisco_nxos" {{ 'selected' if app_config.DEFAULT_DEVICE_TYPE == 'cisco_nxos' else '' }}>Cisco NX-OS</option>
-                            <option value="cisco_asa" {{ 'selected' if app_config.DEFAULT_DEVICE_TYPE == 'cisco_asa' else '' }}>Cisco ASA</option>
-                        </select>
-                        <small class="form-text text-muted">
-                            <i class="fas fa-microchip"></i> Used for devices in new CSV format (index, management_ip, wan_ip, cisco_model, description)
-                        </small>
-                    </div>
-                    
                     <div class="alert alert-info" role="alert">
                         <small>
                             <i class="fas fa-info-circle"></i>
@@ -2867,8 +1804,10 @@ HTML_SETTINGS = r"""{% extends "base.html" %}
                         <div class="col-md-6">
                             <h6 class="text-success"><i class="fas fa-check-circle"></i> Allowed CSV Fields:</h6>
                             <ul class="list-unstyled">
-                                <li><i class="fas fa-check text-success"></i> <strong>Legacy format:</strong> hostname, ip_address, device_type, description</li>
-                                <li><i class="fas fa-check text-success"></i> <strong>New format:</strong> index, management_ip, wan_ip, cisco_model, description</li>
+                                <li><i class="fas fa-check text-success"></i> hostname</li>
+                                <li><i class="fas fa-check text-success"></i> ip_address</li>
+                                <li><i class="fas fa-check text-success"></i> device_type</li>
+                                <li><i class="fas fa-check text-success"></i> description</li>
                                 <li><i class="fas fa-check text-success"></i> location</li>
                                 <li><i class="fas fa-check text-success"></i> model</li>
                             </ul>
@@ -3003,9 +1942,7 @@ HTML_INVENTORY = r"""{% extends "base.html" %}
                         <input type="file" class="form-control-file" id="csv-file" accept=".csv" required>
                     </div>
                     <small class="form-text text-muted">
-                        CSV formats supported:<br>
-                        • <strong>Legacy:</strong> hostname, ip_address, device_type, description<br>
-                        • <strong>New:</strong> index, management_ip, wan_ip, cisco_model, description
+                        CSV should contain: hostname, ip_address, device_type, description
                     </small>
                 </form>
             </div>
@@ -3276,8 +2213,7 @@ def settings():
             'JUMP_HOST': request.form.get('jump_host', ''),
             'JUMP_USERNAME': request.form.get('jump_username', ''),
             'DEVICE_USERNAME': request.form.get('device_username', ''),
-            'JUMP_PING_PATH': request.form.get('jump_ping_path', PING_CMD),
-            'DEFAULT_DEVICE_TYPE': request.form.get('default_device_type', 'cisco_xe')
+            'JUMP_PING_PATH': request.form.get('jump_ping_path', PING_CMD)
         }
         
         # Handle password fields (only update if provided)
@@ -3391,8 +2327,7 @@ def reports():
 
 @app.route('/api/progress')
 def api_progress():
-    """API endpoint for progress data with comprehensive timing"""
-    timing_info = update_current_timing()
+    """API endpoint for progress data"""
     return jsonify({
         'status': audit_status,
         'current_device': enhanced_progress['current_device'],
@@ -3400,17 +2335,7 @@ def api_progress():
         'total_devices': enhanced_progress['total_devices'],
         'percent_complete': enhanced_progress['percent_complete'],
         'elapsed_time': enhanced_progress['elapsed_time'],
-        'status_counts': enhanced_progress['status_counts'],
-        # Enhanced timing information
-        'timing': {
-            'start_time': timing_info['start_time'],
-            'start_date': timing_info['start_date'],
-            'elapsed_time': timing_info['elapsed_time'],
-            'total_duration': timing_info['total_duration'],
-            'pause_duration': timing_info['pause_duration'],
-            'is_running': audit_timing["start_time"] is not None and audit_timing["completion_time"] is None,
-            'is_paused': audit_timing["pause_start_time"] is not None
-        }
+        'status_counts': enhanced_progress['status_counts']
     })
 
 @app.route('/api/start-audit', methods=['POST'])
@@ -3460,9 +2385,6 @@ def api_start_audit():
         audit_paused = False
         audit_pause_event.set()
         
-        # Initialize audit timing
-        start_audit_timing()
-        
         # Start audit in background thread
         audit_thread = threading.Thread(target=run_complete_audit, daemon=True)
         audit_thread.start()
@@ -3491,12 +2413,10 @@ def api_pause_audit():
         
         if audit_paused:
             audit_pause_event.clear()  # Pause the audit
-            pause_audit_timing()  # Record pause timing
             action = "paused"
             log_to_ui_and_console("⏸️ Audit paused via WebUI")
         else:
             audit_pause_event.set()    # Resume the audit
-            resume_audit_timing()  # Record resume timing
             action = "resumed"
             log_to_ui_and_console("▶️ Audit resumed via WebUI")
         
@@ -3520,92 +2440,12 @@ def api_stop_audit():
         audit_paused = False
         audit_pause_event.set()  # Ensure any paused audit can continue to stop
         
-        # Complete audit timing when stopped
-        complete_audit_timing()
-        
         log_to_ui_and_console("🛑 Audit stop requested via WebUI")
         
         return jsonify({'success': True, 'message': 'Audit stop requested'})
         
     except Exception as e:
         log_to_ui_and_console(f"❌ Error stopping audit: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
-@app.route('/api/reset-audit', methods=['POST'])
-def api_reset_audit():
-    """API endpoint to reset audit progress and state"""
-    global audit_status, audit_paused, audit_pause_event, enhanced_progress, current_audit_progress
-    global device_status_tracking, down_devices, command_logs, device_results, audit_results_summary
-    global ui_logs, ui_raw_logs, detailed_reports_manifest, last_run_summary_data, current_run_failures
-    
-    try:
-        # Only allow reset if audit is not currently running
-        if audit_status == "Running":
-            return jsonify({'success': False, 'message': 'Cannot reset while audit is running. Stop the audit first.'})
-        
-        # Reset audit status and control variables
-        audit_status = "Idle"
-        audit_paused = False
-        audit_pause_event.set()  # Reset to unpaused state
-        
-        # Reset progress tracking
-        current_audit_progress.update({
-            "status_message": "Ready",
-            "devices_processed_count": 0,
-            "total_devices_to_process": 0,
-            "percentage_complete": 0,
-            "current_phase": "Idle",
-            "current_device_hostname": "N/A",
-            "start_time": None,
-            "estimated_completion_time": None
-        })
-        
-        # Reset enhanced progress
-        enhanced_progress.update({
-            "status": "Idle",
-            "current_device": "None",
-            "completed_devices": 0,
-            "total_devices": 0,
-            "percent_complete": 0,
-            "elapsed_time": "00:00:00",
-            "estimated_completion_time": None,
-            "status_counts": {
-                "success": 0,
-                "warning": 0,
-                "failure": 0
-            }
-        })
-        
-        # Clear all tracking dictionaries
-        device_status_tracking.clear()
-        down_devices.clear()
-        command_logs.clear()
-        device_results.clear()
-        audit_results_summary.clear()
-        detailed_reports_manifest.clear()
-        last_run_summary_data.clear()
-        current_run_failures.clear()
-        
-        # Clear logs
-        ui_logs.clear()
-        ui_raw_logs.clear()
-        
-        # Reset audit timing
-        reset_audit_timing()
-        
-        # Log the reset action
-        log_to_ui_and_console("🔄 Audit progress reset - ready for fresh start")
-        log_raw_trace("Audit reset performed via WebUI", command_type="SYSTEM")
-        
-        # Send WebSocket updates
-        socketio.emit('progress_update', enhanced_progress)
-        socketio.emit('log_update', {'logs': ui_logs[-50:]})
-        socketio.emit('raw_log_update', {'logs': ui_raw_logs[-100:]})
-        
-        return jsonify({'success': True, 'message': 'Audit progress reset successfully'})
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error resetting audit: {e}")
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 @app.route('/api/clear-logs', methods=['POST'])
@@ -3618,67 +2458,9 @@ def api_clear_logs():
         command_logs.clear()
         log_to_ui_and_console("📝 UI and command logs cleared", console_only=True)
         
-        return jsonify({'success': True, 'message': 'Logs cleared successfully'})
+        return jsonify({'success': True, 'message': 'All logs cleared'})
         
     except Exception as e:
-        log_to_ui_and_console(f"❌ Error clearing logs: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
-# NEW: API endpoint for clearing raw trace logs
-@app.route('/api/clear-raw-logs', methods=['POST'])
-def api_clear_raw_logs():
-    """API endpoint to clear raw trace logs"""
-    global ui_raw_logs
-    
-    try:
-        ui_raw_logs.clear()
-        log_raw_trace("Raw trace logs cleared via WebUI", command_type="SYSTEM")
-        
-        return jsonify({'success': True, 'message': 'Raw logs cleared successfully'})
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error clearing raw logs: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
-# NEW: API endpoints for log fetching (auto-refresh support)
-@app.route('/api/live-logs', methods=['GET'])
-def api_live_logs():
-    """API endpoint to fetch current live audit logs"""
-    global ui_logs
-    
-    try:
-        # Return last 100 logs to avoid overwhelming the UI
-        recent_logs = ui_logs[-100:] if len(ui_logs) > 100 else ui_logs[:]
-        
-        return jsonify({
-            'success': True, 
-            'logs': recent_logs,
-            'total_count': len(ui_logs),
-            'timestamp': datetime.now().isoformat()
-        })
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error fetching live logs: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
-@app.route('/api/raw-logs', methods=['GET'])
-def api_raw_logs():
-    """API endpoint to fetch current raw trace logs"""
-    global ui_raw_logs
-    
-    try:
-        # Return last 200 raw logs to avoid overwhelming the UI
-        recent_logs = ui_raw_logs[-200:] if len(ui_raw_logs) > 200 else ui_raw_logs[:]
-        
-        return jsonify({
-            'success': True, 
-            'logs': recent_logs,
-            'total_count': len(ui_raw_logs),
-            'timestamp': datetime.now().isoformat()
-        })
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error fetching raw logs: {e}")
         return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 # Context processor to inject global variables
@@ -3696,7 +2478,6 @@ def inject_globals():
         'enhanced_progress': enhanced_progress,
         'active_inventory_data': active_inventory_data,
         'ui_logs': ui_logs[-50:],  # Last 50 logs for templates
-        'ui_raw_logs': ui_raw_logs[-100:],  # Last 100 raw logs for templates
         'app_config': app_config,
         'sys': sys
     }
@@ -3745,10 +2526,6 @@ def ping_remote_device(ssh_client: paramiko.SSHClient, target_ip: str) -> bool:
             command = f"{ping_cmd} {target_ip}"
         
         log_to_ui_and_console(f"🔍 Pinging {target_ip} via jump host...")
-        
-        # NEW: Raw trace logging for command execution
-        log_raw_trace(f"Executing ping command: {command}", command_type="PING", device=target_ip)
-        
         stdin, stdout, stderr = ssh_client.exec_command(command, timeout=15)
         exit_status = stdout.channel.recv_exit_status()
         
@@ -3788,9 +2565,6 @@ def establish_jump_host_connection() -> Optional[paramiko.SSHClient]:
     
     try:
         log_to_ui_and_console(f"🔗 Connecting to jump host {jump_host}...")
-        
-        # NEW: Raw trace logging for jump host connection
-        log_raw_trace(f"Establishing SSH connection to jump host: {jump_host}:22", command_type="SSH_CONNECT")
         
         # Test local ping to jump host first
         if not ping_host(jump_host):
@@ -3876,9 +2650,6 @@ def connect_to_device_via_jump_host(jump_client: paramiko.SSHClient, device: Dic
     try:
         log_to_ui_and_console(f"🔌 Connecting to {device_name} ({device_ip}) via jump host...")
         log_to_ui_and_console(f"🔐 Using credentials from .env configuration (secure)")
-        
-        # NEW: Raw trace logging for device connection
-        log_raw_trace(f"Opening SSH tunnel to device: {device_ip}:22", command_type="SSH_TUNNEL", device=device_name)
         
         # Create SSH tunnel channel
         channel = jump_client.get_transport().open_channel(
@@ -3981,10 +2752,6 @@ class ParamikoDeviceWrapper:
         """Send command and return output"""
         try:
             log_to_ui_and_console(f"📤 Executing on {self.device_name}: {command}")
-            
-            # NEW: Raw trace logging for command execution
-            log_raw_trace(f"Executing command: {command}", command_type="CMD_EXEC", device=self.device_name)
-            
             stdin, stdout, stderr = self.client.exec_command(command, timeout=kwargs.get('timeout', 60))
             
             output = stdout.read().decode('utf-8', errors='ignore')
@@ -4001,12 +2768,6 @@ class ParamikoDeviceWrapper:
                 log_to_ui_and_console(f"⚠️ Command stderr on {self.device_name}: {error_output}")
             
             log_to_ui_and_console(f"📥 Command completed on {self.device_name}")
-            
-            # NEW: Raw trace logging for command output
-            log_raw_trace(f"Command output length: {len(output)} chars", command_type="CMD_RESULT", device=self.device_name)
-            if error_output.strip():
-                log_raw_trace(f"Command stderr: {error_output.strip()[:100]}", command_type="CMD_ERROR", device=self.device_name)
-            
             return output
             
         except Exception as e:
@@ -4532,22 +3293,16 @@ def run_complete_audit():
         audit_status = "Completed"
         update_progress_tracking("Audit Complete", total_devices, total_devices, "Audit completed successfully")
         
-        # Complete audit timing for successful completion
-        complete_audit_timing()
-        
     except KeyboardInterrupt:
         log_to_ui_and_console("\n⏹️ Audit stopped by user")
         audit_status = "Stopped"
-        complete_audit_timing()  # Complete timing for interruption
     except Exception as e:
         log_to_ui_and_console(f"\n❌ Audit failed with error: {e}")
         audit_status = "Failed"
-        complete_audit_timing()  # Complete timing for failure
     finally:
         # Ensure status is updated
         if audit_status == "Running":
             audit_status = "Stopped"
-            complete_audit_timing()  # Complete timing for any other case
 
 # Additional API routes for Phase 2 functionality
 @app.route('/api/device-status')
@@ -4663,12 +3418,12 @@ def api_create_sample_inventory():
         
         # Secure sample data - NO CREDENTIAL FIELDS
         secure_sample_data = [
-            ["index", "management_ip", "wan_ip", "cisco_model", "description"],
-            ["1", "172.16.39.101", "192.168.1.1", "Cisco 2911", "Main Office Router - Core"],
-            ["2", "172.16.39.102", "192.168.1.2", "Cisco 2921", "Branch Office Router - Primary"],
-            ["3", "172.16.39.103", "192.168.1.3", "Cisco 1941", "Remote Site Router - Backup"],
-            ["4", "172.16.39.201", "192.168.2.1", "Cisco 3750X", "Distribution Switch - Layer 3"],
-            ["5", "172.16.39.202", "192.168.2.2", "Cisco 2960", "Access Switch - VLAN 10"]
+            ["hostname", "ip_address", "device_type", "description"],
+            ["R1", "172.16.39.101", "cisco_ios", "Core Router 1"],
+            ["R2", "172.16.39.102", "cisco_ios", "Core Router 2"],
+            ["R3", "172.16.39.103", "cisco_ios", "Distribution Router"],
+            ["SW1", "172.16.39.201", "cisco_ios", "Access Switch 1"],
+            ["SW2", "172.16.39.202", "cisco_ios", "Access Switch 2"]
         ]
         
         try:
@@ -4908,297 +3663,6 @@ def generate_professional_pdf_report(audit_results: Dict[str, Any], device_data:
         log_to_ui_and_console(f"❌ Error generating PDF report: {e}")
         return None
 
-@app.route('/api/timing')
-def api_timing():
-    """API endpoint for comprehensive timing information"""
-    timing_summary = get_timing_summary()
-    return jsonify({
-        'success': True,
-        'timing': timing_summary,
-        'formatted': {
-            'start_datetime': f"{timing_summary['start_date']} {timing_summary['start_time']}" if timing_summary['start_date'] and timing_summary['start_time'] else "",
-            'completion_datetime': f"{timing_summary['completion_date']} {timing_summary['completion_time']}" if timing_summary['completion_date'] and timing_summary['completion_time'] else "",
-            'status': {
-                'running': timing_summary['is_running'],
-                'paused': timing_summary['is_paused'],
-                'completed': timing_summary['raw_completion_time'] is not None
-            },
-            'durations': {
-                'active_time': timing_summary['elapsed_time'],
-                'pause_time': timing_summary['pause_duration'],
-                'total_time': timing_summary['total_duration']
-            }
-        }
-    })
-
-@app.route('/api/start-audit', methods=['POST'])
-def api_start_audit():
-    """API endpoint to start audit with enhanced credential security validation"""
-    global audit_status, audit_paused
-    
-    try:
-        # Check if audit is already running
-        if audit_status == "Running":
-            return jsonify({'success': False, 'message': 'Audit already running'})
-        
-        # SECURITY: Validate jump host configuration
-        if not all([app_config.get("JUMP_HOST"), app_config.get("JUMP_USERNAME"), app_config.get("JUMP_PASSWORD")]):
-            return jsonify({
-                'success': False, 
-                'message': 'Jump host configuration incomplete. Please configure jump host credentials via Settings page.'
-            })
-        
-        # SECURITY: Validate device credentials (from .env ONLY)
-        credential_validation = validate_device_credentials()
-        if not credential_validation["credentials_valid"]:
-            return jsonify({
-                'success': False, 
-                'message': credential_validation["error_message"],
-                'help_message': credential_validation["help_message"]
-            })
-        
-        # Validate inventory
-        if not active_inventory_data.get("data"):
-            return jsonify({
-                'success': False, 
-                'message': 'No devices in inventory. Please add devices via the Inventory page.'
-            })
-        
-        # SECURITY: Validate inventory security (no credentials in CSV)
-        security_validation = validate_inventory_security(active_inventory_data)
-        if not security_validation["is_secure"]:
-            security_issues = "; ".join(security_validation["security_issues"])
-            return jsonify({
-                'success': False, 
-                'message': f'CSV inventory security violations detected: {security_issues}',
-                'security_help': 'Remove all credential fields from CSV and configure credentials via Settings page only.'
-            })
-        
-        # Reset pause state
-        audit_paused = False
-        audit_pause_event.set()
-        
-        # Initialize audit timing
-        start_audit_timing()
-        
-        # Start audit in background thread
-        audit_thread = threading.Thread(target=run_complete_audit, daemon=True)
-        audit_thread.start()
-        
-        log_to_ui_and_console("🚀 Starting NetAuditPro v3 AUX Telnet Security Audit")
-        log_to_ui_and_console("="*60)
-        log_to_ui_and_console("🔒 Security validations passed - credentials secure")
-        log_to_ui_and_console("🚀 Audit started via WebUI")
-        
-        return jsonify({'success': True, 'message': 'Audit started successfully'})
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error starting audit: {e}")
-        return jsonify({'success': False, 'message': f'Error starting audit: {str(e)}'})
-
-@app.route('/api/pause-audit', methods=['POST'])
-def api_pause_audit():
-    """API endpoint to pause/resume audit"""
-    global audit_paused, audit_pause_event
-    
-    try:
-        if audit_status != "Running":
-            return jsonify({'success': False, 'message': 'No audit currently running'})
-        
-        audit_paused = not audit_paused
-        
-        if audit_paused:
-            audit_pause_event.clear()  # Pause the audit
-            pause_audit_timing()  # Record pause timing
-            action = "paused"
-            log_to_ui_and_console("⏸️ Audit paused via WebUI")
-        else:
-            audit_pause_event.set()    # Resume the audit
-            resume_audit_timing()  # Record resume timing
-            action = "resumed"
-            log_to_ui_and_console("▶️ Audit resumed via WebUI")
-        
-        return jsonify({'success': True, 'paused': audit_paused, 'message': f'Audit {action}'})
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error toggling audit pause: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
-@app.route('/api/stop-audit', methods=['POST'])
-def api_stop_audit():
-    """API endpoint to stop audit"""
-    global audit_status, audit_paused, audit_pause_event
-    
-    try:
-        if audit_status not in ["Running", "Paused"]:
-            return jsonify({'success': False, 'message': 'No audit currently running'})
-        
-        # Force stop by changing status
-        audit_status = "Stopping"
-        audit_paused = False
-        audit_pause_event.set()  # Ensure any paused audit can continue to stop
-        
-        # Complete audit timing when stopped
-        complete_audit_timing()
-        
-        log_to_ui_and_console("🛑 Audit stop requested via WebUI")
-        
-        return jsonify({'success': True, 'message': 'Audit stop requested'})
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error stopping audit: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
-@app.route('/api/reset-audit', methods=['POST'])
-def api_reset_audit():
-    """API endpoint to reset audit progress and state"""
-    global audit_status, audit_paused, audit_pause_event, enhanced_progress, current_audit_progress
-    global device_status_tracking, down_devices, command_logs, device_results, audit_results_summary
-    global ui_logs, ui_raw_logs, detailed_reports_manifest, last_run_summary_data, current_run_failures
-    
-    try:
-        # Only allow reset if audit is not currently running
-        if audit_status == "Running":
-            return jsonify({'success': False, 'message': 'Cannot reset while audit is running. Stop the audit first.'})
-        
-        # Reset audit status and control variables
-        audit_status = "Idle"
-        audit_paused = False
-        audit_pause_event.set()  # Reset to unpaused state
-        
-        # Reset progress tracking
-        current_audit_progress.update({
-            "status_message": "Ready",
-            "devices_processed_count": 0,
-            "total_devices_to_process": 0,
-            "percentage_complete": 0,
-            "current_phase": "Idle",
-            "current_device_hostname": "N/A",
-            "start_time": None,
-            "estimated_completion_time": None
-        })
-        
-        # Reset enhanced progress
-        enhanced_progress.update({
-            "status": "Idle",
-            "current_device": "None",
-            "completed_devices": 0,
-            "total_devices": 0,
-            "percent_complete": 0,
-            "elapsed_time": "00:00:00",
-            "estimated_completion_time": None,
-            "status_counts": {
-                "success": 0,
-                "warning": 0,
-                "failure": 0
-            }
-        })
-        
-        # Clear all tracking dictionaries
-        device_status_tracking.clear()
-        down_devices.clear()
-        command_logs.clear()
-        device_results.clear()
-        audit_results_summary.clear()
-        detailed_reports_manifest.clear()
-        last_run_summary_data.clear()
-        current_run_failures.clear()
-        
-        # Clear logs
-        ui_logs.clear()
-        ui_raw_logs.clear()
-        
-        # Reset audit timing
-        reset_audit_timing()
-        
-        # Log the reset action
-        log_to_ui_and_console("🔄 Audit progress reset - ready for fresh start")
-        log_raw_trace("Audit reset performed via WebUI", command_type="SYSTEM")
-        
-        # Send WebSocket updates
-        socketio.emit('progress_update', enhanced_progress)
-        socketio.emit('log_update', {'logs': ui_logs[-50:]})
-        socketio.emit('raw_log_update', {'logs': ui_raw_logs[-100:]})
-        
-        return jsonify({'success': True, 'message': 'Audit progress reset successfully'})
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error resetting audit: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
-@app.route('/api/clear-logs', methods=['POST'])
-def api_clear_logs():
-    """API endpoint to clear logs"""
-    global ui_logs, command_logs
-    
-    try:
-        ui_logs.clear()
-        command_logs.clear()
-        log_to_ui_and_console("📝 UI and command logs cleared", console_only=True)
-        
-        return jsonify({'success': True, 'message': 'Logs cleared successfully'})
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error clearing logs: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
-# NEW: API endpoint for clearing raw trace logs
-@app.route('/api/clear-raw-logs', methods=['POST'])
-def api_clear_raw_logs():
-    """API endpoint to clear raw trace logs"""
-    global ui_raw_logs
-    
-    try:
-        ui_raw_logs.clear()
-        log_raw_trace("Raw trace logs cleared via WebUI", command_type="SYSTEM")
-        
-        return jsonify({'success': True, 'message': 'Raw logs cleared successfully'})
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error clearing raw logs: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
-# NEW: API endpoints for log fetching (auto-refresh support)
-@app.route('/api/live-logs', methods=['GET'])
-def api_live_logs():
-    """API endpoint to fetch current live audit logs"""
-    global ui_logs
-    
-    try:
-        # Return last 100 logs to avoid overwhelming the UI
-        recent_logs = ui_logs[-100:] if len(ui_logs) > 100 else ui_logs[:]
-        
-        return jsonify({
-            'success': True, 
-            'logs': recent_logs,
-            'total_count': len(ui_logs),
-            'timestamp': datetime.now().isoformat()
-        })
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error fetching live logs: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
-@app.route('/api/raw-logs', methods=['GET'])
-def api_raw_logs():
-    """API endpoint to fetch current raw trace logs"""
-    global ui_raw_logs
-    
-    try:
-        # Return last 200 raw logs to avoid overwhelming the UI
-        recent_logs = ui_raw_logs[-200:] if len(ui_raw_logs) > 200 else ui_raw_logs[:]
-        
-        return jsonify({
-            'success': True, 
-            'logs': recent_logs,
-            'total_count': len(ui_raw_logs),
-            'timestamp': datetime.now().isoformat()
-        })
-        
-    except Exception as e:
-        log_to_ui_and_console(f"❌ Error fetching raw logs: {e}")
-        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
-
 # ====================================================================
 # MAIN APPLICATION ENTRY POINT
 # ====================================================================
@@ -5233,7 +3697,7 @@ def main():
         def performance_cleanup_thread():
             while True:
                 try:
-                    time.sleep(CLEANUP_INTERVAL_SECONDS)
+                    time.sleep(AUTO_CLEANUP_INTERVAL)
                     performance_monitor.cleanup_if_needed()
                     connection_pool.cleanup_pool()
                 except Exception as e:
@@ -5263,7 +3727,7 @@ def main():
         print(f"   • Max Concurrent Connections: {MAX_CONCURRENT_CONNECTIONS}")
         print(f"   • Connection Pool Size: {CONNECTION_POOL_SIZE}")
         print(f"   • Memory Threshold: {MEMORY_THRESHOLD_MB}MB")
-        print(f"   • Auto Cleanup Interval: {CLEANUP_INTERVAL_SECONDS}s")
+        print(f"   • Auto Cleanup Interval: {AUTO_CLEANUP_INTERVAL}s")
         print(f"   • Max Log Entries: {MAX_LOG_ENTRIES}")
         
         print(f"\n🌐 Starting web server on http://0.0.0.0:{DEFAULT_PORT}")
