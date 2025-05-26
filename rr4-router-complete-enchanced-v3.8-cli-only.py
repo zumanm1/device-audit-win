@@ -39,10 +39,11 @@ logger = logging.getLogger(__name__)
 
 class JumpHostAuditor:
     def __init__(self):
+        # Default values that will be configurable
         self.jump_host = {
             "device_type": "linux",
-            "host": "172.16.39.128",
-            "username": "root",
+            "host": "172.16.39.128",  # Default, will be configurable
+            "username": "root",      # Default, will be configurable
             "password": None
         }
         self.routers = []
@@ -50,51 +51,78 @@ class JumpHostAuditor:
         self.env_file = Path(".env")
 
     def load_environment(self):
-        """Load or create .env file with jump host password"""
+        """Load or create .env file with jump host configuration"""
+        env_data = {}
+        # Default values
+        default_host = self.jump_host["host"]
+        default_username = self.jump_host["username"]
         jump_password = None
-
+        
+        # Try to load from .env file if it exists
         if self.env_file.exists():
             try:
                 with open(self.env_file, 'r') as f:
                     for line in f:
-                        if line.startswith('JUMP_HOST_PASSWORD='):
-                            jump_password = line.split('=', 1)[1].strip().strip('"\'')
-                            break
-
-                if jump_password:
+                        if '=' in line:
+                            key, value = line.split('=', 1)
+                            env_data[key.strip()] = value.strip().strip('"\'')
+                            
+                # Check for saved jump host values
+                if 'JUMP_HOST' in env_data:
+                    default_host = env_data['JUMP_HOST']
+                if 'JUMP_USERNAME' in env_data:
+                    default_username = env_data['JUMP_USERNAME']
+                if 'JUMP_HOST_PASSWORD' in env_data:
+                    jump_password = env_data['JUMP_HOST_PASSWORD']
                     use_saved = input(f"Use saved jump host password? (y/n): ").lower().strip()
                     if use_saved != 'y':
                         jump_password = None
-
+                        
             except Exception as e:
                 logger.warning(f"Error reading .env file: {e}")
-
+        
+        # Prompt for jump host configuration
+        print("\nJump Host Configuration:")
+        host = input(f"Jump host IP [default: {default_host}]: ").strip()
+        if not host:
+            host = default_host
+            
+        username = input(f"Jump host username [default: {default_username}]: ").strip()
+        if not username:
+            username = default_username
+            
         if not jump_password:
-            jump_password = getpass.getpass("Enter jump host (172.16.39.128) password: ")
-
-            save_password = input("Save password to .env file? (y/n): ").lower().strip()
-            if save_password == 'y':
+            jump_password = getpass.getpass(f"Enter jump host ({host}) password: ")
+            
+            save_config = input("Save jump host configuration to .env file? (y/n): ").lower().strip()
+            if save_config == 'y':
                 try:
                     with open(self.env_file, 'w') as f:
+                        f.write(f'JUMP_HOST="{host}"\n')
+                        f.write(f'JUMP_USERNAME="{username}"\n')
                         f.write(f'JUMP_HOST_PASSWORD="{jump_password}"\n')
-                    logger.info("Password saved to .env file")
+                    logger.info("Jump host configuration saved to .env file")
                 except Exception as e:
-                    logger.warning(f"Could not save password: {e}")
+                    logger.warning(f"Could not save configuration: {e}")
 
+        # Update jump host configuration
+        self.jump_host["host"] = host
+        self.jump_host["username"] = username
         self.jump_host["password"] = jump_password
+        
+        logger.info(f"Jump host configured: {username}@{host}")
 
-    def load_routers_from_csv(self, csv_file="routers.csv"):
-        """Load router configurations from CSV file"""
+    def load_routers_from_csv(self, csv_file="routers01.csv"):
+        """Load router configurations from CSV file with the following format:
+        index (integer), hostname (text), management_ip, wan_ip, model_name (free text)
+        """
         if not Path(csv_file).exists():
-            # Create sample CSV file
+            # Create sample CSV file with new format
             sample_data = [
-                ["hostname", "ip", "device_type", "username", "password", "secret", "ios_version", "notes"],
-                ["R0", "172.16.39.100", "cisco_ios", "cisco", "cisco", "cisco", "15.1", "Default entry"],
-                ["R1", "172.16.39.101", "cisco_ios", "cisco", "cisco", "cisco", "15.1", "Default entry"],
-                ["R2", "172.16.39.102", "cisco_ios", "cisco", "cisco", "cisco", "15.1", "Default entry"],
-                ["R3", "172.16.39.103", "cisco_ios", "cisco", "cisco", "cisco", "15.1", "Default entry"],
-                ["R4", "172.16.39.104", "cisco_ios", "cisco", "cisco", "cisco", "15.1", "Default entry"],
-                ["R5", "172.16.39.105", "cisco_ios", "cisco", "cisco", "cisco", "15.1", "Default entry"]
+                ["index", "hostname", "management_ip", "wan_ip", "model_name"],
+                ["0", "RTR-CORE-01", "192.168.1.1", "203.0.113.1", "Cisco 4431 Integrated Services Router"],
+                ["1", "RTR-EDGE-02", "192.168.1.2", "203.0.113.2", "Cisco 4451-X Integrated Services Router"],
+                ["2", "RTR-BRANCH-03", "192.168.1.3", "203.0.113.3", "Cisco 3945 Integrated Services Router"]
             ]
 
             with open(csv_file, 'w', newline='') as f:
@@ -104,22 +132,44 @@ class JumpHostAuditor:
             logger.info(f"Created sample {csv_file} file. Please update with your router details.")
 
         try:
+            # Check if we should use the default device type or prompt the user
+            device_type = os.getenv('DEVICE_TYPE', 'cisco_xe')
+            if device_type == 'cisco_xe':
+                use_default = input(f"Use default device type 'cisco_xe'? (y/n, default: y): ").lower().strip()
+                if use_default == 'n':
+                    device_type = input("Enter device type (e.g., cisco_ios, cisco_xe, etc.): ").strip()
+
+            username = input("Enter router SSH username: ").strip()
+            password = getpass.getpass("Enter router SSH password: ")
+            secret = getpass.getpass("Enter enable secret (press Enter if none): ")
+            if not secret:
+                secret = password  # Use password as secret if none provided
+
             with open(csv_file, 'r') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
-                    # Filter for routers R1-R5 (and R0 if needed)
-                    if row['hostname'].upper() in ['R0', 'R1', 'R2', 'R3', 'R4', 'R5']:
+                    try:
+                        # Ensure index is an integer
+                        index = int(row['index'])
+                        
+                        # Create router config with management IP as the primary connection IP
                         router_config = {
-                            "device_type": row['device_type'].strip(),
-                            "host": row['ip'].strip(),
-                            "username": row['username'].strip(),
-                            "password": row['password'].strip(),
-                            "secret": row['secret'].strip() if row['secret'].strip() else None,
-                            "hostname": row['hostname'].strip()
+                            "device_type": device_type,
+                            "host": row['management_ip'].strip(),
+                            "username": username,
+                            "password": password,
+                            "secret": secret,
+                            "hostname": row['hostname'].strip(),  # Use the actual hostname field
+                            "wan_ip": row['wan_ip'].strip(),
+                            "model": row['model_name'].strip(),
+                            "index": index  # Store the index as an integer
                         }
                         self.routers.append(router_config)
+                        
+                    except ValueError as e:
+                        logger.warning(f"Skipping row with invalid index value: {row['index']} - {e}")
 
-            logger.info(f"Loaded {len(self.routers)} routers from {csv_file}")
+            logger.info(f"Loaded {len(self.routers)} routers from {csv_file} with device type: {device_type}")
 
         except FileNotFoundError:
             logger.error(f"CSV file {csv_file} not found")
@@ -130,7 +180,7 @@ class JumpHostAuditor:
 
     def test_jump_host_connection(self):
         """Test connection to jump host"""
-        logger.info("Testing jump host connection...")
+        logger.info(f"Testing jump host connection to {self.jump_host['host']}...")
         try:
             with ConnectHandler(**self.jump_host, timeout=10) as conn:
                 output = conn.send_command("hostname", delay_factor=1)
@@ -443,7 +493,7 @@ def main():
         else:
             print(f"\n❌ Audit failed - check logs for details")
 
-    except KeyboardInterrupt:``
+    except KeyboardInterrupt:
         print("\n\n🛑 Audit interrupted by user")
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
