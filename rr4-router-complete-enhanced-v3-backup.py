@@ -2086,37 +2086,32 @@ HTML_BASE_LAYOUT = r"""<!DOCTYPE html>
         const timing = timingData.timing;
         const formatted = timingData.formatted;
         
-        // Start time and date - use ISO strings if available, otherwise use formatted strings
-        if (timing.start_datetime_iso) {
-            $('#audit-start-time').text(formatTimeOnly(timing.start_datetime_iso));
-            $('#audit-start-date').text(formatDateOnly(timing.start_datetime_iso));
-        } else {
-            $('#audit-start-time').text(timing.start_time || "Not Started");
-            $('#audit-start-date').text(timing.start_date || "--");
-        }
+        // Start time and date
+        $('#audit-start-time').text(timing.start_time ? formatTimeOnly(timing.start_time) : "Not Started");
+        $('#audit-start-date').text(timing.start_date ? formatDateOnly(timing.start_time) : "--");
         
-        // Elapsed and active time - these are already formatted durations
-        $('#audit-elapsed-time').text(timing.elapsed_time || "00:00:00");
-        $('#audit-active-time').text(`Active: ${timing.elapsed_time || "00:00:00"}`);
+        // Elapsed and active time
+        $('#audit-elapsed-time').text(formatTimeHMS(timing.elapsed_time));
+        $('#audit-active-time').text(`Active: ${formatTimeHMS(timing.active_time)}`);
         
         // Pause duration and status
-        $('#audit-pause-duration').text(timing.pause_duration || "00:00:00");
+        $('#audit-pause-duration').text(formatTimeHMS(timing.total_pause_duration));
         
         let pauseStatus = "Running";
         if (timing.is_paused) {
             pauseStatus = "Currently Paused";
-        } else if (timing.pause_duration && timing.pause_duration !== "00:00:00") {
+        } else if (timing.total_pause_duration > 0) {
             pauseStatus = "Previously Paused";
         }
         $('#audit-pause-status').text(`Status: ${pauseStatus}`);
         
-        // Completion time - use ISO strings if available
-        if (timing.completion_datetime_iso) {
-            $('#audit-completion-time').text(formatTimeOnly(timing.completion_datetime_iso));
-            $('#audit-completion-date').text(formatDateOnly(timing.completion_datetime_iso));
+        // Completion time
+        if (timing.completion_time) {
+            $('#audit-completion-time').text(formatTimeOnly(timing.completion_time));
+            $('#audit-completion-date').text(formatDateOnly(timing.completion_time));
         } else {
-            $('#audit-completion-time').text(timing.completion_time || "Not Completed");
-            $('#audit-completion-date').text(timing.completion_date || "--");
+            $('#audit-completion-time').text("Not Completed");
+            $('#audit-completion-date').text("--");
         }
         
         // Update last refresh time
@@ -4917,33 +4912,9 @@ def generate_professional_pdf_report(audit_results: Dict[str, Any], device_data:
 def api_timing():
     """API endpoint for comprehensive timing information"""
     timing_summary = get_timing_summary()
-    
-    # Create proper ISO datetime strings for JavaScript parsing
-    start_datetime_iso = ""
-    completion_datetime_iso = ""
-    
-    if timing_summary['start_date'] and timing_summary['start_time']:
-        start_datetime_iso = f"{timing_summary['start_date']}T{timing_summary['start_time']}"
-    
-    if timing_summary['completion_date'] and timing_summary['completion_time']:
-        completion_datetime_iso = f"{timing_summary['completion_date']}T{timing_summary['completion_time']}"
-    
     return jsonify({
         'success': True,
-        'timing': {
-            'start_time': timing_summary['start_time'],
-            'start_date': timing_summary['start_date'],
-            'completion_time': timing_summary['completion_time'],
-            'completion_date': timing_summary['completion_date'],
-            'elapsed_time': timing_summary['elapsed_time'],
-            'pause_duration': timing_summary['pause_duration'],
-            'total_duration': timing_summary['total_duration'],
-            'is_running': timing_summary['is_running'],
-            'is_paused': timing_summary['is_paused'],
-            # Add ISO datetime strings for JavaScript parsing
-            'start_datetime_iso': start_datetime_iso,
-            'completion_datetime_iso': completion_datetime_iso
-        },
+        'timing': timing_summary,
         'formatted': {
             'start_datetime': f"{timing_summary['start_date']} {timing_summary['start_time']}" if timing_summary['start_date'] and timing_summary['start_time'] else "",
             'completion_datetime': f"{timing_summary['completion_date']} {timing_summary['completion_time']}" if timing_summary['completion_date'] and timing_summary['completion_time'] else "",
@@ -4959,6 +4930,274 @@ def api_timing():
             }
         }
     })
+
+@app.route('/api/start-audit', methods=['POST'])
+def api_start_audit():
+    """API endpoint to start audit with enhanced credential security validation"""
+    global audit_status, audit_paused
+    
+    try:
+        # Check if audit is already running
+        if audit_status == "Running":
+            return jsonify({'success': False, 'message': 'Audit already running'})
+        
+        # SECURITY: Validate jump host configuration
+        if not all([app_config.get("JUMP_HOST"), app_config.get("JUMP_USERNAME"), app_config.get("JUMP_PASSWORD")]):
+            return jsonify({
+                'success': False, 
+                'message': 'Jump host configuration incomplete. Please configure jump host credentials via Settings page.'
+            })
+        
+        # SECURITY: Validate device credentials (from .env ONLY)
+        credential_validation = validate_device_credentials()
+        if not credential_validation["credentials_valid"]:
+            return jsonify({
+                'success': False, 
+                'message': credential_validation["error_message"],
+                'help_message': credential_validation["help_message"]
+            })
+        
+        # Validate inventory
+        if not active_inventory_data.get("data"):
+            return jsonify({
+                'success': False, 
+                'message': 'No devices in inventory. Please add devices via the Inventory page.'
+            })
+        
+        # SECURITY: Validate inventory security (no credentials in CSV)
+        security_validation = validate_inventory_security(active_inventory_data)
+        if not security_validation["is_secure"]:
+            security_issues = "; ".join(security_validation["security_issues"])
+            return jsonify({
+                'success': False, 
+                'message': f'CSV inventory security violations detected: {security_issues}',
+                'security_help': 'Remove all credential fields from CSV and configure credentials via Settings page only.'
+            })
+        
+        # Reset pause state
+        audit_paused = False
+        audit_pause_event.set()
+        
+        # Initialize audit timing
+        start_audit_timing()
+        
+        # Start audit in background thread
+        audit_thread = threading.Thread(target=run_complete_audit, daemon=True)
+        audit_thread.start()
+        
+        log_to_ui_and_console("🚀 Starting NetAuditPro v3 AUX Telnet Security Audit")
+        log_to_ui_and_console("="*60)
+        log_to_ui_and_console("🔒 Security validations passed - credentials secure")
+        log_to_ui_and_console("🚀 Audit started via WebUI")
+        
+        return jsonify({'success': True, 'message': 'Audit started successfully'})
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error starting audit: {e}")
+        return jsonify({'success': False, 'message': f'Error starting audit: {str(e)}'})
+
+@app.route('/api/pause-audit', methods=['POST'])
+def api_pause_audit():
+    """API endpoint to pause/resume audit"""
+    global audit_paused, audit_pause_event
+    
+    try:
+        if audit_status != "Running":
+            return jsonify({'success': False, 'message': 'No audit currently running'})
+        
+        audit_paused = not audit_paused
+        
+        if audit_paused:
+            audit_pause_event.clear()  # Pause the audit
+            pause_audit_timing()  # Record pause timing
+            action = "paused"
+            log_to_ui_and_console("⏸️ Audit paused via WebUI")
+        else:
+            audit_pause_event.set()    # Resume the audit
+            resume_audit_timing()  # Record resume timing
+            action = "resumed"
+            log_to_ui_and_console("▶️ Audit resumed via WebUI")
+        
+        return jsonify({'success': True, 'paused': audit_paused, 'message': f'Audit {action}'})
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error toggling audit pause: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/api/stop-audit', methods=['POST'])
+def api_stop_audit():
+    """API endpoint to stop audit"""
+    global audit_status, audit_paused, audit_pause_event
+    
+    try:
+        if audit_status not in ["Running", "Paused"]:
+            return jsonify({'success': False, 'message': 'No audit currently running'})
+        
+        # Force stop by changing status
+        audit_status = "Stopping"
+        audit_paused = False
+        audit_pause_event.set()  # Ensure any paused audit can continue to stop
+        
+        # Complete audit timing when stopped
+        complete_audit_timing()
+        
+        log_to_ui_and_console("🛑 Audit stop requested via WebUI")
+        
+        return jsonify({'success': True, 'message': 'Audit stop requested'})
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error stopping audit: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/api/reset-audit', methods=['POST'])
+def api_reset_audit():
+    """API endpoint to reset audit progress and state"""
+    global audit_status, audit_paused, audit_pause_event, enhanced_progress, current_audit_progress
+    global device_status_tracking, down_devices, command_logs, device_results, audit_results_summary
+    global ui_logs, ui_raw_logs, detailed_reports_manifest, last_run_summary_data, current_run_failures
+    
+    try:
+        # Only allow reset if audit is not currently running
+        if audit_status == "Running":
+            return jsonify({'success': False, 'message': 'Cannot reset while audit is running. Stop the audit first.'})
+        
+        # Reset audit status and control variables
+        audit_status = "Idle"
+        audit_paused = False
+        audit_pause_event.set()  # Reset to unpaused state
+        
+        # Reset progress tracking
+        current_audit_progress.update({
+            "status_message": "Ready",
+            "devices_processed_count": 0,
+            "total_devices_to_process": 0,
+            "percentage_complete": 0,
+            "current_phase": "Idle",
+            "current_device_hostname": "N/A",
+            "start_time": None,
+            "estimated_completion_time": None
+        })
+        
+        # Reset enhanced progress
+        enhanced_progress.update({
+            "status": "Idle",
+            "current_device": "None",
+            "completed_devices": 0,
+            "total_devices": 0,
+            "percent_complete": 0,
+            "elapsed_time": "00:00:00",
+            "estimated_completion_time": None,
+            "status_counts": {
+                "success": 0,
+                "warning": 0,
+                "failure": 0
+            }
+        })
+        
+        # Clear all tracking dictionaries
+        device_status_tracking.clear()
+        down_devices.clear()
+        command_logs.clear()
+        device_results.clear()
+        audit_results_summary.clear()
+        detailed_reports_manifest.clear()
+        last_run_summary_data.clear()
+        current_run_failures.clear()
+        
+        # Clear logs
+        ui_logs.clear()
+        ui_raw_logs.clear()
+        
+        # Reset audit timing
+        reset_audit_timing()
+        
+        # Log the reset action
+        log_to_ui_and_console("🔄 Audit progress reset - ready for fresh start")
+        log_raw_trace("Audit reset performed via WebUI", command_type="SYSTEM")
+        
+        # Send WebSocket updates
+        socketio.emit('progress_update', enhanced_progress)
+        socketio.emit('log_update', {'logs': ui_logs[-50:]})
+        socketio.emit('raw_log_update', {'logs': ui_raw_logs[-100:]})
+        
+        return jsonify({'success': True, 'message': 'Audit progress reset successfully'})
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error resetting audit: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/api/clear-logs', methods=['POST'])
+def api_clear_logs():
+    """API endpoint to clear logs"""
+    global ui_logs, command_logs
+    
+    try:
+        ui_logs.clear()
+        command_logs.clear()
+        log_to_ui_and_console("📝 UI and command logs cleared", console_only=True)
+        
+        return jsonify({'success': True, 'message': 'Logs cleared successfully'})
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error clearing logs: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+# NEW: API endpoint for clearing raw trace logs
+@app.route('/api/clear-raw-logs', methods=['POST'])
+def api_clear_raw_logs():
+    """API endpoint to clear raw trace logs"""
+    global ui_raw_logs
+    
+    try:
+        ui_raw_logs.clear()
+        log_raw_trace("Raw trace logs cleared via WebUI", command_type="SYSTEM")
+        
+        return jsonify({'success': True, 'message': 'Raw logs cleared successfully'})
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error clearing raw logs: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+# NEW: API endpoints for log fetching (auto-refresh support)
+@app.route('/api/live-logs', methods=['GET'])
+def api_live_logs():
+    """API endpoint to fetch current live audit logs"""
+    global ui_logs
+    
+    try:
+        # Return last 100 logs to avoid overwhelming the UI
+        recent_logs = ui_logs[-100:] if len(ui_logs) > 100 else ui_logs[:]
+        
+        return jsonify({
+            'success': True, 
+            'logs': recent_logs,
+            'total_count': len(ui_logs),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error fetching live logs: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/api/raw-logs', methods=['GET'])
+def api_raw_logs():
+    """API endpoint to fetch current raw trace logs"""
+    global ui_raw_logs
+    
+    try:
+        # Return last 200 raw logs to avoid overwhelming the UI
+        recent_logs = ui_raw_logs[-200:] if len(ui_raw_logs) > 200 else ui_raw_logs[:]
+        
+        return jsonify({
+            'success': True, 
+            'logs': recent_logs,
+            'total_count': len(ui_raw_logs),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error fetching raw logs: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
 
 # ====================================================================
 # MAIN APPLICATION ENTRY POINT
