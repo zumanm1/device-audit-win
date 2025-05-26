@@ -2395,7 +2395,7 @@ HTML_BASE_LAYOUT = r"""<!DOCTYPE html>
     // Cleanup on page unload
     $(window).on('beforeunload', function() {
         stopTimingUpdates();
-    });
+        });
     </script>
     {% endblock %}
 </body>
@@ -2564,9 +2564,9 @@ HTML_DASHBOARD = r"""{% extends "base.html" %}
                             <a class="dropdown-item" href="#" onclick="setLiveRefreshInterval(300)">5 minutes</a>
                         </div>
                     </div>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="clearLogs()">
-                        <i class="fas fa-trash"></i> Clear
-                    </button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="clearLogs()">
+                    <i class="fas fa-trash"></i> Clear
+                </button>
                 </div>
             </div>
             <div class="card-body">
@@ -4958,7 +4958,7 @@ def api_timing():
                 'total_time': timing_summary['total_duration']
             }
         }
-    })
+        })
 
 # ====================================================================
 # MAIN APPLICATION ENTRY POINT
