@@ -86,7 +86,7 @@ from collections import defaultdict, deque
 from functools import wraps, lru_cache
 
 # Flask and web framework
-from flask import Flask, render_template, request, jsonify, send_from_directory, flash, redirect, url_for, Response
+from flask import Flask, render_template, request, jsonify, send_from_directory, flash, redirect, url_for, Response, send_file
 from flask_socketio import SocketIO, emit
 from jinja2 import DictLoader
 from werkzeug.utils import secure_filename
@@ -4959,6 +4959,320 @@ def api_timing():
             }
         }
         })
+
+# ====================================================================
+# PHASE 4: REPORT API ROUTES & DOWNLOAD HANDLERS
+# ====================================================================
+
+def generate_excel_report(audit_results: Dict[str, Any], device_data: Dict[str, Any]) -> Optional[str]:
+    """Generate comprehensive Excel report with multiple worksheets (cross-platform safe)"""
+    try:
+        if not OPENPYXL_AVAILABLE:
+            log_to_ui_and_console("❌ Excel generation unavailable - openpyxl not installed")
+            return None
+            
+        # Ensure reports directory exists using cross-platform utilities
+        reports_dir = get_safe_path(get_script_directory(), BASE_DIR_NAME)
+        ensure_path_exists(reports_dir)
+        
+        # Generate safe filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        excel_filename = validate_filename(f"NetAuditPro_Report_{timestamp}.xlsx")
+        excel_filepath = get_safe_path(reports_dir, excel_filename)
+        
+        # Create workbook
+        import openpyxl
+        from openpyxl.styles import Font, PatternFill, Alignment
+        
+        workbook = openpyxl.Workbook()
+        
+        # Summary worksheet
+        summary_sheet = workbook.active
+        summary_sheet.title = "Summary"
+        
+        # Headers with styling
+        headers = ["Metric", "Value"]
+        for col, header in enumerate(headers, 1):
+            cell = summary_sheet.cell(row=1, column=col, value=header)
+            cell.font = Font(bold=True, color="FFFFFF")
+            cell.fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+            cell.alignment = Alignment(horizontal="center")
+        
+        # Summary data
+        summary_data = [
+            ["Report Generated", datetime.now().strftime('%Y-%m-%d %H:%M:%S')],
+            ["Total Devices", len(device_data)],
+            ["Successful Audits", audit_results.get('successful_devices', 0)],
+            ["Failed Audits", audit_results.get('failed_devices', 0)],
+            ["Success Rate", f"{audit_results.get('success_rate', 0):.1f}%"],
+            ["Audit Duration", audit_results.get('duration', 'N/A')],
+        ]
+        
+        for row, (metric, value) in enumerate(summary_data, 2):
+            summary_sheet.cell(row=row, column=1, value=metric)
+            summary_sheet.cell(row=row, column=2, value=value)
+        
+        # Device details worksheet
+        devices_sheet = workbook.create_sheet("Device Details")
+        device_headers = ["Device Name", "IP Address", "Status", "Commands Executed", "Timestamp"]
+        
+        for col, header in enumerate(device_headers, 1):
+            cell = devices_sheet.cell(row=1, column=col, value=header)
+            cell.font = Font(bold=True, color="FFFFFF")
+            cell.fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+            cell.alignment = Alignment(horizontal="center")
+        
+        for row, (device_name, device_info) in enumerate(device_data.items(), 2):
+            devices_sheet.cell(row=row, column=1, value=device_name)
+            devices_sheet.cell(row=row, column=2, value=device_info.get('ip_address', 'N/A'))
+            devices_sheet.cell(row=row, column=3, value=device_info.get('status', 'Unknown'))
+            devices_sheet.cell(row=row, column=4, value=len(device_info.get('commands', {})))
+            devices_sheet.cell(row=row, column=5, value=device_info.get('timestamp', 'N/A'))
+        
+        # Auto-adjust column widths
+        for sheet in workbook.worksheets:
+            for column in sheet.columns:
+                max_length = 0
+                column_letter = column[0].column_letter
+                for cell in column:
+                    try:
+                        if len(str(cell.value)) > max_length:
+                            max_length = len(str(cell.value))
+                    except:
+                        pass
+                adjusted_width = min(max_length + 2, 50)
+                sheet.column_dimensions[column_letter].width = adjusted_width
+        
+        # Save workbook
+        workbook.save(excel_filepath)
+        log_to_ui_and_console(f"📊 Excel report generated: {excel_filename}")
+        
+        return excel_filepath
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error generating Excel report: {e}")
+        return None
+
+def generate_csv_export(device_data: Dict[str, Any]) -> Optional[str]:
+    """Generate CSV export for AUX telnet audit results in comprehensive format (cross-platform safe)"""
+    try:
+        # Ensure reports directory exists using cross-platform utilities
+        reports_dir = get_safe_path(get_script_directory(), BASE_DIR_NAME)
+        ensure_path_exists(reports_dir)
+        
+        # Generate safe filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        csv_filename = validate_filename(f"AUX_Telnet_Audit_{timestamp}.csv")
+        csv_filepath = get_safe_path(reports_dir, csv_filename)
+        
+        # CSV Headers (matching reference script format)
+        fieldnames = ["hostname", "ip_address", "line", "telnet_allowed", "login_method", 
+                     "exec_timeout", "risk_level", "connection_method", "timestamp", "error"]
+        
+        with open(csv_filepath, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            
+            # Process each device's audit results
+            for device_name, device_info in device_data.items():
+                # Extract core device information
+                ip_address = device_info.get('ip_address', 'N/A')
+                timestamp = device_info.get('timestamp', 'N/A')
+                status = device_info.get('status', 'failed')
+                
+                # Get AUX telnet specific results
+                commands = device_info.get('commands', {})
+                aux_results = commands.get('aux_telnet_audit', {})
+                
+                if aux_results and isinstance(aux_results, dict):
+                    # Extract parsed AUX data
+                    parsed_data = aux_results.get('parsed_data', {})
+                    
+                    writer.writerow({
+                        'hostname': parsed_data.get('hostname', device_name),
+                        'ip_address': ip_address,
+                        'line': parsed_data.get('aux_line', 'N/A'),
+                        'telnet_allowed': parsed_data.get('telnet_allowed', 'UNKNOWN'),
+                        'login_method': parsed_data.get('login_method', 'N/A'),
+                        'exec_timeout': parsed_data.get('exec_timeout', 'N/A'),
+                        'risk_level': parsed_data.get('risk_level', 'UNKNOWN'),
+                        'connection_method': 'SSH via Jump Host',
+                        'timestamp': timestamp,
+                        'error': aux_results.get('error', '')
+                    })
+                else:
+                    # Device failed - write minimal information
+                    error_msg = device_info.get('error', 'Connection failed')
+                    writer.writerow({
+                        'hostname': device_name,
+                        'ip_address': ip_address,
+                        'line': 'N/A',
+                        'telnet_allowed': 'UNKNOWN',
+                        'login_method': 'N/A',
+                        'exec_timeout': 'N/A',
+                        'risk_level': 'UNKNOWN',
+                        'connection_method': 'SSH via Jump Host',
+                        'timestamp': timestamp,
+                        'error': error_msg
+                    })
+        
+        log_to_ui_and_console(f"📊 Comprehensive AUX Telnet Audit CSV generated: {csv_filename}")
+        log_to_ui_and_console(f"📁 Format: hostname,ip_address,line,telnet_allowed,login_method,exec_timeout,risk_level,connection_method,timestamp,error")
+        return csv_filepath
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error generating CSV export: {e}")
+        return None
+
+def generate_json_export(audit_results: Dict[str, Any], device_data: Dict[str, Any]) -> Optional[str]:
+    """Generate JSON export for programmatic access (cross-platform safe)"""
+    try:
+        # Ensure reports directory exists using cross-platform utilities
+        reports_dir = get_safe_path(get_script_directory(), BASE_DIR_NAME)
+        ensure_path_exists(reports_dir)
+        
+        # Generate safe filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        json_filename = validate_filename(f"NetAuditPro_Report_{timestamp}.json")
+        json_filepath = get_safe_path(reports_dir, json_filename)
+        
+        # Prepare export data
+        export_data = {
+            "report_metadata": {
+                "generated_at": datetime.now().isoformat(),
+                "netauditpro_version": APP_VERSION,
+                "report_type": "comprehensive_audit",
+                "report_id": timestamp
+            },
+            "audit_summary": audit_results,
+            "device_data": device_data,
+            "inventory_info": {
+                "total_devices": len(active_inventory_data.get('data', [])),
+                "inventory_file": app_config.get('ACTIVE_INVENTORY_FILE', 'N/A'),
+                "jump_host": app_config.get('JUMP_HOST', 'N/A')
+            }
+        }
+        
+        with open(json_filepath, 'w', encoding='utf-8') as jsonfile:
+            json.dump(export_data, jsonfile, indent=2, default=str, ensure_ascii=False)
+        
+        log_to_ui_and_console(f"📊 JSON export generated: {json_filename}")
+        return json_filepath
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error generating JSON export: {e}")
+        return None
+
+@app.route('/api/generate-pdf-report', methods=['POST'])
+def api_generate_pdf_report():
+    """API endpoint to generate PDF report"""
+    try:
+        if not device_results:
+            return jsonify({'success': False, 'message': 'No audit data available. Please run an audit first.'})
+        
+        pdf_path = generate_professional_pdf_report(audit_results_summary, device_results)
+        if pdf_path:
+            filename = os.path.basename(pdf_path)
+            return jsonify({'success': True, 'message': f'PDF report generated: {filename}', 'filename': filename})
+        else:
+            return jsonify({'success': False, 'message': 'Failed to generate PDF report'})
+    
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error generating PDF report: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/api/generate-excel-report', methods=['POST'])
+def api_generate_excel_report():
+    """API endpoint to generate Excel report"""
+    try:
+        if not device_results:
+            return jsonify({'success': False, 'message': 'No audit data available. Please run an audit first.'})
+        
+        excel_path = generate_excel_report(audit_results_summary, device_results)
+        if excel_path:
+            filename = os.path.basename(excel_path)
+            return jsonify({'success': True, 'message': f'Excel report generated: {filename}', 'filename': filename})
+        else:
+            return jsonify({'success': False, 'message': 'Failed to generate Excel report'})
+    
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error generating Excel report: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/api/generate-csv-export', methods=['POST'])
+def api_generate_csv_export():
+    """API endpoint to generate CSV export"""
+    try:
+        if not device_results:
+            return jsonify({'success': False, 'message': 'No audit data available. Please run an audit first.'})
+        
+        csv_path = generate_csv_export(device_results)
+        if csv_path:
+            filename = os.path.basename(csv_path)
+            return jsonify({'success': True, 'message': f'CSV export generated: {filename}', 'filename': filename})
+        else:
+            return jsonify({'success': False, 'message': 'Failed to generate CSV export'})
+    
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error generating CSV export: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/api/generate-json-export', methods=['POST'])
+def api_generate_json_export():
+    """API endpoint to generate JSON export"""
+    try:
+        if not device_results:
+            return jsonify({'success': False, 'message': 'No audit data available. Please run an audit first.'})
+        
+        json_path = generate_json_export(audit_results_summary, device_results)
+        if json_path:
+            filename = os.path.basename(json_path)
+            return jsonify({'success': True, 'message': f'JSON export generated: {filename}', 'filename': filename})
+        else:
+            return jsonify({'success': False, 'message': 'Failed to generate JSON export'})
+    
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error generating JSON export: {e}")
+        return jsonify({'success': False, 'message': f'Error: {str(e)}'})
+
+@app.route('/download-report/<filename>')
+def download_report(filename):
+    """Download route for generated reports (cross-platform safe)"""
+    try:
+        # Security check - only allow NetAuditPro files
+        if not filename.startswith('NetAuditPro_') and not filename.startswith('AUX_Telnet_Audit_'):
+            flash('Invalid file request', 'error')
+            return redirect(url_for('reports'))
+        
+        # Sanitize filename for security
+        filename = validate_filename(filename)
+        
+        # Use cross-platform path utilities
+        reports_dir = get_safe_path(get_script_directory(), BASE_DIR_NAME)
+        file_path = get_safe_path(reports_dir, filename)
+        
+        if not os.path.exists(file_path):
+            flash('File not found', 'error')
+            return redirect(url_for('reports'))
+        
+        # Determine MIME type
+        if filename.endswith('.pdf'):
+            mimetype = 'application/pdf'
+        elif filename.endswith('.xlsx'):
+            mimetype = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        elif filename.endswith('.csv'):
+            mimetype = 'text/csv'
+        elif filename.endswith('.json'):
+            mimetype = 'application/json'
+        else:
+            mimetype = 'application/octet-stream'
+        
+        return send_file(file_path, as_attachment=True, download_name=filename, mimetype=mimetype)
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error downloading report: {e}")
+        flash(f'Error downloading file: {str(e)}', 'error')
+        return redirect(url_for('reports'))
 
 # ====================================================================
 # MAIN APPLICATION ENTRY POINT

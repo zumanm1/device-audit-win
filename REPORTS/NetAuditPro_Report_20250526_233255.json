@@ -1,0 +1,70 @@
+{
+  "report_metadata": {
+    "generated_at": "2025-05-26T23:32:55.335941",
+    "netauditpro_version": "v3.0.0-PHASE5",
+    "report_type": "comprehensive_audit",
+    "report_id": "20250526_233255"
+  },
+  "audit_summary": {},
+  "device_data": {
+    "Cisco 2911": {
+      "device_name": "Cisco 2911",
+      "timestamp": "2025-05-26T23:31:37.257797",
+      "commands": {
+        "aux_telnet_audit": {
+          "command": "show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout",
+          "output": "hostname R1\n transport input ssh\n exec-timeout 0 0\n transport input ssh\n transport input ssh\n login authentication LOCAL_LOGIN_LOCAL\n transport input ssh",
+          "status": "success",
+          "timestamp": "2025-05-26T23:31:41.270731"
+        }
+      },
+      "telnet_audit": {
+        "hostname": "R1",
+        "ip_address": "172.16.39.101",
+        "line": "line aux 0",
+        "telnet_allowed": "NO",
+        "login_method": "aaa",
+        "exec_timeout": "never",
+        "risk_level": "LOW",
+        "transport_input": "transport input ssh",
+        "analysis": "✅ SECURE: Telnet disabled or SSH-only",
+        "timestamp": "2025-05-26 23:31:41",
+        "connection_method": "jump_host"
+      },
+      "status": "success",
+      "error_count": 0
+    },
+    "Cisco 2921": {
+      "device_name": "Cisco 2921",
+      "timestamp": "2025-05-26T23:31:43.788707",
+      "commands": {
+        "aux_telnet_audit": {
+          "command": "show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout",
+          "output": "hostname R2\n login local\nline aux 0\n login local\n transport input ssh\n login local",
+          "status": "success",
+          "timestamp": "2025-05-26T23:31:48.550573"
+        }
+      },
+      "telnet_audit": {
+        "hostname": "R2",
+        "ip_address": "172.16.39.102",
+        "line": "line aux 0",
+        "telnet_allowed": "NO",
+        "login_method": "local",
+        "exec_timeout": "default",
+        "risk_level": "LOW",
+        "transport_input": "transport input ssh",
+        "analysis": "✅ SECURE: Telnet disabled or SSH-only",
+        "timestamp": "2025-05-26 23:31:48",
+        "connection_method": "jump_host"
+      },
+      "status": "success",
+      "error_count": 0
+    }
+  },
+  "inventory_info": {
+    "total_devices": 6,
+    "inventory_file": "routers01.csv",
+    "jump_host": "172.16.39.128"
+  }
+}

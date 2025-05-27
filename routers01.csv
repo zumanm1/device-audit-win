@@ -4,3 +4,4 @@ index,hostname,management_ip,wan_ip,model_name
 2,RTR-BRANCH-03.xrnet.net,172.16.39.102,203.0.113.3,Cisco 3945 Integrated Services Router
 3,RTR-BRANCH-04.xrnet.net,172.16.39.103,203.0.113.4,Cisco 4321 Integrated Services Router
 4,RTR-BRANCH-05.xrnet.net,172.16.39.104,203.0.113.5,Cisco 2911 Integrated Services Router
+5,RTR-BRANCH-06.xrnet.net,172.16.39.105,203.0.113.6,Cisco 2911 Integrated Services Router
