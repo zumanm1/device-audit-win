@@ -1,0 +1,7 @@
+hostname,ip_address,line,telnet_allowed,login_method,exec_timeout,risk_level,timestamp,error,model,audit_start_time,audit_end_time,audit_duration
+RTR-BRANCH-03.xrnet.net,172.16.39.102,line aux 0,NO,unknown,default,LOW,2025-05-27 11:17:37,'auth_status',Unknown,2025-05-27 11:16:36,2025-05-27 11:18:50,2m 13s
+RTR-CORE-01.xrnet.net,172.16.39.100,line aux 0,NO,unknown,default,LOW,2025-05-27 11:17:37,'auth_status',Unknown,2025-05-27 11:16:36,2025-05-27 11:18:50,2m 13s
+RTR-EDGE-02.xrnet.net,172.16.39.101,line aux 0,NO,unknown,default,LOW,2025-05-27 11:17:40,'auth_status',Unknown,2025-05-27 11:16:36,2025-05-27 11:18:50,2m 13s
+RTR-BRANCH-04.xrnet.net,172.16.39.103,line aux 0,NO,unknown,default,LOW,2025-05-27 11:18:35,'auth_status',Unknown,2025-05-27 11:16:36,2025-05-27 11:18:50,2m 13s
+RTR-BRANCH-05.xrnet.net,172.16.39.104,line aux 0,NO,unknown,default,LOW,2025-05-27 11:18:46,'auth_status',Unknown,2025-05-27 11:16:36,2025-05-27 11:18:50,2m 13s
+RTR-BRANCH-06.xrnet.net,172.16.39.105,line aux 0,NO,unknown,default,LOW,2025-05-27 11:18:50,'auth_status',Unknown,2025-05-27 11:16:36,2025-05-27 11:18:50,2m 13s

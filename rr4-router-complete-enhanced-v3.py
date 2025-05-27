@@ -183,9 +183,13 @@ else:
     MAX_PATH_LENGTH = 4096  # Unix/Linux path limitation
     SCRIPT_EXT = ".sh"
 
-# Core Cisco AUX Telnet Audit Command (focused security audit)
+# Core Cisco AUX Telnet Audit Commands + Enhanced Platform/Version Info
 CORE_COMMANDS = {
-    'aux_telnet_audit': 'show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout'
+    'aux_telnet_audit': 'show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout',
+    'platform_info': 'show platform',
+    'version_info': 'show version',
+    'system_info': 'show inventory',
+    'interface_summary': 'show ip interface brief'
 }
 
 # Environment configuration
@@ -837,21 +841,1989 @@ current_audit_progress = {
     "estimated_completion_time": None
 }
 
-# Enhanced progress tracking
+# Initialize enhanced progress tracking
 enhanced_progress = {
-    "status": "Idle",
-    "current_device": "None",
+    "current_device": "",
     "completed_devices": 0,
     "total_devices": 0,
     "percent_complete": 0,
-    "elapsed_time": "00:00:00",
-    "estimated_completion_time": None,
-    "status_counts": {
-        "success": 0,
-        "warning": 0,
-        "failure": 0
-    }
+    "percentage": 0,  # Keep both for compatibility
+    "status": "Ready",
+    "start_time": None,
+    "estimated_completion": None,
+    "elapsed_time": 0,
+    "status_counts": {"success": 0, "warning": 0, "failure": 0},
+    "current_step": "",
+    "steps_total": 5,  # ping, ssh_connect, ssh_auth, command_exec, data_retrieval
+    "steps_completed": 0,
+    "device_progress": {},
+    "last_updated": time.time()
 }
+
+# Enhanced device status tracking for granular reporting
+detailed_device_status = {}
+
+# Device tracking
+device_status_tracking: Dict[str, str] = {}
+down_devices: Dict[str, Dict[str, Any]] = {}
+command_logs: Dict[str, Dict[str, Any]] = {}
+
+# Report tracking
+detailed_reports_manifest: Dict[str, Any] = {}
+last_run_summary_data: Dict[str, Any] = {}
+current_run_failures: Dict[str, Any] = {}
+
+# Phase 4 reporting data
+device_results: Dict[str, Any] = {}
+audit_results_summary: Dict[str, Any] = {}
+
+# Security - sensitive strings to sanitize
+sensitive_strings_to_redact: List[str] = []
+
+# Additional trace logging for raw logs (NEW - no interference with existing)
+ui_raw_logs = []  # Raw trace logs for debugging/detailed view
+MAX_RAW_LOG_ENTRIES = 1000  # Higher limit for detailed logs
+
+# ====================================================================
+# UTILITY FUNCTIONS
+# ====================================================================
+
+def sanitize_log_message(msg: str) -> str:
+    """Enhanced credential sanitization for security"""
+    if not isinstance(msg, str):
+        msg = str(msg)
+    
+    # Username patterns - mask with ****
+    msg = re.sub(r'username[=\s:]+\S+', 'username=****', msg, flags=re.IGNORECASE)
+    msg = re.sub(r'user[=\s:]+\S+', 'user=****', msg, flags=re.IGNORECASE)
+    msg = re.sub(r'login[=\s:]+\S+', 'login=****', msg, flags=re.IGNORECASE)
+    
+    # Password patterns - mask with ####
+    msg = re.sub(r'password[=\s:]+\S+', 'password=####', msg, flags=re.IGNORECASE)
+    msg = re.sub(r'passwd[=\s:]+\S+', 'passwd=####', msg, flags=re.IGNORECASE)
+    msg = re.sub(r'pwd[=\s:]+\S+', 'pwd=####', msg, flags=re.IGNORECASE)
+    msg = re.sub(r'secret[=\s:]+\S+', 'secret=####', msg, flags=re.IGNORECASE)
+    
+    # SSH connection strings - mask username
+    msg = re.sub(r'(\w+)@(\d+\.\d+\.\d+\.\d+)', '****@\\2', msg)
+    
+    # Function parameters
+    msg = re.sub(r'(username|password|secret)=(["\']?)([^,\s"\']+)(["\']?)', r'\1=\2****\4', msg, flags=re.IGNORECASE)
+    
+    # Additional sensitive patterns
+    for sensitive in sensitive_strings_to_redact:
+        if sensitive and len(sensitive) > 0:
+            msg = msg.replace(sensitive, '####')
+    
+    return msg
+
+def validate_inventory_security(inventory_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    SECURITY: Validate that inventory CSV does not contain credential fields
+    Credentials must ONLY come from .env file or web UI settings
+    """
+    validation_result = {
+        "is_secure": True,
+        "security_issues": [],
+        "warnings": []
+    }
+    
+    # List of forbidden credential fields in CSV
+    forbidden_credential_fields = [
+        'password', 'passwd', 'pwd', 'secret', 'enable_password', 'enable_secret',
+        'device_password', 'device_secret', 'login_password', 'auth_password',
+        'ssh_password', 'telnet_password', 'console_password', 'enable',
+        'credential', 'credentials', 'key', 'private_key', 'auth_key'
+    ]
+    
+    # Check headers for credential fields
+    headers = inventory_data.get('headers', [])
+    if headers:
+        for header in headers:
+            header_lower = header.lower()
+            for forbidden_field in forbidden_credential_fields:
+                if forbidden_field in header_lower:
+                    validation_result["is_secure"] = False
+                    validation_result["security_issues"].append(
+                        f"SECURITY VIOLATION: CSV contains credential field '{header}'. "
+                        f"Credentials must only be configured via .env file or web UI settings."
+                    )
+    
+    # Check for common credential patterns in data
+    data_rows = inventory_data.get('data', [])
+    if data_rows:
+        for i, row in enumerate(data_rows):
+            for field_name, field_value in row.items():
+                if field_value and isinstance(field_value, str):
+                    # Check for password-like patterns
+                    if (len(field_value) > 6 and 
+                        any(char.isdigit() for char in field_value) and
+                        any(char.isalpha() for char in field_value) and
+                        field_name.lower() not in ['hostname', 'ip_address', 'description', 'device_type', 
+                                                  'management_ip', 'wan_ip', 'cisco_model', 'index']):
+                        validation_result["warnings"].append(
+                            f"Row {i+1}, field '{field_name}': Value looks like a credential. "
+                            f"Ensure this is not a password field."
+                        )
+    
+    # Check for required secure fields only (no credentials)
+    required_fields = ['hostname', 'ip_address']
+    missing_required = []
+    
+    if headers:
+        # Check for new CSV format first
+        if 'management_ip' in headers:
+            # New format: index, management_ip, wan_ip, cisco_model, description
+            new_format_required = ['management_ip', 'cisco_model']
+            for required_field in new_format_required:
+                if required_field not in headers:
+                    missing_required.append(required_field)
+        else:
+            # Legacy format: hostname, ip_address, device_type, description
+            for required_field in required_fields:
+                if required_field not in headers:
+                    missing_required.append(required_field)
+    
+    if missing_required:
+        validation_result["warnings"].append(
+            f"Missing recommended fields: {', '.join(missing_required)}"
+        )
+    
+    return validation_result
+
+def validate_device_credentials() -> Dict[str, Any]:
+    """
+    SECURITY: Validate that device credentials are properly configured
+    Returns validation status and helpful error messages
+    """
+    validation_result = {
+        "credentials_valid": True,
+        "missing_credentials": [],
+        "error_message": "",
+        "help_message": ""
+    }
+    
+    # Check required device credentials from .env/config only
+    device_username = app_config.get("DEVICE_USERNAME", "").strip()
+    device_password = app_config.get("DEVICE_PASSWORD", "").strip()
+    
+    if not device_username:
+        validation_result["credentials_valid"] = False
+        validation_result["missing_credentials"].append("DEVICE_USERNAME")
+    
+    if not device_password:
+        validation_result["credentials_valid"] = False
+        validation_result["missing_credentials"].append("DEVICE_PASSWORD")
+    
+    if not validation_result["credentials_valid"]:
+        validation_result["error_message"] = (
+            f"Missing device credentials: {', '.join(validation_result['missing_credentials'])}. "
+            "Device credentials are REQUIRED and must be configured via:"
+        )
+        validation_result["help_message"] = (
+            "1. Web UI: Go to Settings page and enter device credentials\n"
+            "2. .env file: Add DEVICE_USERNAME and DEVICE_PASSWORD to .env file\n"
+            "3. Environment variables: Set DEVICE_USERNAME and DEVICE_PASSWORD\n\n"
+            "SECURITY NOTE: Never put credentials in CSV inventory files!"
+        )
+    
+    return validation_result
+
+def map_csv_columns(device_data: Dict[str, str]) -> Dict[str, str]:
+    """
+    Map new CSV column format to internal system format
+    Supports both old and new CSV formats for backward compatibility
+    """
+    mapped_device = {}
+    
+    # New CSV format: index, management_ip, wan_ip, cisco_model, description
+    if "management_ip" in device_data:
+        mapped_device["hostname"] = device_data.get("cisco_model", f"Device-{device_data.get('index', 'Unknown')}")
+        mapped_device["ip_address"] = device_data.get("management_ip", "")
+        mapped_device["wan_ip"] = device_data.get("wan_ip", "")
+        mapped_device["cisco_model"] = device_data.get("cisco_model", "")
+        mapped_device["description"] = device_data.get("description", "")
+        mapped_device["index"] = device_data.get("index", "")
+        
+        # Set device_type based on configuration or default to cisco_xe
+        mapped_device["device_type"] = app_config.get("DEFAULT_DEVICE_TYPE", "cisco_xe")
+        
+    # Legacy CSV format: hostname, ip_address, device_type, description
+    elif "hostname" in device_data:
+        mapped_device["hostname"] = device_data.get("hostname", "")
+        mapped_device["ip_address"] = device_data.get("ip_address", "")
+        mapped_device["device_type"] = device_data.get("device_type", "cisco_ios")
+        mapped_device["description"] = device_data.get("description", "")
+        
+    # Handle any other fields that might exist
+    for key, value in device_data.items():
+        if key not in mapped_device:
+            mapped_device[key] = value
+    
+    return mapped_device
+
+@error_handler(ErrorCategory.SYSTEM)
+def log_to_ui_and_console(msg, console_only=False, is_sensitive=False, end="\n", **kwargs):
+    """Enhanced logging with sanitization and real-time UI updates"""
+    global ui_logs
+    
+    # Sanitize the message
+    sanitized_msg = sanitize_log_message(str(msg))
+    
+    # Print to console
+    print(sanitized_msg, end=end, **kwargs)
+    
+    # Add to UI logs unless console_only
+    if not console_only:
+        timestamp = datetime.now().strftime('%H:%M:%S')
+        formatted_msg = f"[{timestamp}] {sanitized_msg}"
+        ui_logs.append(formatted_msg)
+        
+        # Keep only last MAX_LOG_ENTRIES for performance
+        if len(ui_logs) > MAX_LOG_ENTRIES:
+            ui_logs = ui_logs[-MAX_LOG_ENTRIES:]
+        
+        # Emit to WebSocket clients for real-time updates
+        try:
+            socketio.emit('log_update', {'message': formatted_msg})
+        except Exception as e:
+            print(f"Error emitting log update: {e}")
+
+# NEW: Raw trace logging function (no interference with existing code)
+@error_handler(ErrorCategory.SYSTEM)
+def log_raw_trace(msg, command_type="TRACE", device=None, **kwargs):
+    """
+    Raw trace logging for detailed debugging and jump host command tracking
+    Captures all jump host executions, SSH commands, and detailed operations
+    """
+    global ui_raw_logs
+    
+    # Create detailed timestamp
+    timestamp = datetime.now().strftime('%H:%M:%S.%f')[:-3]  # Include milliseconds
+    
+    # Build detailed trace message
+    if device:
+        trace_msg = f"[{timestamp}] [{command_type}] [{device}] {msg}"
+    else:
+        trace_msg = f"[{timestamp}] [{command_type}] {msg}"
+    
+    # Add to raw logs
+    ui_raw_logs.append(trace_msg)
+    
+    # Keep only last MAX_RAW_LOG_ENTRIES for performance
+    if len(ui_raw_logs) > MAX_RAW_LOG_ENTRIES:
+        ui_raw_logs = ui_raw_logs[-MAX_RAW_LOG_ENTRIES:]
+    
+    # Emit to WebSocket clients for real-time raw logs updates
+    try:
+        socketio.emit('raw_log_update', {'message': trace_msg})
+    except Exception as e:
+        print(f"Error emitting raw log update: {e}")
+    
+    # Also log to console for debugging (optional - can be disabled)
+    print(f"RAW: {trace_msg}", **kwargs)
+
+@error_handler(ErrorCategory.CONFIGURATION)
+def load_app_config():
+    """Load application configuration from environment - CREDENTIALS ONLY FROM .ENV OR WEB UI"""
+    global app_config, sensitive_strings_to_redact
+    
+    app_config = {
+        # Jump host configuration (from .env only)
+        "JUMP_HOST": os.getenv("JUMP_HOST", ""),
+        "JUMP_USERNAME": os.getenv("JUMP_USERNAME", ""),
+        "JUMP_PASSWORD": os.getenv("JUMP_PASSWORD", ""),
+        "JUMP_PING_PATH": os.getenv("JUMP_PING_PATH", PING_CMD),
+        
+        # SECURITY: Device credentials ONLY from .env file or web UI - NEVER from CSV
+        "DEVICE_USERNAME": os.getenv("DEVICE_USERNAME", ""),
+        "DEVICE_PASSWORD": os.getenv("DEVICE_PASSWORD", ""),
+        "DEVICE_ENABLE": os.getenv("DEVICE_ENABLE", ""),
+        
+        # Device type configuration for new CSV format
+        "DEFAULT_DEVICE_TYPE": os.getenv("DEFAULT_DEVICE_TYPE", "cisco_xe"),
+        
+        # Inventory configuration
+        "ACTIVE_INVENTORY_FILE": os.getenv("ACTIVE_INVENTORY_FILE", DEFAULT_CSV_FILENAME),
+        "ACTIVE_INVENTORY_FORMAT": "csv"  # v3 uses CSV only (NO CREDENTIALS IN CSV)
+    }
+    
+    # Build sensitive strings list for sanitization
+    sensitive_strings_to_redact.clear()
+    for key in ["JUMP_PASSWORD", "DEVICE_PASSWORD", "DEVICE_ENABLE"]:
+        value = app_config.get(key, "")
+        if value and len(value) > 0:
+            sensitive_strings_to_redact.append(value)
+    
+    # Log credential configuration status (without exposing actual values)
+    log_to_ui_and_console("🔐 Credential Configuration Status:", console_only=True)
+    log_to_ui_and_console(f"   • Jump Host: {'✅ Configured' if app_config.get('JUMP_HOST') else '❌ Missing'}", console_only=True)
+    log_to_ui_and_console(f"   • Jump Username: {'✅ Configured' if app_config.get('JUMP_USERNAME') else '❌ Missing'}", console_only=True)
+    log_to_ui_and_console(f"   • Jump Password: {'✅ Configured' if app_config.get('JUMP_PASSWORD') else '❌ Missing'}", console_only=True)
+    log_to_ui_and_console(f"   • Device Username: {'✅ Configured' if app_config.get('DEVICE_USERNAME') else '❌ Missing'}", console_only=True)
+    log_to_ui_and_console(f"   • Device Password: {'✅ Configured' if app_config.get('DEVICE_PASSWORD') else '❌ Missing'}", console_only=True)
+    log_to_ui_and_console(f"   • Device Enable: {'✅ Configured' if app_config.get('DEVICE_ENABLE') else '⚪ Optional'}", console_only=True)
+
+def get_inventory_path(filename: str = None) -> str:
+    """Get the full path to an inventory file (cross-platform safe)"""
+    if not filename:
+        filename = app_config.get("ACTIVE_INVENTORY_FILE", DEFAULT_CSV_FILENAME)
+    
+    # Sanitize filename for cross-platform compatibility
+    filename = validate_filename(filename)
+    
+    # Ensure inventories directory exists using cross-platform utilities
+    inventory_dir = get_safe_path(get_script_directory(), INVENTORY_DIR)
+    ensure_path_exists(inventory_dir)
+    
+    return get_safe_path(inventory_dir, filename)
+
+@error_handler(ErrorCategory.NETWORK)
+def ping_host(host: str) -> bool:
+    """Cross-platform ping function with no hardcoded paths"""
+    try:
+        # Use platform-specific ping command (already configured as list)
+        cmd = PING_CMD + [host]
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=10)
+        return result.returncode == 0
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Ping error for {host}: {e}")
+        return False
+
+@error_handler(ErrorCategory.CONFIGURATION)
+def create_default_inventory():
+    """Create default CSV inventory if none exists"""
+    inventory_path = get_inventory_path()
+    
+    if not os.path.exists(inventory_path):
+        default_data = [
+            ["hostname", "ip_address", "device_type", "description"],
+            ["R1", "172.16.39.101", "cisco_ios", "Router 1"],
+            ["R2", "172.16.39.102", "cisco_ios", "Router 2"],
+            ["R3", "172.16.39.103", "cisco_ios", "Router 3"]
+        ]
+        
+        try:
+            with open(inventory_path, 'w', newline='', encoding='utf-8') as f:
+                writer = csv.writer(f)
+                writer.writerows(default_data)
+            log_to_ui_and_console(f"Created default inventory: {inventory_path}", console_only=True)
+        except Exception as e:
+            log_to_ui_and_console(f"Error creating default inventory: {e}")
+
+@error_handler(ErrorCategory.CONFIGURATION)
+def load_active_inventory():
+    """Load the active CSV inventory - SECURITY: Validate no credentials in CSV"""
+    global active_inventory_data
+    
+    inventory_path = get_inventory_path()
+    
+    if not os.path.exists(inventory_path):
+        create_default_inventory()
+    
+    try:
+        active_inventory_data = {"data": [], "headers": []}
+        
+        with open(inventory_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            active_inventory_data["headers"] = reader.fieldnames or []
+            raw_data = list(reader)
+            
+            # Apply column mapping to convert new CSV format to internal format
+            active_inventory_data["data"] = [map_csv_columns(device) for device in raw_data]
+        
+        # SECURITY: Validate that CSV doesn't contain credential fields
+        security_validation = validate_inventory_security(active_inventory_data)
+        
+        if not security_validation["is_secure"]:
+            log_to_ui_and_console("🚨 SECURITY ALERT: CSV Inventory Security Issues Detected!", console_only=True)
+            for issue in security_validation["security_issues"]:
+                log_to_ui_and_console(f"❌ {issue}", console_only=True)
+            log_to_ui_and_console("📝 Please remove credential fields from CSV and configure credentials via Settings page or .env file.", console_only=True)
+        
+        if security_validation["warnings"]:
+            log_to_ui_and_console("⚠️ CSV Inventory Warnings:", console_only=True)
+            for warning in security_validation["warnings"]:
+                log_to_ui_and_console(f"⚠️ {warning}", console_only=True)
+        
+        log_to_ui_and_console(f"📋 Loaded inventory: {len(active_inventory_data['data'])} devices", console_only=True)
+        log_to_ui_and_console(f"🔒 Security status: {'✅ SECURE' if security_validation['is_secure'] else '❌ SECURITY ISSUES FOUND'}", console_only=True)
+        
+    except Exception as e:
+        log_to_ui_and_console(f"❌ Error loading inventory: {e}")
+        active_inventory_data = {"data": [], "headers": []}
+
+@error_handler(ErrorCategory.SYSTEM)
+def ensure_directories():
+    """Ensure all required directories exist (cross-platform safe)"""
+    script_dir = get_script_directory()
+    
+    dirs_to_create = [
+        get_safe_path(script_dir, INVENTORY_DIR),
+        get_safe_path(script_dir, BASE_DIR_NAME),
+        get_safe_path(script_dir, COMMAND_LOGS_DIR_NAME)
+    ]
+    
+    for dir_path in dirs_to_create:
+        try:
+            ensure_path_exists(dir_path)
+            log_to_ui_and_console(f"✅ Directory ready: {os.path.basename(dir_path)}", console_only=True)
+        except Exception as e:
+            log_to_ui_and_console(f"❌ Error creating directory {dir_path}: {e}")
+
+# ====================================================================
+# PHASE 5: ENHANCED HTML TEMPLATES WITH ACCESSIBILITY
+# ====================================================================
+
+# Base layout template with Phase 5 accessibility enhancements
+HTML_BASE_LAYOUT = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}NetAuditPro v3 - Router Audit & Analytics{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --info-color: #17a2b8;
+            --dark-color: #343a40;
+            --light-color: #f8f9fa;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding-top: 20px;
+        }
+        
+        /* Phase 5: Enhanced Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        /* Keyboard navigation focus indicators */
+        button:focus, a:focus, input:focus, select:focus, textarea:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+        
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .card {
+                border: 2px solid #000;
+            }
+            
+            .btn {
+                border-width: 2px;
+            }
+        }
+        
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Tooltip enhancements */
+        .tooltip-enhanced {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip-enhanced .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 14px;
+        }
+        
+        .tooltip-enhanced:hover .tooltip-text,
+        .tooltip-enhanced:focus .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        /* Keyboard shortcuts indicator */
+        .keyboard-shortcut {
+            font-size: 0.75em;
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+            border-radius: 3px;
+            padding: 2px 4px;
+            margin-left: 8px;
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            color: var(--primary-color) !important;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            color: white;
+            border-radius: 10px 10px 0 0 !important;
+            font-weight: 600;
+        }
+        
+        .progress {
+            height: 25px;
+            border-radius: 12px;
+        }
+        
+        .progress-bar {
+            border-radius: 12px;
+            font-weight: 600;
+        }
+        
+        .log-container {
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        
+        .device-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .device-card {
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid;
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        
+        .device-card:hover,
+        .device-card:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .device-card.status-up {
+            border-left-color: var(--success-color);
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        }
+        
+        .device-card.status-down {
+            border-left-color: var(--danger-color);
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        }
+        
+        .device-card.status-unknown {
+            border-left-color: var(--warning-color);
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        
+        .status-up .status-indicator {
+            background-color: var(--success-color);
+        }
+        
+        .status-down .status-indicator {
+            background-color: var(--danger-color);
+        }
+        
+        .status-unknown .status-indicator {
+            background-color: var(--warning-color);
+        }
+        
+        /* Performance indicator */
+        .performance-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            z-index: 1000;
+            font-family: monospace;
+        }
+        
+        .footer {
+            margin-top: 50px;
+            padding: 20px 0;
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #0056b3);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #1e7e34);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e0a800);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #c82333);
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+        }
+        
+        .alert {
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .device-status-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+    <!-- Phase 5: Performance indicator -->
+    <div id="performance-indicator" class="performance-indicator" style="display: none;">
+        <div>CPU: <span id="cpu-usage">0%</span></div>
+        <div>MEM: <span id="memory-usage">0MB</span></div>
+        <div>UPT: <span id="uptime">0s</span></div>
+    </div>
+    
+    <div class="container-fluid">
+        <!-- Navigation with accessibility enhancements -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-white mb-4 shadow-sm rounded" role="navigation" aria-label="Main navigation">
+            <a class="navbar-brand" href="/" aria-label="NetAuditPro v3 home">
+                <i class="fas fa-network-wired" aria-hidden="true"></i> {{ APP_NAME }} v{{ APP_VERSION }}
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mr-auto" role="menubar">
+                    <li class="nav-item" role="none">
+                        <a class="nav-link" href="/" role="menuitem" aria-label="Dashboard">
+                            <i class="fas fa-tachometer-alt" aria-hidden="true"></i> Dashboard
+                            <span class="keyboard-shortcut">Alt+1</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a class="nav-link" href="/settings" role="menuitem" aria-label="Settings">
+                            <i class="fas fa-cogs" aria-hidden="true"></i> Settings
+                            <span class="keyboard-shortcut">Alt+2</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a class="nav-link" href="/inventory" role="menuitem" aria-label="Inventory">
+                            <i class="fas fa-list" aria-hidden="true"></i> Inventory
+                            <span class="keyboard-shortcut">Alt+3</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a class="nav-link" href="/reports" role="menuitem" aria-label="Reports">
+                            <i class="fas fa-chart-bar" aria-hidden="true"></i> Reports
+                            <span class="keyboard-shortcut">Alt+4</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a class="nav-link" href="/logs" role="menuitem" aria-label="Command Logs">
+                            <i class="fas fa-terminal" aria-hidden="true"></i> Command Logs
+                            <span class="keyboard-shortcut">Alt+5</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <span class="navbar-text">
+                    <span class="badge badge-info" aria-label="Application port">Port: {{ DEFAULT_PORT }}</span>
+                    <span class="badge badge-secondary ml-2" aria-label="Operating system">{{ PLATFORM.title() }}</span>
+                </span>
+            </div>
+        </nav>
+        
+        <!-- Flash Messages with accessibility -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" 
+                         role="alert" aria-live="polite">
+                        <i class="fas fa-{{ 'exclamation-triangle' if category == 'warning' else 'info-circle' if category == 'info' else 'check-circle' if category == 'success' else 'times-circle' }}" aria-hidden="true"></i>
+                        {{ message }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Main Content -->
+        <main role="main">
+            {% block content %}{% endblock %}
+        </main>
+        
+        <!-- Footer -->
+        <footer class="footer" role="contentinfo">
+            <div class="container">
+                <p>&copy; 2024 {{ APP_NAME }} - Cross-Platform Router Audit Solution</p>
+                <p><small>Single-file architecture | Real-time updates | Professional reporting | Phase 5 Enhanced</small></p>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    
+    {% block scripts %}
+    <script>
+        // Phase 5: Enhanced JavaScript with accessibility and performance monitoring
+        
+        // Socket.IO connection for real-time updates
+        const socket = io();
+        
+        // Performance monitoring
+        let performanceData = {
+            startTime: Date.now(),
+            requestCount: 0,
+            errorCount: 0
+        };
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.altKey) {
+                switch(e.key) {
+                    case '1':
+                        e.preventDefault();
+                        window.location.href = '/';
+                        break;
+                    case '2':
+                        e.preventDefault();
+                        window.location.href = '/settings';
+                        break;
+                    case '3':
+                        e.preventDefault();
+                        window.location.href = '/inventory';
+                        break;
+                    case '4':
+                        e.preventDefault();
+                        window.location.href = '/reports';
+                        break;
+                    case '5':
+                        e.preventDefault();
+                        window.location.href = '/logs';
+                        break;
+                }
+            }
+        });
+        
+        // Performance indicator updates
+        function updatePerformanceIndicator() {
+            fetch('/api/performance')
+                .then(response => response.json())
+                .then(data => {
+                    const indicator = document.getElementById('performance-indicator');
+                    if (data.show_performance) {
+                        document.getElementById('cpu-usage').textContent = data.cpu_usage_percent + '%';
+                        document.getElementById('memory-usage').textContent = Math.round(data.memory_usage_mb) + 'MB';
+                        document.getElementById('uptime').textContent = data.uptime_formatted;
+                        indicator.style.display = 'block';
+                    } else {
+                        indicator.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Performance update error:', error);
+                    document.getElementById('performance-indicator').style.display = 'none';
+                });
+        }
+        
+        // Accessibility announcements
+        function announceToScreenReader(message) {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.setAttribute('aria-atomic', 'true');
+            announcement.className = 'sr-only';
+            announcement.textContent = message;
+            document.body.appendChild(announcement);
+            
+            setTimeout(() => {
+                document.body.removeChild(announcement);
+            }, 1000);
+        }
+        
+        // Real-time log updates with accessibility
+        socket.on('log_update', function(data) {
+            const logsContainer = document.getElementById('logs-container');
+            if (logsContainer) {
+                const logLine = document.createElement('div');
+                logLine.textContent = data.message;
+                logLine.setAttribute('role', 'log');
+                logsContainer.appendChild(logLine);
+                logsContainer.scrollTop = logsContainer.scrollHeight;
+            }
+        });
+        
+        // Real-time progress updates
+        socket.on('progress_update', function(data) {
+            updateProgressDisplay(data);
+            
+            // Announce progress to screen readers
+            if (data.percent_complete % 10 === 0) {
+                announceToScreenReader(`Audit progress: ${data.percent_complete}% complete`);
+            }
+        });
+        
+        function updateProgressDisplay(data) {
+            // Update progress bar
+            const progressBar = document.querySelector('.progress-bar');
+            if (progressBar && data.percent_complete !== undefined) {
+                progressBar.style.width = data.percent_complete + '%';
+                progressBar.textContent = data.percent_complete.toFixed(1) + '%';
+                progressBar.setAttribute('aria-valuenow', data.percent_complete);
+            }
+            
+            // Update status text
+            const statusText = document.getElementById('audit-status');
+            if (statusText && data.status) {
+                statusText.textContent = data.status;
+            }
+            
+            // Update current device
+            const currentDevice = document.getElementById('current-device');
+            if (currentDevice && data.current_device) {
+                currentDevice.textContent = data.current_device;
+            }
+        }
+        
+        // Enhanced error handling
+        function handleApiError(response, operation) {
+            performanceData.errorCount++;
+            
+            if (!response.ok) {
+                return response.json().then(data => {
+                    const message = data.message || 'An error occurred';
+                    announceToScreenReader(`Error: ${message}`);
+                    throw new Error(message);
+                });
+            }
+            return response.json();
+        }
+        
+        // Fetch progress data with error handling
+        function fetchProgressData() {
+            performanceData.requestCount++;
+            
+            fetch('/api/progress')
+                .then(response => handleApiError(response, 'progress'))
+                .then(data => {
+                    updateProgressDisplay(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching progress:', error);
+                });
+        }
+        
+        // Initialize tooltips
+        function initializeTooltips() {
+            $('[data-toggle="tooltip"]').tooltip();
+        }
+        
+        // Start performance monitoring and periodic updates
+        setInterval(updatePerformanceIndicator, 30000); // Every 30 seconds
+        setInterval(fetchProgressData, 2000);
+        
+        // Initial load
+        $(document).ready(function() {
+            initializeTooltips();
+            fetchProgressData();
+            updatePerformanceIndicator();
+            
+            // Set focus management
+            if (window.location.hash) {
+                const target = document.querySelector(window.location.hash);
+                if (target) {
+                    target.focus();
+                }
+            }
+        });
+
+        // NEW: Raw trace logs functionality
+        var rawLogsAutoScroll = true;
+
+        // NEW: Auto-refresh functionality for both log windows
+        var liveLogsAutoRefresh = true;
+        var rawLogsAutoRefresh = true;
+        var liveRefreshInterval = 15; // seconds
+        var rawRefreshInterval = 15; // seconds
+        var liveRefreshTimer = null;
+        var rawRefreshTimer = null;
+
+        // Manual refresh functions
+        function refreshLiveLogs() {
+            const btn = $('#refresh-live-btn');
+            btn.html('<i class="fas fa-spinner fa-spin"></i> Refreshing...');
+            btn.prop('disabled', true);
+            
+            fetch('/api/live-logs')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const logsContainer = $('#logs-container');
+                        logsContainer.empty();
+                        data.logs.forEach(log => {
+                            logsContainer.append($('<div></div>').text(log));
+                        });
+                        // Auto-scroll to bottom
+                        logsContainer.scrollTop(logsContainer[0].scrollHeight);
+                        announceToScreenReader('Live logs refreshed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing live logs:', error);
+                })
+                .finally(() => {
+                    btn.html('<i class="fas fa-sync"></i> Refresh');
+                    btn.prop('disabled', false);
+                });
+        }
+
+        function refreshRawLogs() {
+            const btn = $('#refresh-raw-btn');
+            btn.html('<i class="fas fa-spinner fa-spin"></i> Refreshing...');
+            btn.prop('disabled', true);
+            
+            fetch('/api/raw-logs')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const rawLogsContainer = $('#raw-logs-container');
+                        rawLogsContainer.empty();
+                        data.logs.forEach(log => {
+                            rawLogsContainer.append($('<div class="text-muted"></div>').text(log));
+                        });
+                        // Auto-scroll to bottom if enabled
+                        if (rawLogsAutoScroll) {
+                            rawLogsContainer.scrollTop(rawLogsContainer[0].scrollHeight);
+                        }
+                        announceToScreenReader('Raw logs refreshed');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error refreshing raw logs:', error);
+                })
+                .finally(() => {
+                    btn.html('<i class="fas fa-sync"></i> Refresh');
+                    btn.prop('disabled', false);
+                });
+        }
+
+        // Auto-refresh toggle functions
+        function toggleLiveLogsAutoRefresh() {
+            liveLogsAutoRefresh = !liveLogsAutoRefresh;
+            const btn = $('#live-autorefresh-btn');
+            
+            if (liveLogsAutoRefresh) {
+                btn.html(`<i class="fas fa-clock"></i> Auto: ${liveRefreshInterval}s`);
+                btn.removeClass('btn-outline-warning').addClass('btn-outline-info');
+                startLiveLogsAutoRefresh();
+            } else {
+                btn.html('<i class="fas fa-pause"></i> Manual');
+                btn.removeClass('btn-outline-info').addClass('btn-outline-warning');
+                stopLiveLogsAutoRefresh();
+            }
+            announceToScreenReader('Live logs auto-refresh ' + (liveLogsAutoRefresh ? 'enabled' : 'disabled'));
+        }
+
+        function toggleRawLogsAutoRefresh() {
+            rawLogsAutoRefresh = !rawLogsAutoRefresh;
+            const btn = $('#raw-autorefresh-btn');
+            
+            if (rawLogsAutoRefresh) {
+                btn.html(`<i class="fas fa-clock"></i> Auto: ${rawRefreshInterval}s`);
+                btn.removeClass('btn-outline-warning').addClass('btn-outline-info');
+                startRawLogsAutoRefresh();
+            } else {
+                btn.html('<i class="fas fa-pause"></i> Manual');
+                btn.removeClass('btn-outline-info').addClass('btn-outline-warning');
+                stopRawLogsAutoRefresh();
+            }
+            announceToScreenReader('Raw logs auto-refresh ' + (rawLogsAutoRefresh ? 'enabled' : 'disabled'));
+        }
+
+        // Auto-refresh timer functions
+        function startLiveLogsAutoRefresh() {
+            stopLiveLogsAutoRefresh(); // Clear any existing timer
+            if (liveLogsAutoRefresh && liveRefreshInterval > 0) {
+                liveRefreshTimer = setInterval(() => {
+                    refreshLiveLogs();
+                }, liveRefreshInterval * 1000);
+            }
+        }
+
+        function stopLiveLogsAutoRefresh() {
+            if (liveRefreshTimer) {
+                clearInterval(liveRefreshTimer);
+                liveRefreshTimer = null;
+            }
+        }
+
+        function startRawLogsAutoRefresh() {
+            stopRawLogsAutoRefresh(); // Clear any existing timer
+            if (rawLogsAutoRefresh && rawRefreshInterval > 0) {
+                rawRefreshTimer = setInterval(() => {
+                    refreshRawLogs();
+                }, rawRefreshInterval * 1000);
+            }
+        }
+
+        function stopRawLogsAutoRefresh() {
+            if (rawRefreshTimer) {
+                clearInterval(rawRefreshTimer);
+                rawRefreshTimer = null;
+            }
+        }
+
+        // Interval setting functions
+        function setLiveRefreshInterval(seconds) {
+            liveRefreshInterval = seconds;
+            const btn = $('#live-autorefresh-btn');
+            
+            if (liveLogsAutoRefresh) {
+#!/usr/bin/env python3
+"""
+NetAuditPro AUX Telnet Security Audit Application
+Version: 3.0.0 STREAMLINED EDITION - PHASE 5 ENHANCED
+File: rr4-router-complete-enhanced-v3.py
+
+🚀 NETAUDITPRO V3 - AUX TELNET SECURITY AUDIT - PHASE 5 ENHANCED 🚀
+Focus: AUX Line Telnet Configuration Security Assessment
+
+CORE PHILOSOPHY: "One File, Maximum Security Impact"
+✅ Single-file deployment with embedded HTML/CSS/JavaScript
+✅ Cross-platform support (Windows + Linux)
+✅ Brilliant, modern UI/UX with real-time updates
+✅ Enhanced security with credential sanitization
+✅ Focused AUX telnet audit command execution
+✅ Command saving and findings display on WebUI and local storage
+✅ Professional PDF/Excel/CSV reporting with telnet audit results
+✅ PHASE 5: Performance optimization, advanced error handling, accessibility
+
+SECURITY AUDIT FOCUS:
+- Execute: show running-config | include ^hostname|^line aux |^ transport input
+- Parse hostname, AUX line configuration, and transport input settings
+- Identify telnet security risks on AUX ports
+- Generate compliance reports in CSV format: hostname,line,telnet_allowed
+
+PHASE 5 ENHANCEMENTS:
+- Memory optimization and connection pooling
+- Advanced error handling with graceful degradation
+- Enhanced accessibility and keyboard navigation
+- Performance monitoring and metrics
+- User experience refinements with tooltips and help
+- Production-ready optimizations
+
+ARCHITECTURE HIGHLIGHTS:
+- Flask + Flask-SocketIO for real-time WebSocket communication
+- Bootstrap 4.5+ responsive design with Chart.js visualizations
+- Paramiko + Netmiko for secure SSH connectivity via jump host
+- ReportLab + OpenPyXL for professional report generation
+- Enhanced progress tracking with pause/resume capabilities
+- Cross-platform path handling and OS-specific configurations
+- Connection pooling and memory optimization
+- Advanced error recovery mechanisms
+
+EXTERNAL FILES (Minimal):
+- inventories/router.csv (Device inventory)
+- COMMAND-LOGS/ (Command outputs and findings)
+- REPORTS/ (Generated PDF/Excel/CSV reports)
+- .env (Configuration file)
+
+DEPLOYMENT:
+1. python3 rr4-router-complete-enhanced-v3.py
+2. Open browser to http://localhost:5011
+3. Configure jump host and device credentials
+4. Upload/edit CSV inventory
+5. Start audit and monitor real-time progress
+6. Download telnet audit reports and view findings
+"""
+
+# ====================================================================
+# IMPORTS & DEPENDENCIES
+# ====================================================================
+
+import os
+import sys
+import json
+import csv
+import io
+import re
+import time
+import socket
+import tempfile
+import threading
+import platform
+import subprocess
+import secrets
+import string
+import base64
+import gzip
+import weakref
+import psutil
+import gc
+from datetime import datetime, timezone, timedelta
+from typing import List, Dict, Any, Optional, Tuple
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from collections import defaultdict, deque
+from functools import wraps, lru_cache
+
+# Flask and web framework
+from flask import Flask, render_template, request, jsonify, send_from_directory, flash, redirect, url_for, Response, send_file
+from flask_socketio import SocketIO, emit
+from jinja2 import DictLoader
+from werkzeug.utils import secure_filename
+
+# Networking and SSH
+import paramiko
+from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
+
+# Environment and configuration
+from dotenv import load_dotenv, set_key, find_dotenv
+
+# Reporting and data visualization
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.lib import colors
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+
+# Terminal colors
+from colorama import Fore, Style, init as colorama_init
+
+# Phase 5 Enhanced Dependencies
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
+    print("⚠️ psutil not available - performance monitoring will be limited")
+
+try:
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+    from reportlab.lib.styles import getSampleStyleSheet
+    from reportlab.lib.units import inch
+    from reportlab.lib import colors
+    REPORTLAB_AVAILABLE = True
+except ImportError:
+    REPORTLAB_AVAILABLE = False
+
+try:
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    OPENPYXL_AVAILABLE = True
+except ImportError:
+    OPENPYXL_AVAILABLE = False
+
+# Initialize colorama for cross-platform colored output
+colorama_init(autoreset=True)
+
+# ====================================================================
+# GLOBAL CONFIGURATION & CONSTANTS
+# ====================================================================
+
+# Application configuration
+APP_VERSION = "v3.0.0-PHASE5"
+APP_NAME = "NetAuditPro AUX Telnet Security Audit v3"
+DEFAULT_PORT = 5011
+
+# Cross-platform path configuration (NO HARDCODED PATHS)
+BASE_DIR_NAME = "REPORTS"
+COMMAND_LOGS_DIR_NAME = "COMMAND-LOGS"
+SUMMARY_FILENAME = "audit_summary.txt"
+INVENTORY_DIR = "inventories"
+DEFAULT_CSV_FILENAME = "routers01.csv"
+
+# Phase 5 Performance Constants
+MAX_CONCURRENT_CONNECTIONS = 10
+CONNECTION_POOL_SIZE = 5
+MEMORY_THRESHOLD_MB = 500
+CLEANUP_INTERVAL_SECONDS = 300  # 5 minutes
+MAX_LOG_ENTRIES = 500
+PERFORMANCE_SAMPLE_RATE = 30  # seconds
+
+# Cross-platform detection and configuration
+PLATFORM = platform.system().lower()
+IS_WINDOWS = PLATFORM == 'windows'
+IS_LINUX = PLATFORM == 'linux'
+IS_MACOS = PLATFORM == 'darwin'
+
+# Platform-specific configurations (NO HARDCODED PATHS)
+if IS_WINDOWS:
+    PING_CMD = ["ping", "-n", "1", "-w", "3000"]  # Windows ping command as list
+    NEWLINE = "\r\n"
+    PATH_ENCODING = "utf-8"
+    MAX_PATH_LENGTH = 260  # Windows MAX_PATH limitation
+    SCRIPT_EXT = ".bat"
+else:
+    PING_CMD = ["ping", "-c", "1", "-W", "3"]     # Linux/Unix ping command as list
+    NEWLINE = "\n"
+    PATH_ENCODING = "utf-8"
+    MAX_PATH_LENGTH = 4096  # Unix/Linux path limitation
+    SCRIPT_EXT = ".sh"
+
+# Core Cisco AUX Telnet Audit Commands + Enhanced Platform/Version Info
+CORE_COMMANDS = {
+    'aux_telnet_audit': 'show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout',
+    'platform_info': 'show platform',
+    'version_info': 'show version',
+    'system_info': 'show inventory',
+    'interface_summary': 'show ip interface brief'
+}
+
+# Environment configuration
+load_dotenv()
+DOTENV_PATH = find_dotenv() or '.env'
+
+# ====================================================================
+# CROSS-PLATFORM UTILITY FUNCTIONS (NO HARDCODED PATHS)
+# ====================================================================
+
+def get_script_directory() -> str:
+    """Get the directory where the script is located (cross-platform)"""
+    return os.path.dirname(os.path.abspath(__file__))
+
+def get_safe_path(*paths) -> str:
+    """Create safe cross-platform paths using os.path.join"""
+    return os.path.normpath(os.path.join(*paths))
+
+def ensure_path_exists(path: str, is_file: bool = False) -> str:
+    """Ensure a path exists, create directories if needed (cross-platform)"""
+    try:
+        if is_file:
+            directory = os.path.dirname(path)
+            if directory:
+                os.makedirs(directory, exist_ok=True)
+        else:
+            os.makedirs(path, exist_ok=True)
+        return path
+    except Exception as e:
+        # Use print instead of log_to_ui_and_console since it might not be defined yet
+        print(f"❌ Error creating path {path}: {e}")
+        return path
+
+def get_temp_directory() -> str:
+    """Get platform-appropriate temporary directory"""
+    import tempfile
+    return tempfile.gettempdir()
+
+def validate_filename(filename: str) -> str:
+    """Validate and sanitize filename for cross-platform compatibility"""
+    # Remove invalid characters for all platforms
+    invalid_chars = '<>:"/\\|?*'
+    for char in invalid_chars:
+        filename = filename.replace(char, '_')
+    
+    # Limit length based on platform
+    if len(filename) > MAX_PATH_LENGTH - 50:  # Reserve space for directory path
+        name, ext = os.path.splitext(filename)
+        filename = name[:MAX_PATH_LENGTH - 50 - len(ext)] + ext
+    
+    return filename
+
+# ====================================================================
+# PHASE 5: PERFORMANCE MONITORING & OPTIMIZATION
+# ====================================================================
+
+class PerformanceMonitor:
+    """Phase 5: Performance monitoring and optimization system"""
+    
+    def __init__(self):
+        self.metrics = {
+            'memory_usage': deque(maxlen=100),
+            'cpu_usage': deque(maxlen=100),
+            'response_times': deque(maxlen=100),
+            'connection_count': 0,
+            'active_threads': 0,
+            'error_count': 0,
+            'requests_processed': 0
+        }
+        self.start_time = time.time()
+        self.last_cleanup = time.time()
+        self._lock = threading.Lock()
+    
+    def record_metric(self, metric_name: str, value: float):
+        """Record a performance metric"""
+        with self._lock:
+            if metric_name in self.metrics and hasattr(self.metrics[metric_name], 'append'):
+                self.metrics[metric_name].append({
+                    'timestamp': time.time(),
+                    'value': value
+                })
+    
+    def get_memory_usage(self) -> float:
+        """Get current memory usage in MB"""
+        try:
+            if PSUTIL_AVAILABLE:
+                process = psutil.Process()
+                return process.memory_info().rss / 1024 / 1024
+            else:
+                # Fallback: estimate based on time and activity
+                return min(50 + (time.time() - self.start_time) * 0.1, 200)
+        except:
+            return 0.0
+    
+    def get_cpu_usage(self) -> float:
+        """Get current CPU usage percentage"""
+        try:
+            if PSUTIL_AVAILABLE:
+                return psutil.cpu_percent(interval=0.1)
+            else:
+                # Fallback: return estimated CPU usage based on activity
+                return min(self.metrics['requests_processed'] % 20, 15)
+        except:
+            return 0.0
+    
+    def check_memory_threshold(self) -> bool:
+        """Check if memory usage exceeds threshold"""
+        current_memory = self.get_memory_usage()
+        self.record_metric('memory_usage', current_memory)
+        return current_memory > MEMORY_THRESHOLD_MB
+    
+    def cleanup_if_needed(self):
+        """Perform cleanup if threshold exceeded or interval reached"""
+        current_time = time.time()
+        
+        if (current_time - self.last_cleanup > CLEANUP_INTERVAL_SECONDS or 
+            self.check_memory_threshold()):
+            
+            self.perform_cleanup()
+            self.last_cleanup = current_time
+    
+    def perform_cleanup(self):
+        """Perform memory cleanup operations"""
+        try:
+            # Force garbage collection
+            gc.collect()
+            
+            # Trim log entries
+            global ui_logs
+            if len(ui_logs) > MAX_LOG_ENTRIES:
+                ui_logs = ui_logs[-MAX_LOG_ENTRIES:]
+            
+            log_to_ui_and_console("🧹 Memory cleanup performed", console_only=True)
+            
+        except Exception as e:
+            log_to_ui_and_console(f"⚠️ Cleanup error: {e}", console_only=True)
+    
+    def get_performance_summary(self) -> Dict[str, Any]:
+        """Get performance summary for monitoring"""
+        uptime = time.time() - self.start_time
+        
+        with self._lock:
+            return {
+                'uptime_seconds': uptime,
+                'uptime_formatted': format_duration(uptime),
+                'memory_usage_mb': self.get_memory_usage(),
+                'cpu_usage_percent': self.get_cpu_usage(),
+                'active_connections': self.metrics['connection_count'],
+                'total_requests': self.metrics['requests_processed'],
+                'error_count': self.metrics['error_count'],
+                'avg_response_time': self._calculate_avg_response_time()
+            }
+    
+    def _calculate_avg_response_time(self) -> float:
+        """Calculate average response time"""
+        response_times = list(self.metrics['response_times'])
+        if not response_times:
+            return 0.0
+        
+        recent_times = [rt['value'] for rt in response_times[-20:]]
+        return sum(recent_times) / len(recent_times) if recent_times else 0.0
+
+class ConnectionPool:
+    """Phase 5: SSH connection pool for performance optimization"""
+    
+    def __init__(self, max_size: int = CONNECTION_POOL_SIZE):
+        self.max_size = max_size
+        self.pool = {}
+        self.pool_lock = threading.Lock()
+        self.connection_refs = weakref.WeakValueDictionary()
+    
+    def get_connection_key(self, host: str, username: str) -> str:
+        """Generate connection pool key"""
+        return f"{username}@{host}"
+    
+    def get_connection(self, host: str, username: str, password: str) -> Optional[paramiko.SSHClient]:
+        """Get connection from pool or create new one"""
+        key = self.get_connection_key(host, username)
+        
+        with self.pool_lock:
+            # Check if connection exists and is still alive
+            if key in self.pool:
+                client = self.pool[key]
+                try:
+                    if client.get_transport() and client.get_transport().is_active():
+                        return client
+                    else:
+                        # Remove dead connection
+                        del self.pool[key]
+                except:
+                    if key in self.pool:
+                        del self.pool[key]
+        
+        # Create new connection
+        try:
+            client = paramiko.SSHClient()
+            client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            
+            client.connect(
+                host,
+                username=username,
+                password=password,
+                timeout=30,
+                allow_agent=False,
+                look_for_keys=False
+            )
+            
+            # Add to pool if space available
+            with self.pool_lock:
+                if len(self.pool) < self.max_size:
+                    self.pool[key] = client
+            
+            return client
+            
+        except Exception as e:
+            log_to_ui_and_console(f"❌ Connection pool error for {host}: {e}")
+            return None
+    
+    def cleanup_pool(self):
+        """Clean up dead connections from pool"""
+        with self.pool_lock:
+            dead_keys = []
+            for key, client in self.pool.items():
+                try:
+                    if not (client.get_transport() and client.get_transport().is_active()):
+                        dead_keys.append(key)
+                except:
+                    dead_keys.append(key)
+            
+            for key in dead_keys:
+                try:
+                    self.pool[key].close()
+                except:
+                    pass
+                del self.pool[key]
+
+# ====================================================================
+# PHASE 5: ADVANCED ERROR HANDLING
+# ====================================================================
+
+class ErrorCategory:
+    """Phase 5: Advanced error categorization"""
+    NETWORK = "network"
+    AUTHENTICATION = "authentication"
+    CONFIGURATION = "configuration"
+    SYSTEM = "system"
+    USER_INPUT = "user_input"
+    PERFORMANCE = "performance"
+
+class AdvancedErrorHandler:
+    """Phase 5: Advanced error handling with recovery mechanisms"""
+    
+    def __init__(self):
+        self.error_history = deque(maxlen=100)
+        self.error_counts = defaultdict(int)
+        self.recovery_strategies = {
+            ErrorCategory.NETWORK: self._recover_network_error,
+            ErrorCategory.AUTHENTICATION: self._recover_auth_error,
+            ErrorCategory.CONFIGURATION: self._recover_config_error,
+            ErrorCategory.SYSTEM: self._recover_system_error,
+        }
+    
+    def handle_error(self, error: Exception, category: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+        """Handle error with categorization and recovery"""
+        error_info = {
+            'timestamp': datetime.now().isoformat(),
+            'category': category,
+            'error_type': type(error).__name__,
+            'message': str(error),
+            'context': context or {},
+            'recovery_attempted': False,
+            'recovery_successful': False
+        }
+        
+        # Record error
+        self.error_history.append(error_info)
+        self.error_counts[category] += 1
+        
+        # Attempt recovery
+        if category in self.recovery_strategies:
+            try:
+                recovery_result = self.recovery_strategies[category](error, context)
+                error_info['recovery_attempted'] = True
+                error_info['recovery_successful'] = recovery_result.get('success', False)
+                error_info['recovery_details'] = recovery_result
+            except Exception as recovery_error:
+                error_info['recovery_error'] = str(recovery_error)
+        
+        # Generate user-friendly message
+        error_info['user_message'] = self._generate_user_message(error_info)
+        
+        return error_info
+    
+    def _recover_network_error(self, error: Exception, context: Dict) -> Dict[str, Any]:
+        """Attempt to recover from network errors"""
+        return {
+            'success': False,
+            'strategy': 'retry_with_backoff',
+            'recommendation': 'Check network connectivity and retry',
+            'retry_count': context.get('retry_count', 0) + 1
+        }
+    
+    def _recover_auth_error(self, error: Exception, context: Dict) -> Dict[str, Any]:
+        """Attempt to recover from authentication errors"""
+        return {
+            'success': False,
+            'strategy': 'credential_validation',
+            'recommendation': 'Verify credentials and try again',
+            'requires_user_action': True
+        }
+    
+    def _recover_config_error(self, error: Exception, context: Dict) -> Dict[str, Any]:
+        """Attempt to recover from configuration errors"""
+        return {
+            'success': False,
+            'strategy': 'default_fallback',
+            'recommendation': 'Check configuration settings',
+            'fallback_applied': True
+        }
+    
+    def _recover_system_error(self, error: Exception, context: Dict) -> Dict[str, Any]:
+        """Attempt to recover from system errors"""
+        return {
+            'success': False,
+            'strategy': 'resource_cleanup',
+            'recommendation': 'System resources may be limited',
+            'cleanup_performed': True
+        }
+    
+    def _generate_user_message(self, error_info: Dict[str, Any]) -> str:
+        """Generate user-friendly error message"""
+        category = error_info['category']
+        error_type = error_info['error_type']
+        
+        if category == ErrorCategory.NETWORK:
+            return "Network connectivity issue. Please check your connection and try again."
+        elif category == ErrorCategory.AUTHENTICATION:
+            return "Authentication failed. Please verify your credentials."
+        elif category == ErrorCategory.CONFIGURATION:
+            return "Configuration error detected. Please check your settings."
+        elif category == ErrorCategory.PERFORMANCE:
+            return "Performance issue detected. The system may be under heavy load."
+        else:
+            return f"An unexpected error occurred: {error_type}. Please try again."
+    
+    def get_error_summary(self) -> Dict[str, Any]:
+        """Get error summary for monitoring"""
+        total_errors = sum(self.error_counts.values())
+        
+        return {
+            'total_errors': total_errors,
+            'error_categories': dict(self.error_counts),
+            'recent_errors': list(self.error_history)[-10:],
+            'error_rate': total_errors / max(1, len(self.error_history))
+        }
+
+def error_handler(category: str = ErrorCategory.SYSTEM):
+    """Decorator for advanced error handling"""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                start_time = time.time()
+                result = func(*args, **kwargs)
+                
+                # Record performance metric
+                duration = time.time() - start_time
+                performance_monitor.record_metric('response_times', duration)
+                performance_monitor.metrics['requests_processed'] += 1
+                
+                return result
+                
+            except Exception as e:
+                context = {
+                    'function_name': func.__name__,
+                    'args_count': len(args),
+                    'kwargs_keys': list(kwargs.keys())
+                }
+                
+                error_info = error_handler_instance.handle_error(e, category, context)
+                performance_monitor.metrics['error_count'] += 1
+                
+                # Log the error
+                log_to_ui_and_console(f"❌ {error_info['user_message']}")
+                
+                # Re-raise for calling code to handle
+                raise
+        
+        return wrapper
+    return decorator
+
+# ====================================================================
+# PHASE 5: ACCESSIBILITY ENHANCEMENTS
+# ====================================================================
+
+def format_duration(seconds: float) -> str:
+    """Format duration in human-readable format"""
+    if seconds < 60:
+        return f"{seconds:.1f}s"
+    elif seconds < 3600:
+        minutes = int(seconds // 60)
+        secs = int(seconds % 60)
+        return f"{minutes}m {secs}s"
+    else:
+        hours = int(seconds // 3600)
+        minutes = int((seconds % 3600) // 60)
+        return f"{hours}h {minutes}m"
+
+def format_time_hms(seconds: float) -> str:
+    """Format seconds into HH:MM:SS format"""
+    if seconds < 0:
+        seconds = 0
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
+def start_audit_timing():
+    """Initialize audit timing when audit starts"""
+    global audit_timing
+    current_time = time.time()
+    current_dt = datetime.now()
+    
+    audit_timing.update({
+        "start_time": current_time,
+        "completion_time": None,
+        "pause_start_time": None,
+        "total_pause_duration": 0.0,
+        "current_pause_duration": 0.0,
+        "elapsed_time": 0.0,
+        "total_duration": 0.0,
+        "last_activity_time": current_time,
+        "start_date_string": current_dt.strftime("%Y-%m-%d"),
+        "completion_date_string": "",
+        "formatted_start_time": current_dt.strftime("%H:%M:%S"),
+        "formatted_completion_time": "",
+        "formatted_duration": "00:00:00",
+        "formatted_pause_duration": "00:00:00"
+    })
+    
+    log_raw_trace(f"Audit timing started at {audit_timing['formatted_start_time']}", "TIMING", "SYSTEM")
+    log_to_ui_and_console(f"⏱️ Audit started at {audit_timing['formatted_start_time']} on {audit_timing['start_date_string']}")
+
+def pause_audit_timing():
+    """Record audit pause start time"""
+    global audit_timing
+    if audit_timing["start_time"] and not audit_timing["pause_start_time"]:
+        current_time = time.time()
+        audit_timing["pause_start_time"] = current_time
+        audit_timing["last_activity_time"] = current_time
+        
+        # Update elapsed time up to pause point
+        elapsed = current_time - audit_timing["start_time"] - audit_timing["total_pause_duration"]
+        audit_timing["elapsed_time"] = elapsed
+        audit_timing["formatted_duration"] = format_time_hms(elapsed)
+        
+        log_raw_trace(f"Audit paused at {datetime.now().strftime('%H:%M:%S')}", "TIMING", "SYSTEM")
+        log_to_ui_and_console("⏸️ Audit paused")
+
+def resume_audit_timing():
+    """Record audit resume and add pause duration to total"""
+    global audit_timing
+    if audit_timing["pause_start_time"]:
+        current_time = time.time()
+        pause_duration = current_time - audit_timing["pause_start_time"]
+        
+        audit_timing["total_pause_duration"] += pause_duration
+        audit_timing["current_pause_duration"] = 0.0
+        audit_timing["pause_start_time"] = None
+        audit_timing["last_activity_time"] = current_time
+        audit_timing["formatted_pause_duration"] = format_time_hms(audit_timing["total_pause_duration"])
+        
+        log_raw_trace(f"Audit resumed at {datetime.now().strftime('%H:%M:%S')}, pause duration: {format_time_hms(pause_duration)}", "TIMING", "SYSTEM")
+        log_to_ui_and_console(f"▶️ Audit resumed (paused for {format_time_hms(pause_duration)})")
+
+def complete_audit_timing():
+    """Finalize audit timing when audit completes"""
+    global audit_timing
+    if audit_timing["start_time"]:
+        current_time = time.time()
+        current_dt = datetime.now()
+        
+        # If currently paused, add final pause duration
+        if audit_timing["pause_start_time"]:
+            final_pause = current_time - audit_timing["pause_start_time"]
+            audit_timing["total_pause_duration"] += final_pause
+            audit_timing["pause_start_time"] = None
+        
+        # Calculate final timings
+        total_duration = current_time - audit_timing["start_time"]
+        elapsed_time = total_duration - audit_timing["total_pause_duration"]
+        
+        audit_timing.update({
+            "completion_time": current_time,
+            "total_duration": total_duration,
+            "elapsed_time": elapsed_time,
+            "completion_date_string": current_dt.strftime("%Y-%m-%d"),
+            "formatted_completion_time": current_dt.strftime("%H:%M:%S"),
+            "formatted_duration": format_time_hms(elapsed_time),
+            "formatted_pause_duration": format_time_hms(audit_timing["total_pause_duration"]),
+            "last_activity_time": current_time
+        })
+        
+        log_raw_trace(f"Audit completed at {audit_timing['formatted_completion_time']}, total duration: {audit_timing['formatted_duration']}", "TIMING", "SYSTEM")
+        log_to_ui_and_console(f"🏁 Audit completed at {audit_timing['formatted_completion_time']} (Duration: {audit_timing['formatted_duration']})")
+
+def update_current_timing():
+    """Update current timing information for live display"""
+    global audit_timing
+    if audit_timing["start_time"]:
+        current_time = time.time()
+        
+        # Update current pause duration if paused
+        if audit_timing["pause_start_time"]:
+            audit_timing["current_pause_duration"] = current_time - audit_timing["pause_start_time"]
+        
+        # Calculate current elapsed and total duration
+        total_duration = current_time - audit_timing["start_time"]
+        elapsed_time = total_duration - audit_timing["total_pause_duration"] - audit_timing["current_pause_duration"]
+        
+        audit_timing["elapsed_time"] = elapsed_time
+        audit_timing["total_duration"] = total_duration
+        audit_timing["formatted_duration"] = format_time_hms(elapsed_time)
+        
+        return {
+            "elapsed_time": audit_timing["formatted_duration"],
+            "total_duration": format_time_hms(total_duration),
+            "pause_duration": format_time_hms(audit_timing["total_pause_duration"] + audit_timing["current_pause_duration"]),
+            "start_time": audit_timing["formatted_start_time"],
+            "start_date": audit_timing["start_date_string"]
+        }
+    
+    return {
+        "elapsed_time": "00:00:00",
+        "total_duration": "00:00:00", 
+        "pause_duration": "00:00:00",
+        "start_time": "",
+        "start_date": ""
+    }
+
+def reset_audit_timing():
+    """Reset all timing information for fresh audit start"""
+    global audit_timing
+    audit_timing.update({
+        "start_time": None,
+        "completion_time": None,
+        "pause_start_time": None,
+        "total_pause_duration": 0.0,
+        "current_pause_duration": 0.0,
+        "elapsed_time": 0.0,
+        "total_duration": 0.0,
+        "last_activity_time": None,
+        "start_date_string": "",
+        "completion_date_string": "",
+        "formatted_start_time": "",
+        "formatted_completion_time": "",
+        "formatted_duration": "00:00:00",
+        "formatted_pause_duration": "00:00:00"
+    })
+    
+    log_raw_trace("Audit timing reset", "TIMING", "SYSTEM")
+
+def get_timing_summary() -> Dict[str, Any]:
+    """Get comprehensive timing summary for reports and dashboard"""
+    update_current_timing()
+    return {
+        "start_time": audit_timing["formatted_start_time"],
+        "start_date": audit_timing["start_date_string"],
+        "completion_time": audit_timing["formatted_completion_time"],
+        "completion_date": audit_timing["completion_date_string"],
+        "elapsed_time": audit_timing["formatted_duration"],
+        "pause_duration": audit_timing["formatted_pause_duration"],
+        "total_duration": format_time_hms(audit_timing["total_duration"]),
+        "is_running": audit_timing["start_time"] is not None and audit_timing["completion_time"] is None,
+        "is_paused": audit_timing["pause_start_time"] is not None,
+        "raw_start_time": audit_timing["start_time"],
+        "raw_completion_time": audit_timing["completion_time"],
+        "raw_elapsed_seconds": audit_timing["elapsed_time"],
+        "raw_pause_seconds": audit_timing["total_pause_duration"]
+    }
+
+# ====================================================================
+# FLASK APPLICATION SETUP
+# ====================================================================
+
+app = Flask(__name__)
+app.secret_key = os.urandom(24)
+app.config['UPLOAD_FOLDER'] = INVENTORY_DIR
+app.config['ALLOWED_EXTENSIONS'] = {'csv'}
+app.config['PORT'] = DEFAULT_PORT
+
+# SocketIO setup for real-time communication
+socketio = SocketIO(app, async_mode=None, cors_allowed_origins="*")
+
+# ====================================================================
+# PHASE 5: INITIALIZE ENHANCED SYSTEMS
+# ====================================================================
+
+# Initialize performance monitoring and error handling
+performance_monitor = PerformanceMonitor()
+error_handler_instance = AdvancedErrorHandler()
+connection_pool = ConnectionPool()
+
+# Thread pool for concurrent operations
+thread_pool = ThreadPoolExecutor(max_workers=MAX_CONCURRENT_CONNECTIONS)
+
+# ====================================================================
+# GLOBAL STATE VARIABLES
+# ====================================================================
+
+# Application state
+ui_logs: List[str] = []
+app_config: Dict[str, str] = {}
+active_inventory_data: Dict[str, Any] = {}
+
+# Audit progress tracking
+audit_status = "Idle"
+audit_paused = False
+audit_pause_event = threading.Event()
+audit_pause_event.set()  # Start unpaused
+
+# Comprehensive audit timing tracking
+audit_timing = {
+    "start_time": None,
+    "completion_time": None,
+    "pause_start_time": None,
+    "total_pause_duration": 0.0,  # Total time paused in seconds
+    "current_pause_duration": 0.0,  # Current pause session duration
+    "elapsed_time": 0.0,  # Active audit time (excluding pauses)
+    "total_duration": 0.0,  # Total wall clock time including pauses
+    "last_activity_time": None,
+    "start_date_string": "",
+    "completion_date_string": "",
+    "formatted_start_time": "",
+    "formatted_completion_time": "",
+    "formatted_duration": "00:00:00",
+    "formatted_pause_duration": "00:00:00"
+}
+
+# Progress tracking structures
+current_audit_progress = {
+    "status_message": "Ready",
+    "devices_processed_count": 0,
+    "total_devices_to_process": 0,
+    "percentage_complete": 0,
+    "current_phase": "Idle",
+    "current_device_hostname": "N/A",
+    "start_time": None,
+    "estimated_completion_time": None
+}
+
+# Initialize enhanced progress tracking
+enhanced_progress = {
+    "current_device": "",
+    "completed_devices": 0,
+    "total_devices": 0,
+    "percent_complete": 0,
+    "percentage": 0,  # Keep both for compatibility
+    "status": "Ready",
+    "start_time": None,
+    "estimated_completion": None,
+    "elapsed_time": 0,
+    "status_counts": {"success": 0, "warning": 0, "failure": 0},
+    "current_step": "",
+    "steps_total": 5,  # ping, ssh_connect, ssh_auth, command_exec, data_retrieval
+    "steps_completed": 0,
+    "device_progress": {},
+    "last_updated": time.time()
+}
+
+# Enhanced device status tracking for granular reporting
+detailed_device_status = {}
 
 # Device tracking
 device_status_tracking: Dict[str, str] = {}
@@ -4302,40 +6274,191 @@ def save_command_results_to_file(device_results: Dict[str, Any]):
         log_to_ui_and_console(f"❌ Error saving command results: {e}")
 
 def update_progress_tracking(current_device: str, completed: int, total: int, status: str):
-    """Update progress tracking and emit real-time updates"""
-    global enhanced_progress, current_audit_progress
+    """Update enhanced progress tracking with real-time data and proper calculations"""
+    global enhanced_progress
     
-    enhanced_progress.update({
-        "current_device": current_device,
-        "completed_devices": completed,
-        "total_devices": total,
-        "percent_complete": (completed / total * 100) if total > 0 else 0,
-        "status": status
+    enhanced_progress["current_device"] = current_device
+    enhanced_progress["completed_devices"] = completed
+    enhanced_progress["total_devices"] = total
+    enhanced_progress["percentage"] = int((completed / total) * 100) if total > 0 else 0
+    enhanced_progress["percent_complete"] = enhanced_progress["percentage"]  # Template compatibility
+    enhanced_progress["status"] = status
+    enhanced_progress["last_updated"] = time.time()
+    
+    # Calculate elapsed time and estimate completion
+    if enhanced_progress["start_time"]:
+        enhanced_progress["elapsed_time"] = time.time() - enhanced_progress["start_time"]
+        if completed > 0 and total > completed:
+            avg_time_per_device = enhanced_progress["elapsed_time"] / completed
+            remaining_devices = total - completed
+            estimated_remaining = avg_time_per_device * remaining_devices
+            enhanced_progress["estimated_completion"] = time.time() + estimated_remaining
+    
+    # Emit progress via WebSocket for real-time updates
+    socketio.emit('progress_update', enhanced_progress)
+
+def initialize_device_status(device_name: str, device_ip: str) -> None:
+    """Initialize comprehensive tracking for a device with all audit steps"""
+    global detailed_device_status
+    detailed_device_status[device_name] = {
+        'device_name': device_name,
+        'ip_address': device_ip,
+        'start_time': time.time(),
+        'end_time': None,
+        'duration': 0,
+        'overall_status': 'in_progress',
+        'steps': {
+            'ping': {
+                'status': 'pending',
+                'message': 'ICMP connectivity test pending',
+                'start_time': None,
+                'end_time': None,
+                'duration': 0,
+                'details': {}
+            },
+            'ssh_connect': {
+                'status': 'pending', 
+                'message': 'SSH connection pending',
+                'start_time': None,
+                'end_time': None,
+                'duration': 0,
+                'details': {}
+            },
+            'ssh_auth': {
+                'status': 'pending',
+                'message': 'SSH authentication pending', 
+                'start_time': None,
+                'end_time': None,
+                'duration': 0,
+                'details': {}
+            },
+            'command_exec': {
+                'status': 'pending',
+                'message': 'Command execution pending',
+                'start_time': None,
+                'end_time': None,
+                'duration': 0,
+                'details': {'commands_planned': list(CORE_COMMANDS.keys()), 'commands_completed': []}
+            },
+            'data_retrieval': {
+                'status': 'pending',
+                'message': 'Data processing pending',
+                'start_time': None,
+                'end_time': None,
+                'duration': 0,
+                'details': {}
+            }
+        },
+        'commands_executed': [],
+        'platform_info': None,
+        'version_info': None,
+        'system_info': None,
+        'interface_info': None,
+        'aux_audit_results': None,
+        'files_generated': [],
+        'error_details': []
+    }
+
+def update_device_step_status(device_name: str, step: str, status: str, message: str = '', details: Dict = None) -> None:
+    """Update device step status with comprehensive tracking"""
+    global detailed_device_status
+    
+    if device_name not in detailed_device_status:
+        return
+    
+    current_time = time.time()
+    
+    # Initialize step timing if starting
+    if status == 'in_progress' and detailed_device_status[device_name]['steps'][step]['start_time'] is None:
+        detailed_device_status[device_name]['steps'][step]['start_time'] = current_time
+    
+    # Complete step timing if finishing
+    if status in ['success', 'failed'] and detailed_device_status[device_name]['steps'][step]['end_time'] is None:
+        step_info = detailed_device_status[device_name]['steps'][step]
+        step_info['end_time'] = current_time
+        if step_info['start_time']:
+            step_info['duration'] = current_time - step_info['start_time']
+    
+    # Update status and message
+    detailed_device_status[device_name]['steps'][step]['status'] = status
+    detailed_device_status[device_name]['steps'][step]['message'] = message
+    
+    # Update details if provided
+    if details:
+        detailed_device_status[device_name]['steps'][step]['details'].update(details)
+    
+    # Update device progress in enhanced_progress
+    if device_name not in enhanced_progress["device_progress"]:
+        enhanced_progress["device_progress"][device_name] = {
+            'steps_completed': 0,
+            'steps_total': 5,
+            'current_step': step,
+            'status': status
+        }
+    
+    # Count completed steps
+    completed_steps = sum(1 for s in detailed_device_status[device_name]['steps'].values() 
+                         if s['status'] in ['success', 'failed', 'skipped'])
+    
+    enhanced_progress["device_progress"][device_name].update({
+        'steps_completed': completed_steps,
+        'current_step': step,
+        'status': status,
+        'percent_complete': int((completed_steps / 5) * 100)
     })
     
-    current_audit_progress.update({
-        "current_device_hostname": current_device,
-        "devices_processed_count": completed,
-        "total_devices_to_process": total,
-        "percentage_complete": enhanced_progress["percent_complete"],
-        "status_message": status
+    # Emit real-time update
+    socketio.emit('device_step_update', {
+        'device_name': device_name,
+        'step': step,
+        'status': status,
+        'message': message,
+        'progress': enhanced_progress["device_progress"][device_name]
     })
+
+def finalize_device_status(device_name: str, overall_status: str) -> None:
+    """Finalize device processing and calculate duration"""
+    global detailed_device_status
+    if device_name in detailed_device_status:
+        detailed_device_status[device_name]['overall_status'] = overall_status
+        detailed_device_status[device_name]['end_time'] = datetime.now().isoformat()
+        
+        # Calculate duration
+        start_time = datetime.fromisoformat(detailed_device_status[device_name]['start_time'])
+        end_time = datetime.fromisoformat(detailed_device_status[device_name]['end_time'])
+        duration = (end_time - start_time).total_seconds()
+        detailed_device_status[device_name]['duration'] = duration
+
+def get_device_status_summary() -> Dict[str, Any]:
+    """Get summary of all device statuses for reporting"""
+    summary = {
+        'total_devices': len(detailed_device_status),
+        'step_success_counts': {step: 0 for step in DEVICE_STATUS_STEPS},
+        'step_failure_counts': {step: 0 for step in DEVICE_STATUS_STEPS},
+        'overall_success': 0,
+        'overall_failures': 0,
+        'devices': detailed_device_status
+    }
     
-    # Emit real-time update via WebSocket
-    try:
-        socketio.emit('progress_update', {
-            'status': status,
-            'current_device': current_device,
-            'completed_devices': completed,
-            'total_devices': total,
-            'percent_complete': enhanced_progress["percent_complete"]
-        })
-    except Exception as e:
-        log_to_ui_and_console(f"⚠️ WebSocket emission error: {e}", console_only=True)
+    for device_name, device_info in detailed_device_status.items():
+        # Count step successes/failures
+        for step, step_info in device_info['steps'].items():
+            if step_info['status'] == 'success':
+                summary['step_success_counts'][step] += 1
+            elif step_info['status'] == 'failed':
+                summary['step_failure_counts'][step] += 1
+        
+        # Count overall success/failure
+        if device_info['overall_status'] == 'success':
+            summary['overall_success'] += 1
+        else:
+            summary['overall_failures'] += 1
+    
+    return summary
 
 def run_complete_audit():
-    """Main audit function that orchestrates the complete audit process"""
-    global audit_status, enhanced_progress, device_status_tracking, command_logs, device_results, audit_results_summary
+    """Main audit function with enhanced step-by-step tracking and reporting"""
+    global audit_status, enhanced_progress, device_status_tracking, command_logs, device_results, audit_results_summary, detailed_device_status
     
     try:
         audit_status = "Running"
@@ -4394,77 +6517,93 @@ def run_complete_audit():
                 
                 device_name = device.get("hostname", f"device_{i+1}")
                 device_ip = device.get("ip_address", "")
+                device_connection = None
+                device_overall_status = "failed"  # Initialize early
                 
                 if not device_ip:
                     log_to_ui_and_console(f"⚠️ Skipping {device_name}: No IP address")
-                    device_status_tracking[device_name] = "FAILED"
+                    device_status_tracking[device_name] = "NO_IP"
                     failed_devices += 1
                     continue
                 
                 log_to_ui_and_console(f"\n📍 Processing device {i+1}/{total_devices}: {device_name}")
                 update_progress_tracking(device_name, i, total_devices, f"Processing {device_name}")
                 
-                # Phase 2a: ICMP Test
+                # Initialize detailed tracking for this device
+                initialize_device_status(device_name, device_ip)
+                
+                # Phase 2a: ICMP Test (Continue even if fails)
                 log_to_ui_and_console(f"🔍 Testing ICMP connectivity to {device_name} ({device_ip})")
-                if not ping_remote_device(jump_client, device_ip):
-                    log_to_ui_and_console(f"❌ ICMP failed for {device_name}")
-                    device_status_tracking[device_name] = "ICMP_FAIL"
-                    enhanced_progress["status_counts"]["failure"] += 1
-                    failed_devices += 1
-                    continue
+                update_device_step_status(device_name, 'ping', 'in_progress', 'Testing ICMP connectivity')
+                
+                ping_success = ping_remote_device(jump_client, device_ip)
+                if ping_success:
+                    log_to_ui_and_console(f"✅ ICMP OK to {device_ip}")
+                    update_device_step_status(device_name, 'ping', 'success', 'ICMP connectivity successful')
+                else:
+                    log_to_ui_and_console(f"❌ ICMP FAILED to {device_ip}")
+                    update_device_step_status(device_name, 'ping', 'failed', 'ICMP connectivity failed - continuing with SSH attempt')
+                    # CONTINUE processing despite ping failure
                 
                 # Phase 2b: SSH Connection Test
                 log_to_ui_and_console(f"🔐 Testing SSH connectivity to {device_name}")
                 device_connection = connect_to_device_via_jump_host(jump_client, device)
                 
-                if not device_connection:
+                if device_connection:
+                    try:
+                        # Phase 2c: Command Execution
+                        log_to_ui_and_console(f"⚡ Executing AUX telnet audit on {device_name}")
+                        command_results = execute_core_commands_on_device(device_connection, device_name)
+                        
+                        # Update IP address in telnet audit results
+                        if "telnet_audit" in command_results and command_results["telnet_audit"]:
+                            command_results["telnet_audit"]["ip_address"] = device_ip
+                        
+                        # Store results for Phase 4 reporting
+                        device_results[device_name] = command_results
+                        
+                        # Store command logs
+                        command_logs[device_name] = command_results
+                        
+                        # Save to file
+                        save_command_results_to_file(command_results)
+                        
+                        # Update status tracking
+                        if command_results["status"] == "success":
+                            device_status_tracking[device_name] = "UP"
+                            enhanced_progress["status_counts"]["success"] += 1
+                            successful_devices += 1
+                            device_overall_status = "success"
+                            log_to_ui_and_console(f"✅ {device_name} completed successfully")
+                        elif command_results["status"] == "partial":
+                            device_status_tracking[device_name] = "WARNING"
+                            enhanced_progress["status_counts"]["warning"] += 1
+                            successful_devices += 1
+                            device_overall_status = "warning"
+                            log_to_ui_and_console(f"⚠️ {device_name} completed with warnings")
+                        else:
+                            device_status_tracking[device_name] = "COLLECT_FAIL"
+                            enhanced_progress["status_counts"]["failure"] += 1
+                            failed_devices += 1
+                            device_overall_status = "failed"
+                            log_to_ui_and_console(f"❌ {device_name} command execution failed")
+                        
+                    finally:
+                        # Always disconnect and finalize device status
+                        if device_connection:
+                            try:
+                                device_connection.disconnect()
+                            except:
+                                pass
+                else:
                     log_to_ui_and_console(f"❌ SSH failed for {device_name}")
                     device_status_tracking[device_name] = "SSH_FAIL"
                     enhanced_progress["status_counts"]["failure"] += 1
                     failed_devices += 1
-                    continue
+                    device_overall_status = "failed"
                 
-                try:
-                    # Phase 2c: Command Execution
-                    log_to_ui_and_console(f"⚡ Executing AUX telnet audit on {device_name}")
-                    command_results = execute_core_commands_on_device(device_connection, device_name)
-                    
-                    # Update IP address in telnet audit results
-                    if "telnet_audit" in command_results and command_results["telnet_audit"]:
-                        command_results["telnet_audit"]["ip_address"] = device_ip
-                    
-                    # Store results for Phase 4 reporting
-                    device_results[device_name] = command_results
-                    
-                    # Store command logs
-                    command_logs[device_name] = command_results
-                    
-                    # Save to file
-                    save_command_results_to_file(command_results)
-                    
-                    # Update status tracking
-                    if command_results["status"] == "success":
-                        device_status_tracking[device_name] = "UP"
-                        enhanced_progress["status_counts"]["success"] += 1
-                        successful_devices += 1
-                        log_to_ui_and_console(f"✅ {device_name} completed successfully")
-                    elif command_results["status"] == "partial":
-                        device_status_tracking[device_name] = "WARNING"
-                        enhanced_progress["status_counts"]["warning"] += 1
-                        successful_devices += 1
-                        log_to_ui_and_console(f"⚠️ {device_name} completed with warnings")
-                    else:
-                        device_status_tracking[device_name] = "COLLECT_FAIL"
-                        enhanced_progress["status_counts"]["failure"] += 1
-                        failed_devices += 1
-                        log_to_ui_and_console(f"❌ {device_name} command execution failed")
-                    
-                finally:
-                    # Always disconnect
-                    try:
-                        device_connection.disconnect()
-                    except:
-                        pass
+                # Always finalize device status
+                finalize_device_status(device_name, device_overall_status)
                 
                 # Update progress
                 completed = i + 1

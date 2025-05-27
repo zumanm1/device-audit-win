@@ -1,0 +1,1 @@
+hostname,ip_address,model,telnet_allowed,login_method,exec_timeout,risk_level,timestamp,error,model,ping_status,ssh_status,auth_status,command_status,platform_info,audit_start_time,audit_end_time,audit_duration

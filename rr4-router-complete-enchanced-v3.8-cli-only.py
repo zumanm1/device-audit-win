@@ -88,6 +88,7 @@ class JumpHostAuditor:
             "risk_assessment": None,
             "reporting": None
         }
+        self.current_phases = {}
 
     # Timing Management Methods
     def start_timer(self):
@@ -179,6 +180,24 @@ class JumpHostAuditor:
         if phase in self.phase_times:
             self.phase_times[phase] = duration
             logger.info(f"Phase '{phase}' completed in {self.format_elapsed_time(duration)}")
+            
+    def start_phase(self, phase_name):
+        """Start timing for a specific audit phase"""
+        if phase_name in self.phase_times:
+            self.current_phases[phase_name] = datetime.now()
+            logger.info(f"Starting phase: {phase_name} at {self.current_phases[phase_name].strftime('%Y-%m-%d %H:%M:%S')}")
+            return self.current_phases[phase_name]
+        return None
+        
+    def end_phase(self, phase_name):
+        """End timing for a specific audit phase and record duration"""
+        if phase_name in self.phase_times and phase_name in self.current_phases:
+            end_time = datetime.now()
+            duration = end_time - self.current_phases[phase_name]
+            self.record_phase_time(phase_name, duration)
+            logger.info(f"Completed phase: {phase_name} in {self.format_elapsed_time(duration)}")
+            return duration
+        return None
     
     def load_environment(self):
         """Load or create .env file with jump host configuration"""
@@ -319,6 +338,76 @@ class JumpHostAuditor:
         except Exception as e:
             logger.error(f"✗ Jump host connection failed: {e}")
             return False
+            
+    def ping_device(self, host, jump_conn=None):
+        """Test connectivity to a device with ping from jump host"""
+        try:
+            if jump_conn:
+                # Execute ping through existing jump host connection
+                cmd = f"ping -c 3 -W 2 {host}"
+                output = jump_conn.send_command(cmd, delay_factor=1)
+                success = "0% packet loss" in output or " 0% packet loss" in output
+            else:
+                # If no connection provided, establish a new one
+                with ConnectHandler(**self.jump_host, timeout=10) as conn:
+                    cmd = f"ping -c 3 -W 2 {host}"
+                    output = conn.send_command(cmd, delay_factor=1)
+                    success = "0% packet loss" in output or " 0% packet loss" in output
+            
+            if success:
+                logger.info(f"✓ Ping to {host} successful")
+                return True, output
+            else:
+                logger.warning(f"✗ Ping to {host} failed with packet loss")
+                return False, output
+        except Exception as e:
+            logger.error(f"✗ Ping test to {host} failed with error: {e}")
+            return False, str(e)
+            
+    def test_ssh_connectivity(self, host, username, password, jump_conn=None):
+        """Test SSH connectivity to a device from jump host"""
+        try:
+            if jump_conn:
+                # Try simple SSH command through jump host
+                cmd = f"sshpass -p '{password}' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -o BatchMode=yes {username}@{host} exit 2>&1"
+                output = jump_conn.send_command(cmd, delay_factor=1)
+            else:
+                # If no connection provided, establish a new one
+                with ConnectHandler(**self.jump_host, timeout=10) as conn:
+                    cmd = f"sshpass -p '{password}' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=5 -o BatchMode=yes {username}@{host} exit 2>&1"
+                    output = conn.send_command(cmd, delay_factor=1)
+            
+            # Check for SSH errors in output
+            if "Connection refused" in output:
+                logger.warning(f"✗ SSH to {host} failed: Connection refused")
+                return False, "Connection refused"
+            elif "Connection timed out" in output:
+                logger.warning(f"✗ SSH to {host} failed: Connection timed out")
+                return False, "Connection timed out"
+            elif "Permission denied" in output:
+                logger.warning(f"✗ SSH to {host} failed: Permission denied (authentication failed)")
+                return False, "Authentication failed"
+            elif "Host key verification failed" in output:
+                logger.warning(f"✗ SSH to {host} failed: Host key verification failed")
+                return False, "Host key verification failed"
+            elif "No route to host" in output:
+                logger.warning(f"✗ SSH to {host} failed: No route to host")
+                return False, "No route to host"
+            elif "Connection reset" in output:
+                logger.warning(f"✗ SSH to {host} failed: Connection reset")
+                return False, "Connection reset"
+            elif "command not found" in output:
+                logger.warning(f"✗ sshpass command not found on jump host")
+                return False, "sshpass not available"
+            elif "255" in output or "exit status 255" in output:
+                logger.warning(f"✗ SSH to {host} failed with generic error")
+                return False, "SSH error"
+            else:
+                logger.info(f"✓ SSH to {host} successful")
+                return True, "SSH connectivity successful"
+        except Exception as e:
+            logger.error(f"✗ SSH test to {host} failed with error: {e}")
+            return False, str(e)
 
     def audit_router_via_jump(self, router_config):
         """Audit a single router via jump host"""
@@ -343,11 +432,50 @@ class JumpHostAuditor:
             "risk_level": "UNKNOWN",
             "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "error": None,
-            "connection_method": "jump_host"
+            "connection_method": "jump_host",
+            "model": model,
+            "ping_status": "UNKNOWN",
+            "ssh_status": "UNKNOWN",
+            "auth_status": "UNKNOWN",
+            "command_status": "UNKNOWN",
+            "platform_info": "UNKNOWN"
         }
 
         try:
-            # Connect to jump host first
+            # Start the connectivity phase
+            self.start_phase("Connectivity")
+            
+            # First ping test from jump host
+            print(f"{Fore.YELLOW}🔄 Testing ICMP connectivity to {router_ip}...{Style.RESET_ALL}")
+            ping_success, ping_output = self.ping_device(router_ip)
+            result["ping_status"] = "SUCCESS" if ping_success else "FAILED"
+            if not ping_success:
+                print(f"{Fore.RED}❌ Ping test failed: {router_ip}{Style.RESET_ALL}")
+                result["error"] = f"Ping failed: {ping_output}"
+                print(f"{Fore.YELLOW}⚠️ Continuing audit despite ping failure...{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.GREEN}✅ Ping test successful{Style.RESET_ALL}")
+            
+            # Test SSH connectivity
+            print(f"{Fore.YELLOW}🔄 Testing SSH connectivity to {router_ip}...{Style.RESET_ALL}")
+            ssh_success, ssh_message = self.test_ssh_connectivity(
+                router_ip,
+                router_config['username'],
+                router_config['password']
+            )
+            result["ssh_status"] = "SUCCESS" if ssh_success else "FAILED"
+            if not ssh_success:
+                print(f"{Fore.RED}❌ SSH connectivity test failed: {ssh_message}{Style.RESET_ALL}")
+                result["error"] = f"SSH failed: {ssh_message}"
+                print(f"{Fore.YELLOW}⚠️ Continuing audit despite SSH connectivity failure...{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.GREEN}✅ SSH connectivity test successful{Style.RESET_ALL}")
+                
+            # Complete connectivity phase
+            self.end_phase("Connectivity")
+            
+            # Connect to jump host
+            print(f"{Fore.YELLOW}🔄 Connecting to jump host...{Style.RESET_ALL}")
             with ConnectHandler(**self.jump_host, timeout=15) as jump_conn:
                 # Method 1: Try using sshpass (Linux/Unix)
                 ssh_command = f"sshpass -p '{router_config['password']}' ssh -o StrictHostKeyChecking=no -o ConnectTimeout=10 {router_config['username']}@{router_ip}"
@@ -402,6 +530,26 @@ class JumpHostAuditor:
                         print(f"{Fore.YELLOW}⏳ Still waiting... ({i+1}/15 seconds){Style.RESET_ALL}")
 
                 # At this point, we should be connected to the router
+                # Start authentication phase
+                self.start_phase("Authentication")
+                
+                # Check for authentication success
+                try:
+                    if '>' in output or '#' in output:
+                        print(f"{Fore.GREEN}✅ Authentication successful{Style.RESET_ALL}")
+                        result["auth_status"] = "SUCCESS"
+                    else:
+                        print(f"{Fore.RED}❌ Authentication failed - no router prompt detected{Style.RESET_ALL}")
+                        result["auth_status"] = "FAILED"
+                        result["error"] = "Authentication failed - no router prompt"
+                        # Continue anyway
+                        print(f"{Fore.YELLOW}⚠️ Continuing audit despite authentication issues...{Style.RESET_ALL}")
+                except Exception as auth_err:
+                    print(f"{Fore.RED}❌ Authentication check error: {auth_err}{Style.RESET_ALL}")
+                    result["auth_status"] = "FAILED"
+                    result["error"] = f"Authentication check error: {auth_err}"
+                    print(f"{Fore.YELLOW}⚠️ Continuing audit despite authentication issues...{Style.RESET_ALL}")
+                
                 # Check if we need to enter enable mode
                 if '#' not in output:
                     print(f"{Fore.YELLOW}🔒 Entering enable mode...{Style.RESET_ALL}")
@@ -413,7 +561,17 @@ class JumpHostAuditor:
                         jump_conn.write_channel(router_config['secret'] + '\n')
                         time.sleep(1)
                         output = jump_conn.read_channel()
-                        print(f"{Fore.GREEN}✅ Enable mode activated{Style.RESET_ALL}")
+                        if '#' in output:
+                            print(f"{Fore.GREEN}✅ Enable mode activated{Style.RESET_ALL}")
+                        else:
+                            print(f"{Fore.RED}❌ Enable mode failed - incorrect secret{Style.RESET_ALL}")
+                            result["error"] = "Enable mode failed - incorrect secret"
+                    
+                # End authentication phase
+                self.end_phase("Authentication")
+                
+                # Start config audit phase
+                self.start_phase("Config Audit")
 
                 # Get and run show commands
                 show_commands = [
@@ -421,14 +579,32 @@ class JumpHostAuditor:
                     "show run | include aux",
                     "show run | include line aux",
                     "show run | begin line aux",
-                    "show version | include IOS"
+                    "show version | include IOS",
+                    "show platform",         # Added platform info command
+                    "show version"           # Full version info
                 ]
 
                 print(f"{Fore.CYAN}📋 Executing router commands...{Style.RESET_ALL}")
+                command_outputs = {}
+                command_success = True
+                
                 for cmd in show_commands:
                     print(f"{Fore.YELLOW}📤 Sending command: {cmd}{Style.RESET_ALL}")
                     jump_conn.write_channel(cmd + '\n')
-                    time.sleep(1)
+                    time.sleep(2)  # Allow time for command execution
+                    temp_output = jump_conn.read_channel()
+                    
+                    # Verify command response
+                    if len(temp_output.strip()) > 5 and (cmd in temp_output or '#' in temp_output):
+                        print(f"{Fore.GREEN}✅ Command executed successfully: {cmd}{Style.RESET_ALL}")
+                        command_outputs[cmd] = temp_output
+                        
+                        # Capture platform info specifically
+                        if cmd == "show platform":
+                            result["platform_info"] = temp_output
+                    else:
+                        print(f"{Fore.RED}❌ Command may have failed: {cmd}{Style.RESET_ALL}")
+                        command_success = False
                 
                 # Run our audit command
                 audit_cmd = "show running-config | include telnet|aux|line"  # Show telnet and aux port config
@@ -439,7 +615,20 @@ class JumpHostAuditor:
                 # Collect output
                 time.sleep(2)
                 output = jump_conn.read_channel()
-                print(f"{Fore.GREEN}📥 Received configuration data: {len(output)} chars{Style.RESET_ALL}")
+                if len(output.strip()) > 10:
+                    print(f"{Fore.GREEN}📥 Received configuration data: {len(output)} chars{Style.RESET_ALL}")
+                    command_outputs[audit_cmd] = output
+                    result["command_status"] = "SUCCESS" if command_success else "PARTIAL"
+                else:
+                    print(f"{Fore.RED}❌ Audit command failed or returned minimal data{Style.RESET_ALL}")
+                    result["command_status"] = "FAILED"
+                    result["error"] = "Audit command failed to return sufficient data"
+                
+                # End config audit phase
+                self.end_phase("Config Audit")
+                
+                # Start risk assessment phase
+                self.start_phase("Risk Assessment")
                 
                 # Exit the router
                 print(f"{Fore.YELLOW}🚪 Exiting router session...{Style.RESET_ALL}")
@@ -449,7 +638,20 @@ class JumpHostAuditor:
                 # Parse the router output
                 if output and len(output.strip()) > 10:  # Ensure we got substantial output
                     print(f"{Fore.CYAN}🔍 Analyzing router configuration...{Style.RESET_ALL}")
-                    result = self.parse_router_output(output, router_name, router_ip)
+                    # Pass the existing result to preserve the auth_status and other fields
+                    result = self.parse_router_output(output, router_name, router_ip, result)
+                    
+                    # These are now preserved inside parse_router_output, but we'll set them again to be safe
+                    result["ping_status"] = "SUCCESS" if ping_success else "FAILED"
+                    result["ssh_status"] = "SUCCESS" if ssh_success else "FAILED"
+                    result["command_status"] = "SUCCESS" if command_success else "PARTIAL"
+                    result["platform_info"] = command_outputs.get("show platform", "Not available")
+                    
+                    # End risk assessment phase
+                    self.end_phase("Risk Assessment")
+                    
+                    # Start reporting phase
+                    self.start_phase("Reporting")
                     
                     # Show result summary for this router
                     risk_color = Fore.RED if result["risk_level"] in ["CRITICAL", "HIGH"] else \
@@ -461,7 +663,22 @@ class JumpHostAuditor:
                     print(f"{risk_color}⚠️ Risk Level: {result['risk_level']}{Style.RESET_ALL}")
                     print(f"{risk_color}🔐 Telnet Allowed: {result['telnet_allowed']}{Style.RESET_ALL}")
                     print(f"{risk_color}🔑 Login Method: {result['login_method']}{Style.RESET_ALL}")
+                    
+                    # Show connectivity and execution status
+                    ping_color = Fore.GREEN if ping_success else Fore.RED
+                    ssh_color = Fore.GREEN if ssh_success else Fore.RED
+                    auth_color = Fore.GREEN if result.get("auth_status", "UNKNOWN") == "SUCCESS" else Fore.RED
+                    cmd_color = Fore.GREEN if command_success else Fore.YELLOW
+                    
+                    print(f"{ping_color}🌐 Ping Status: {result.get('ping_status', 'UNKNOWN')}{Style.RESET_ALL}")
+                    print(f"{ssh_color}🔌 SSH Status: {result.get('ssh_status', 'UNKNOWN')}{Style.RESET_ALL}")
+                    print(f"{auth_color}🔐 Auth Status: {result.get('auth_status', 'UNKNOWN')}{Style.RESET_ALL}")
+                    print(f"{cmd_color}🖥️ Command Status: {result.get('command_status', 'UNKNOWN')}{Style.RESET_ALL}")
+                    print(f"{Fore.CYAN}📱 Model/Platform: {result.get('model', 'Unknown')}{Style.RESET_ALL}")
                     print(f"{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
+                    
+                    # End reporting phase
+                    self.end_phase("Reporting")
                     
                     return result
                 else:
@@ -474,9 +691,29 @@ class JumpHostAuditor:
 
         return result
 
-    def parse_router_output(self, output, fallback_hostname, router_ip):
+    def parse_router_output(self, output, fallback_hostname, router_ip, result=None):
         """Parse router output and assess security risk"""
         lines = output.strip().split('\n')
+
+        # If result was provided, use it, otherwise create a new one
+        if result is None:
+            result = {
+                "hostname": fallback_hostname,
+                "ip_address": router_ip,
+                "line": "unknown",
+                "telnet_allowed": "UNKNOWN",
+                "login_method": "UNKNOWN",
+                "exec_timeout": "UNKNOWN",
+                "risk_level": "UNKNOWN",
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "error": None,
+                "connection_method": "jump_host",
+                "ping_status": "UNKNOWN",
+                "ssh_status": "UNKNOWN",
+                "auth_status": "UNKNOWN",
+                "command_status": "UNKNOWN",
+                "platform_info": "UNKNOWN"
+            }
 
         # Clean up the output (remove command echo and prompts)
         cleaned_lines = []
@@ -716,8 +953,9 @@ class JumpHostAuditor:
         try:
             with open(csv_filename, 'w', newline='') as f:
                 # Add timing information to the field names
-                fieldnames = ['hostname', 'ip_address', 'line', 'telnet_allowed', 'login_method', 
+                fieldnames = ['hostname', 'ip_address', 'line', 'model', 'telnet_allowed', 'login_method',
                               'exec_timeout', 'risk_level', 'timestamp', 'error', 'model',
+                              'ping_status', 'ssh_status', 'auth_status', 'command_status', 'platform_info',
                               'audit_start_time', 'audit_end_time', 'audit_duration']
                 writer = csv.DictWriter(f, fieldnames=fieldnames)
                 writer.writeheader()
@@ -739,6 +977,11 @@ class JumpHostAuditor:
                         'timestamp': result.get('timestamp', datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
                         'error': result.get('error', ''),
                         'model': result.get('model', 'Unknown'),
+                        'ping_status': result.get('ping_status', 'UNKNOWN'),
+                        'ssh_status': result.get('ssh_status', 'UNKNOWN'),
+                        'auth_status': result.get('auth_status', 'UNKNOWN'),
+                        'command_status': result.get('command_status', 'UNKNOWN'),
+                        'platform_info': result.get('platform_info', 'UNKNOWN'),
                         'audit_start_time': start_time,
                         'audit_end_time': end_time,
                         'audit_duration': timing_info.get('elapsed_time', 'N/A') if isinstance(timing_info, dict) else 'N/A'
@@ -885,7 +1128,7 @@ class JumpHostAuditor:
                 print()
 
         # CONNECTION FAILURES SECTION
-        failed = [r for r in self.results if r["error"] is not None]
+        failed = [r for r in self.results if r.get("error") is not None]
         if failed:
             print(f"\n{'❌ CONNECTION FAILURES':^80}")
             print("-" * 80)
