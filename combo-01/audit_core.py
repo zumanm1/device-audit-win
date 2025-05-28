@@ -57,18 +57,31 @@ DEFAULT_CONFIG_DIR = "config"
 DEFAULT_DATA_DIR = "data"
 DEFAULT_DB_NAME = "audit_results.sqlite"
 
+# Cross-platform paths (automatically handles different OS path separators)
+def get_app_dir():
+    """Get the application directory using pathlib for cross-platform compatibility"""
+    return Path(__file__).parent.absolute()
+
 # Ensure all required directories exist
 def ensure_directories():
-    """Create required directories if they don't exist"""
+    """Create required directories if they don't exist using pathlib for cross-platform compatibility"""
+    base_dir = get_app_dir()
+    created_dirs = []
+    
     for directory in [DEFAULT_LOG_DIR, DEFAULT_REPORT_DIR, DEFAULT_CONFIG_DIR, DEFAULT_DATA_DIR]:
-        directory_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), directory)
-        if not os.path.exists(directory_path):
+        directory_path = base_dir / directory
+        if not directory_path.exists():
             try:
-                os.makedirs(directory_path)
+                directory_path.mkdir(parents=True, exist_ok=True)
+                created_dirs.append(directory)
                 print(f"Created {directory} directory at: {directory_path}")
             except Exception as e:
-                print(f"Error creating {directory} directory: {e}")
+                print(f"{Fore.RED}Error creating {directory} directory: {e}{Style.RESET_ALL}")
                 return False
+    
+    if created_dirs:
+        print(f"{Fore.GREEN}✓ All required directories created successfully{Style.RESET_ALL}")
+    return True
     return True
 
 # Custom colored formatter for console output
