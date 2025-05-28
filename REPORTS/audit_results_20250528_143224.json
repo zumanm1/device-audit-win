@@ -1,0 +1,181 @@
+{
+  "audit_metadata": {
+    "version": "v3.0.0-CLI-LITE",
+    "timestamp": "2025-05-28T14:32:24.636166",
+    "audit_start_time": 1748442729.3564475,
+    "audit_completion_time": 1748442744.635048,
+    "duration_seconds": 15.278600454330444,
+    "status": "Completed"
+  },
+  "summary": {
+    "total_devices": 6,
+    "successful_devices": 2,
+    "failed_devices": 4,
+    "telnet_enabled_count": 0,
+    "high_risk_devices": 0
+  },
+  "device_results": {
+    "172.16.39.100": {
+      "device_ip": "172.16.39.100",
+      "hostname": "RTR-CORE-01.xrnet.net",
+      "success": true,
+      "error_message": "",
+      "audit_findings": {
+        "hostname": "unknown",
+        "aux_telnet_enabled": false,
+        "vty_telnet_enabled": false,
+        "con_telnet_enabled": false,
+        "telnet_violations": [],
+        "risk_level": "LOW",
+        "compliance_status": "COMPLIANT"
+      },
+      "commands": {
+        "show_line": {
+          "command": "show line",
+          "success": true,
+          "stdout": "\r\n   Tty Typ     Tx/Rx    A Modem  Roty AccO AccI   Uses   Noise  Overruns   Int\r\n      0 CTY              -    -      -    -    -      0       0     0/0       -\r\n     97 AUX   9600/9600  -    -      -    -    -      0       0     0/0       -\r\n*    98 VTY              -    -      -    -    -      1       0     0/0       -\r\n     99 VTY              -    -      -    -    -      0       0     0/0       -\r\n    100 VTY              -    -      -    -    -      0       0     0/0       -\r\n    101 VTY              -    -      -    -    -      0       0     0/0       -\r\n    102 VTY              -    -      -    -    -      0       0     0/0       -\r\n    103 VTY              -    -      -    -    -      0       0     0/0       -\r\n\r\nLine(s) not in async mode -or- with no hardware support: \r\n1-96\r\n ",
+          "stderr": "",
+          "timestamp": "2025-05-28T14:32:11.564299"
+        },
+        "aux_telnet_audit": {
+          "command": "show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout",
+          "success": false,
+          "stdout": "",
+          "stderr": "",
+          "timestamp": "2025-05-28T14:32:11.590827"
+        },
+        "vty_telnet_audit": {
+          "command": "show running-config | include ^line vty|^ transport input|^ login|^ exec-timeout",
+          "success": false,
+          "stdout": "",
+          "stderr": "SSH session not active",
+          "timestamp": "2025-05-28T14:32:11.591117"
+        },
+        "con_telnet_audit": {
+          "command": "show running-config | include ^line con|^ transport input|^ login|^ exec-timeout",
+          "success": false,
+          "stdout": "",
+          "stderr": "SSH session not active",
+          "timestamp": "2025-05-28T14:32:11.591458"
+        },
+        "show_version": {
+          "command": "show version",
+          "success": false,
+          "stdout": "",
+          "stderr": "SSH session not active",
+          "timestamp": "2025-05-28T14:32:11.591780"
+        },
+        "show_running_config": {
+          "command": "show running-config",
+          "success": false,
+          "stdout": "",
+          "stderr": "SSH session not active",
+          "timestamp": "2025-05-28T14:32:11.592141"
+        }
+      },
+      "timestamp": "2025-05-28T14:32:11.257157"
+    },
+    "172.16.39.101": {
+      "device_ip": "172.16.39.101",
+      "hostname": "RTR-EDGE-02.xrnet.net",
+      "success": true,
+      "error_message": "",
+      "audit_findings": {
+        "hostname": "unknown",
+        "aux_telnet_enabled": false,
+        "vty_telnet_enabled": false,
+        "con_telnet_enabled": false,
+        "telnet_violations": [],
+        "risk_level": "LOW",
+        "compliance_status": "COMPLIANT"
+      },
+      "commands": {
+        "show_line": {
+          "command": "show line",
+          "success": true,
+          "stdout": "\r\n   Tty Typ     Tx/Rx    A Modem  Roty AccO AccI   Uses   Noise  Overruns   Int\r\n      0 CTY              -    -      -    -    -      0       0     0/0       -\r\n     97 AUX   9600/9600  -    -      -    -    -      0       0     0/0       -\r\n*    98 VTY              -    -      -    -    -      1       0     0/0       -\r\n     99 VTY              -    -      -    -    -      0       0     0/0       -\r\n    100 VTY              -    -      -    -    -      0       0     0/0       -\r\n    101 VTY              -    -      -    -    -      0       0     0/0       -\r\n    102 VTY              -    -      -    -    -      0       0     0/0       -\r\n    103 VTY              -    -      -    -    -      0       0     0/0       -\r\n\r\nLine(s) not in async mode -or- with no hardware support: \r\n1-96\r\n ",
+          "stderr": "",
+          "timestamp": "2025-05-28T14:32:12.260507"
+        },
+        "aux_telnet_audit": {
+          "command": "show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout",
+          "success": false,
+          "stdout": "",
+          "stderr": "",
+          "timestamp": "2025-05-28T14:32:12.285028"
+        },
+        "vty_telnet_audit": {
+          "command": "show running-config | include ^line vty|^ transport input|^ login|^ exec-timeout",
+          "success": false,
+          "stdout": "",
+          "stderr": "SSH session not active",
+          "timestamp": "2025-05-28T14:32:12.286032"
+        },
+        "con_telnet_audit": {
+          "command": "show running-config | include ^line con|^ transport input|^ login|^ exec-timeout",
+          "success": false,
+          "stdout": "",
+          "stderr": "SSH session not active",
+          "timestamp": "2025-05-28T14:32:12.286324"
+        },
+        "show_version": {
+          "command": "show version",
+          "success": false,
+          "stdout": "",
+          "stderr": "SSH session not active",
+          "timestamp": "2025-05-28T14:32:12.286569"
+        },
+        "show_running_config": {
+          "command": "show running-config",
+          "success": false,
+          "stdout": "",
+          "stderr": "SSH session not active",
+          "timestamp": "2025-05-28T14:32:12.286849"
+        }
+      },
+      "timestamp": "2025-05-28T14:32:12.000703"
+    },
+    "172.16.39.102": {
+      "device_ip": "172.16.39.102",
+      "hostname": "RTR-BRANCH-03.xrnet.net",
+      "success": false,
+      "error_message": "Failed to connect to device 172.16.39.102",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T14:32:12.287186"
+    },
+    "172.16.39.103": {
+      "device_ip": "172.16.39.103",
+      "hostname": "RTR-BRANCH-04.xrnet.net",
+      "success": false,
+      "error_message": "Failed to connect to device 172.16.39.103",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T14:32:15.418876"
+    },
+    "172.16.39.104": {
+      "device_ip": "172.16.39.104",
+      "hostname": "RTR-BRANCH-05.xrnet.net",
+      "success": false,
+      "error_message": "Failed to connect to device 172.16.39.104",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T14:32:18.490950"
+    },
+    "172.16.39.105": {
+      "device_ip": "172.16.39.105",
+      "hostname": "RTR-BRANCH-06.xrnet.net",
+      "success": false,
+      "error_message": "Failed to connect to device 172.16.39.105",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T14:32:21.563151"
+    }
+  },
+  "configuration": {
+    "jump_host": "172.16.39.128",
+    "jump_username": "root",
+    "device_username": "cisco",
+    "inventory_file": "routers01.csv"
+  }
+}
