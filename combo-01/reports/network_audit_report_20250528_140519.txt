@@ -1,0 +1,72 @@
+==== NETWORK AUDIT REPORT ====
+Generated: 2025-05-28 14:05:19
+Tool Version: 3.11.0
+
+Total Devices Audited: 6
+
+
+==================================================
+Device: RTR-BRANCH-05.xrnet.net (172.16.39.104)
+Audit Type: telnet
+Audit ID: 93493e9d-5d47-46e6-8527-5c02e986fa54
+Timestamp: 2025-05-28 14:05:09
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
+
+==================================================
+Device: RTR-BRANCH-04.xrnet.net (172.16.39.103)
+Audit Type: telnet
+Audit ID: 745f776f-0d24-49f8-bbf4-4e26caa23171
+Timestamp: 2025-05-28 14:05:09
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
+
+==================================================
+Device: RTR-BRANCH-03.xrnet.net (172.16.39.102)
+Audit Type: telnet
+Audit ID: a154bb93-3a24-43bd-b9ef-1e239ddee660
+Timestamp: 2025-05-28 14:05:09
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
+
+==================================================
+Device: RTR-BRANCH-06.xrnet.net (172.16.39.105)
+Audit Type: telnet
+Audit ID: b36ccc6e-fbe0-4c97-b49f-8eef5aae4dcd
+Timestamp: 2025-05-28 14:05:12
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
+
+==================================================
+Device: RTR-EDGE-02.xrnet.net (172.16.39.101)
+Audit Type: telnet
+Audit ID: 0cd3cebf-9c67-4384-8b2f-8f172f4828b6
+Timestamp: 2025-05-28 14:05:09
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
+
+==================================================
+Device: RTR-CORE-01.xrnet.net (172.16.39.100)
+Audit Type: telnet
+Audit ID: a5668d7f-f77e-4d08-9bcd-5ed86399074e
+Timestamp: 2025-05-28 14:05:09
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
