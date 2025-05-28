@@ -1,0 +1,114 @@
+{
+  "summary": {
+    "total_tests": 17,
+    "passed": 17,
+    "failed": 0,
+    "warnings": 0,
+    "success_rate": 100.0
+  },
+  "test_results": [
+    {
+      "test": "Application Startup",
+      "status": "PASS",
+      "details": "Status: 200",
+      "timestamp": "2025-05-28T10:16:40.408118"
+    },
+    {
+      "test": "Dashboard Page",
+      "status": "PASS",
+      "details": "Dashboard loads with expected content",
+      "timestamp": "2025-05-28T10:16:40.414567"
+    },
+    {
+      "test": "Quick Stats Section",
+      "status": "PASS",
+      "details": "All Quick Stats elements present",
+      "timestamp": "2025-05-28T10:16:40.420003"
+    },
+    {
+      "test": "API /api/progress",
+      "status": "PASS",
+      "details": "Returns valid JSON",
+      "timestamp": "2025-05-28T10:16:40.424478"
+    },
+    {
+      "test": "API /api/progress-detailed",
+      "status": "PASS",
+      "details": "Returns valid JSON",
+      "timestamp": "2025-05-28T10:16:40.429944"
+    },
+    {
+      "test": "API /api/progress-summary",
+      "status": "PASS",
+      "details": "Returns valid JSON",
+      "timestamp": "2025-05-28T10:16:40.434856"
+    },
+    {
+      "test": "API /api/live-logs",
+      "status": "PASS",
+      "details": "Returns valid JSON",
+      "timestamp": "2025-05-28T10:16:40.438865"
+    },
+    {
+      "test": "API /api/raw-logs",
+      "status": "PASS",
+      "details": "Returns valid JSON",
+      "timestamp": "2025-05-28T10:16:40.443430"
+    },
+    {
+      "test": "API /api/timing",
+      "status": "PASS",
+      "details": "Returns valid JSON",
+      "timestamp": "2025-05-28T10:16:40.446562"
+    },
+    {
+      "test": "Progress API Structure",
+      "status": "PASS",
+      "details": "All expected fields present including violations",
+      "timestamp": "2025-05-28T10:16:40.450390"
+    },
+    {
+      "test": "Inventory Loading",
+      "status": "PASS",
+      "details": "Inventory page accessible",
+      "timestamp": "2025-05-28T10:16:40.510244"
+    },
+    {
+      "test": "Settings Page",
+      "status": "PASS",
+      "details": "Settings page accessible",
+      "timestamp": "2025-05-28T10:16:40.570945"
+    },
+    {
+      "test": "Audit Control start-audit",
+      "status": "PASS",
+      "details": "Returns structured response",
+      "timestamp": "2025-05-28T10:16:40.585781"
+    },
+    {
+      "test": "Audit Control pause-audit",
+      "status": "PASS",
+      "details": "Returns structured response",
+      "timestamp": "2025-05-28T10:16:40.598543"
+    },
+    {
+      "test": "Audit Control stop-audit",
+      "status": "PASS",
+      "details": "Returns structured response",
+      "timestamp": "2025-05-28T10:16:40.606182"
+    },
+    {
+      "test": "Audit Control reset-audit",
+      "status": "PASS",
+      "details": "Returns structured response",
+      "timestamp": "2025-05-28T10:16:40.612461"
+    },
+    {
+      "test": "Static Resources",
+      "status": "PASS",
+      "details": "All expected resources detected",
+      "timestamp": "2025-05-28T10:16:40.659320"
+    }
+  ],
+  "issues_found": []
+}

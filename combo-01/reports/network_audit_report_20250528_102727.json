@@ -1,0 +1,255 @@
+{
+  "meta": {
+    "generated_at": "2025-05-28T10:27:27.948113",
+    "version": "3.11.0",
+    "report_id": "26fadbf3-a11c-45ad-b4e6-1ba2bc5ea659"
+  },
+  "results": [
+    {
+      "audit_id": "edd318ab-e495-4916-8f9d-4103f63cebc9",
+      "device_info": {
+        "hostname": "RTR-CORE-01.xrnet.net",
+        "ip": "172.16.39.100",
+        "model": "Cisco 4431 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.934075",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "faac2ada-1c34-4f0a-871c-43e2b9551867",
+      "device_info": {
+        "hostname": "RTR-BRANCH-03.xrnet.net",
+        "ip": "172.16.39.102",
+        "model": "Cisco 3945 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.935128",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "3b739adf-b9d7-4d40-b7a0-1c17422747c8",
+      "device_info": {
+        "hostname": "RTR-EDGE-02.xrnet.net",
+        "ip": "172.16.39.101",
+        "model": "Cisco 4451-X Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.938710",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "737be555-59ee-4687-b95f-e2eb0f7dd28a",
+      "device_info": {
+        "hostname": "RTR-BRANCH-05.xrnet.net",
+        "ip": "172.16.39.104",
+        "model": "Cisco 2911 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.938517",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "9918792b-bf92-497c-9b67-c4844dab6a92",
+      "device_info": {
+        "hostname": "RTR-BRANCH-06.xrnet.net",
+        "ip": "172.16.39.105",
+        "model": "Cisco 2911 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.940077",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "7ff3a44b-96b4-4c33-abab-0b35196b9f85",
+      "device_info": {
+        "hostname": "RTR-BRANCH-04.xrnet.net",
+        "ip": "172.16.39.103",
+        "model": "Cisco 4321 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.937543",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    }
+  ]
+}

@@ -1,0 +1,676 @@
+{
+  "meta": {
+    "generated_at": "2025-05-28T10:27:27.954000",
+    "version": "3.11.0",
+    "report_id": "e59db511-d52a-4936-a544-37db5d98eb34"
+  },
+  "results": [
+    {
+      "audit_id": "afcd0ba4-065b-4561-a879-0bcfc727f357",
+      "device_info": {
+        "hostname": "RTR-CORE-01.xrnet.net",
+        "ip": "172.16.39.100",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T10:27:27.899537",
+      "phases": {
+        "connectivity": {
+          "status": "Failed",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": null
+          },
+          "error": "Simulated connectivity failure"
+        },
+        "authentication": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to connectivity failure"
+        },
+        "config_audit": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to authentication failure"
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 0
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 0,
+            "recommendations_count": 0
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "6d14c40c-4985-4169-afb4-607b975c184f",
+      "device_info": {
+        "hostname": "RTR-EDGE-02.xrnet.net",
+        "ip": "172.16.39.101",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T10:27:27.899950",
+      "phases": {
+        "connectivity": {
+          "status": "Success",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": 15.7
+          },
+          "error": null
+        },
+        "authentication": {
+          "status": "Success",
+          "details": {
+            "method": "SSH authentication (simulated)",
+            "protocol": "SSH",
+            "username": "admin"
+          },
+          "error": null
+        },
+        "config_audit": {
+          "status": "Success",
+          "details": {
+            "commands_executed": [
+              "show running-config",
+              "show interfaces",
+              "show version"
+            ],
+            "config_size_bytes": 291
+          },
+          "error": null
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 0
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 0,
+            "recommendations_count": 1
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Implement regular security audits and monitoring",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: CA-7"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "audit_id": "010ef46c-f022-4da2-872d-db6e76766e82",
+      "device_info": {
+        "hostname": "RTR-BRANCH-03.xrnet.net",
+        "ip": "172.16.39.102",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T10:27:27.900570",
+      "phases": {
+        "connectivity": {
+          "status": "Success",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": 15.7
+          },
+          "error": null
+        },
+        "authentication": {
+          "status": "Success",
+          "details": {
+            "method": "SSH authentication (simulated)",
+            "protocol": "SSH",
+            "username": "admin"
+          },
+          "error": null
+        },
+        "config_audit": {
+          "status": "Success",
+          "details": {
+            "commands_executed": [
+              "show running-config",
+              "show interfaces",
+              "show version"
+            ],
+            "config_size_bytes": 295
+          },
+          "error": null
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 0
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 0,
+            "recommendations_count": 1
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Implement regular security audits and monitoring",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: CA-7"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "audit_id": "abbd4339-35da-49c3-b65c-d417b080f75b",
+      "device_info": {
+        "hostname": "RTR-BRANCH-04.xrnet.net",
+        "ip": "172.16.39.103",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T10:27:27.901488",
+      "phases": {
+        "connectivity": {
+          "status": "Success",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": 15.7
+          },
+          "error": null
+        },
+        "authentication": {
+          "status": "Success",
+          "details": {
+            "method": "SSH authentication (simulated)",
+            "protocol": "SSH",
+            "username": "admin"
+          },
+          "error": null
+        },
+        "config_audit": {
+          "status": "Success",
+          "details": {
+            "commands_executed": [
+              "show running-config",
+              "show interfaces",
+              "show version"
+            ],
+            "config_size_bytes": 295
+          },
+          "error": null
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 0
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 0,
+            "recommendations_count": 1
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Implement regular security audits and monitoring",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: CA-7"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "audit_id": "e38069bb-7a72-4373-9abf-d21c4b421aba",
+      "device_info": {
+        "hostname": "RTR-BRANCH-05.xrnet.net",
+        "ip": "172.16.39.104",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T10:27:27.902144",
+      "phases": {
+        "connectivity": {
+          "status": "Success",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": 15.7
+          },
+          "error": null
+        },
+        "authentication": {
+          "status": "Success",
+          "details": {
+            "method": "SSH authentication (simulated)",
+            "protocol": "SSH",
+            "username": "admin"
+          },
+          "error": null
+        },
+        "config_audit": {
+          "status": "Success",
+          "details": {
+            "commands_executed": [
+              "show running-config",
+              "show interfaces",
+              "show version"
+            ],
+            "config_size_bytes": 295
+          },
+          "error": null
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 0
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 0,
+            "recommendations_count": 1
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Implement regular security audits and monitoring",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: CA-7"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "audit_id": "5bcf2f78-957d-4eac-b243-60d80ca1694b",
+      "device_info": {
+        "hostname": "RTR-BRANCH-06.xrnet.net",
+        "ip": "172.16.39.105",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T10:27:27.902655",
+      "phases": {
+        "connectivity": {
+          "status": "Success",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": 15.7
+          },
+          "error": null
+        },
+        "authentication": {
+          "status": "Success",
+          "details": {
+            "method": "SSH authentication (simulated)",
+            "protocol": "SSH",
+            "username": "admin"
+          },
+          "error": null
+        },
+        "config_audit": {
+          "status": "Success",
+          "details": {
+            "commands_executed": [
+              "show running-config",
+              "show interfaces",
+              "show version"
+            ],
+            "config_size_bytes": 295
+          },
+          "error": null
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 0
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 0,
+            "recommendations_count": 1
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Implement regular security audits and monitoring",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: CA-7"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "audit_id": "edd318ab-e495-4916-8f9d-4103f63cebc9",
+      "device_info": {
+        "hostname": "RTR-CORE-01.xrnet.net",
+        "ip": "172.16.39.100",
+        "model": "Cisco 4431 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.934075",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "faac2ada-1c34-4f0a-871c-43e2b9551867",
+      "device_info": {
+        "hostname": "RTR-BRANCH-03.xrnet.net",
+        "ip": "172.16.39.102",
+        "model": "Cisco 3945 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.935128",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "3b739adf-b9d7-4d40-b7a0-1c17422747c8",
+      "device_info": {
+        "hostname": "RTR-EDGE-02.xrnet.net",
+        "ip": "172.16.39.101",
+        "model": "Cisco 4451-X Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.938710",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "737be555-59ee-4687-b95f-e2eb0f7dd28a",
+      "device_info": {
+        "hostname": "RTR-BRANCH-05.xrnet.net",
+        "ip": "172.16.39.104",
+        "model": "Cisco 2911 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.938517",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "9918792b-bf92-497c-9b67-c4844dab6a92",
+      "device_info": {
+        "hostname": "RTR-BRANCH-06.xrnet.net",
+        "ip": "172.16.39.105",
+        "model": "Cisco 2911 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.940077",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "7ff3a44b-96b4-4c33-abab-0b35196b9f85",
+      "device_info": {
+        "hostname": "RTR-BRANCH-04.xrnet.net",
+        "ip": "172.16.39.103",
+        "model": "Cisco 4321 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T10:27:27.937543",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    }
+  ]
+}

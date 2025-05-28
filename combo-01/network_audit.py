@@ -10,6 +10,8 @@ three specialized audit modules:
 
 Run this script to perform a comprehensive audit or specify individual
 audit types with command-line options.
+
+Cross-platform compatible with Windows and Ubuntu.
 """
 
 import os
@@ -18,6 +20,8 @@ import time
 import datetime
 import argparse
 import csv
+import platform
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Import core functionality
@@ -120,14 +124,16 @@ class NetworkAuditTool:
         return True  # No credential manager needed
     
     def load_devices_from_csv(self):
-        """Load devices from the specified CSV file"""
+        """Load devices from the specified CSV file using pathlib for cross-platform compatibility"""
         try:
-            if not os.path.exists(self.csv_file):
-                logger.error(f"CSV file not found: {self.csv_file}")
-                print(f"{Fore.RED}Error: CSV file not found: {self.csv_file}{Style.RESET_ALL}")
+            # Convert to Path object for cross-platform compatibility
+            csv_path = Path(self.csv_file)
+            if not csv_path.exists():
+                logger.error(f"CSV file not found: {csv_path}")
+                print(f"{Fore.RED}Error: CSV file not found: {csv_path}{Style.RESET_ALL}")
                 return False
             
-            with open(self.csv_file, 'r') as f:
+            with open(csv_path, 'r', encoding='utf-8') as f:
                 # Read the first line to check the format
                 header = f.readline().strip()
                 f.seek(0)  # Reset file position
@@ -215,11 +221,14 @@ class NetworkAuditTool:
              'username': 'admin', 'password': 'cisco123', 'secret': 'cisco123', 'model': 'Cisco ASA 5505'}
         ]
         
-        # Create a sample CSV file for reference
-        sample_csv = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
-                                 'data', 'sample_devices.csv')
+        # Create a sample CSV file for reference using pathlib for cross-platform compatibility
+        script_dir = Path(__file__).parent.absolute()
+        data_dir = script_dir / 'data'
+        data_dir.mkdir(exist_ok=True, parents=True)  # Ensure data directory exists
+        sample_csv = data_dir / 'sample_devices.csv'
+        
         try:
-            with open(sample_csv, 'w', newline='') as f:
+            with open(sample_csv, 'w', newline='', encoding='utf-8') as f:
                 writer = csv.DictWriter(f, fieldnames=[
                     'hostname', 'ip', 'device_type', 'username', 'password', 
                     'secret', 'enable_password', 'model'

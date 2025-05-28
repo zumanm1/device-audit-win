@@ -10,6 +10,8 @@ This module implements the 5-phase security audit approach:
 5. Reporting and Recommendations
 
 It can be run independently or as part of the comprehensive audit framework.
+
+Cross-platform compatible with Windows and Ubuntu.
 """
 
 import os
@@ -21,6 +23,8 @@ import datetime
 import argparse
 import json
 import uuid
+import platform
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Import core functionality
@@ -56,12 +60,16 @@ if not logger:
     sys.exit(1)
 
 def initialize_database():
-    """Initialize the SQLite database for storing audit results"""
-    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', DEFAULT_DB_NAME)
+    """Initialize the SQLite database for storing audit results using pathlib for cross-platform compatibility"""
+    # Use pathlib for cross-platform path handling
+    script_dir = Path(__file__).parent.absolute()
+    data_dir = script_dir / 'data'
+    data_dir.mkdir(exist_ok=True, parents=True)  # Ensure data directory exists
+    db_path = data_dir / DEFAULT_DB_NAME
     
     try:
         # Connect to database (creates it if it doesn't exist)
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(str(db_path))
         cursor = conn.cursor()
         
         # Create audit_runs table if it doesn't exist
@@ -114,11 +122,13 @@ def initialize_database():
         return False
 
 def log_to_database(audit_run_id, result):
-    """Log audit results to the database"""
-    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', DEFAULT_DB_NAME)
+    """Log audit results to the database using pathlib for cross-platform compatibility"""
+    # Use pathlib for cross-platform path handling
+    script_dir = Path(__file__).parent.absolute()
+    db_path = script_dir / 'data' / DEFAULT_DB_NAME
     
     try:
-        conn = sqlite3.connect(db_path)
+        conn = sqlite3.connect(str(db_path))
         cursor = conn.cursor()
         
         # Insert results for each phase

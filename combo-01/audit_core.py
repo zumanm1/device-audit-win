@@ -102,7 +102,7 @@ class ColoredFormatter(logging.Formatter):
 
 # Set up logging
 def setup_logging(log_name=None, log_level=logging.INFO):
-    """Configure logging with file and console handlers"""
+    """Configure logging with file and console handlers using pathlib for cross-platform compatibility"""
     # Create logger
     logger = logging.getLogger("network_audit")
     logger.setLevel(log_level)
@@ -116,8 +116,12 @@ def setup_logging(log_name=None, log_level=logging.INFO):
         timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         log_name = f"network_audit_{timestamp}.log"
     
-    # Full path to log file
-    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), DEFAULT_LOG_DIR, log_name)
+    # Use pathlib for cross-platform path handling
+    log_dir = get_app_dir() / DEFAULT_LOG_DIR
+    log_file = log_dir / log_name
+    
+    # Ensure log directory exists
+    log_dir.mkdir(parents=True, exist_ok=True)
     
     try:
         # Test if we can write to the log file
@@ -125,7 +129,7 @@ def setup_logging(log_name=None, log_level=logging.INFO):
             f.write(f"Log initialized at {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         
         # Add file handler
-        file_handler = logging.FileHandler(log_file)
+        file_handler = logging.FileHandler(str(log_file))  # Convert Path to string for compatibility
         file_handler.setLevel(logging.DEBUG)  # Log everything to file
         file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
         
@@ -159,8 +163,10 @@ class CredentialManager:
         self.salt = None
         self.key = None
         self.cipher_suite = None
-        self.salt_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), 
-                                      DEFAULT_CONFIG_DIR, '.salt')
+        
+        # Use pathlib for cross-platform path handling
+        config_dir = get_app_dir() / DEFAULT_CONFIG_DIR
+        self.salt_file = config_dir / '.salt'
         
         # Initialize with master password if provided
         if master_password:
@@ -172,9 +178,9 @@ class CredentialManager:
         Will create a new salt if none exists or load existing one
         """
         # Create the config directory if it doesn't exist
-        os.makedirs(os.path.dirname(self.salt_file), exist_ok=True)
+        self.salt_file.parent.mkdir(parents=True, exist_ok=True)
         
-        if os.path.exists(self.salt_file):
+        if self.salt_file.exists():
             # Load existing salt
             with open(self.salt_file, 'rb') as f:
                 self.salt = f.read()
@@ -185,12 +191,21 @@ class CredentialManager:
             # Save salt to file with secure permissions
             with open(self.salt_file, 'wb') as f:
                 f.write(self.salt)
+                
+            # Try to set appropriate permissions based on platform
             try:
-                # Make file read/write only by owner (POSIX only)
-                os.chmod(self.salt_file, 0o600)
-            except Exception:
-                # On Windows or if chmod fails, at least warn the user
-                print(f"{Fore.YELLOW}Warning: Could not set secure permissions on salt file.{Style.RESET_ALL}")
+                if platform.system() != 'Windows':
+                    import stat
+                    # Set file permissions to 600 (read/write for owner only) on Unix-like systems
+                    self.salt_file.chmod(stat.S_IRUSR | stat.S_IWUSR)
+                else:
+                    # On Windows, we don't have the same permission model
+                    # but we can try to make the file hidden
+                    import subprocess
+                    subprocess.run(['attrib', '+h', str(self.salt_file)], 
+                                  shell=True, check=False, capture_output=True)
+            except Exception as e:
+                print(f"{Fore.YELLOW}Warning: Could not set secure permissions on salt file: {e}{Style.RESET_ALL}")
         
         # Generate key from password
         kdf = PBKDF2HMAC(
@@ -345,10 +360,13 @@ class AuditReport:
     """
     def __init__(self, audit_results=None, report_dir=None, timestamp=None):
         self.audit_results = audit_results or []
-        self.report_dir = report_dir or os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), 
-            DEFAULT_REPORT_DIR
-        )
+        
+        # Use pathlib for cross-platform path handling
+        if report_dir:
+            self.report_dir = Path(report_dir)
+        else:
+            self.report_dir = get_app_dir() / DEFAULT_REPORT_DIR
+            
         self.timestamp = timestamp or datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
         self.report_files = {
             'csv': None,
@@ -358,7 +376,7 @@ class AuditReport:
         }
         
         # Ensure the report directory exists
-        os.makedirs(self.report_dir, exist_ok=True)
+        self.report_dir.mkdir(parents=True, exist_ok=True)
         
     def add_result(self, audit_result):
         """Add an audit result to the report"""
@@ -370,10 +388,10 @@ class AuditReport:
             raise TypeError("audit_result must be an AuditResult instance or dictionary")
     
     def generate_csv_report(self):
-        """Generate a CSV report of audit results"""
-        csv_file = os.path.join(self.report_dir, f"network_audit_report_{self.timestamp}.csv")
+        """Generate a CSV report of audit results using pathlib for cross-platform compatibility"""
+        csv_file = self.report_dir / f"network_audit_report_{self.timestamp}.csv"
         
-        with open(csv_file, 'w', newline='') as f:
+        with open(csv_file, 'w', newline='', encoding='utf-8') as f:
             fieldnames = [
                 'audit_id', 'device_hostname', 'device_ip', 'audit_type', 
                 'timestamp', 'phase', 'status', 'details', 'recommendations'
@@ -403,10 +421,10 @@ class AuditReport:
         return csv_file
     
     def generate_text_report(self):
-        """Generate a text report with detailed audit results"""
-        txt_file = os.path.join(self.report_dir, f"network_audit_report_{self.timestamp}.txt")
+        """Generate a text report with detailed audit results using pathlib for cross-platform compatibility"""
+        txt_file = self.report_dir / f"network_audit_report_{self.timestamp}.txt"
         
-        with open(txt_file, 'w') as f:
+        with open(txt_file, 'w', encoding='utf-8') as f:
             f.write(f"==== NETWORK AUDIT REPORT ====\n")
             f.write(f"Generated: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
             f.write(f"Tool Version: {VERSION}\n\n")
@@ -461,10 +479,10 @@ class AuditReport:
         return txt_file
     
     def generate_json_report(self):
-        """Generate a JSON report with full audit data"""
-        json_file = os.path.join(self.report_dir, f"network_audit_report_{self.timestamp}.json")
+        """Generate a JSON report with full audit data using pathlib for cross-platform compatibility"""
+        json_file = self.report_dir / f"network_audit_report_{self.timestamp}.json"
         
-        with open(json_file, 'w') as f:
+        with open(json_file, 'w', encoding='utf-8') as f:
             json.dump({
                 "meta": {
                     "generated_at": datetime.datetime.now().isoformat(),

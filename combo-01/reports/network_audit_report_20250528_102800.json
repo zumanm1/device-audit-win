@@ -1,0 +1,312 @@
+{
+  "meta": {
+    "generated_at": "2025-05-28T10:28:00.898284",
+    "version": "3.11.0",
+    "report_id": "c4aa444b-d174-460a-8c4a-ad4ab36b13a9"
+  },
+  "results": [
+    {
+      "audit_id": "ba70285a-35db-4dab-888f-8bd280c7ede8",
+      "device_info": {
+        "hostname": "RTR-CORE-01.xrnet.net",
+        "ip": "172.16.39.100",
+        "description": "WAN IP: 203.0.113.1"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T10:28:00.869473",
+      "phases": {
+        "icmp_ping": {
+          "status": "Failed",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 0,
+            "packet_loss_percent": 100,
+            "error": "Unknown error"
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Success",
+          "details": {
+            "hostname": "RTR-CORE-01.xrnet.net",
+            "resolved_ip": "172.16.39.100",
+            "matches_expected": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Device is not responding to ICMP ping. Check firewall settings or device status.",
+          "severity": "high",
+          "reference": null
+        }
+      ],
+      "notes": []
+    },
+    {
+      "audit_id": "e5c62503-3595-478e-84ab-0218ef6659e9",
+      "device_info": {
+        "hostname": "RTR-BRANCH-03.xrnet.net",
+        "ip": "172.16.39.102",
+        "description": "WAN IP: 203.0.113.3"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T10:28:00.876666",
+      "phases": {
+        "icmp_ping": {
+          "status": "Success",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 4,
+            "packet_loss_percent": 0,
+            "rtt_min_ms": 10.2,
+            "rtt_avg_ms": 15.7,
+            "rtt_max_ms": 22.3,
+            "ttl": 64
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Success",
+          "details": {
+            "hostname": "RTR-BRANCH-03.xrnet.net",
+            "resolved_ip": "172.16.39.102",
+            "matches_expected": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "b0479361-3db8-4adf-b738-d8c566bf5b45",
+      "device_info": {
+        "hostname": "RTR-BRANCH-05.xrnet.net",
+        "ip": "172.16.39.104",
+        "description": "WAN IP: 203.0.113.5"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T10:28:00.878938",
+      "phases": {
+        "icmp_ping": {
+          "status": "Success",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 4,
+            "packet_loss_percent": 0,
+            "rtt_min_ms": 10.2,
+            "rtt_avg_ms": 15.7,
+            "rtt_max_ms": 22.3,
+            "ttl": 64
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Success",
+          "details": {
+            "hostname": "RTR-BRANCH-05.xrnet.net",
+            "resolved_ip": "172.16.39.104",
+            "matches_expected": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "7ccf4365-e4fd-4114-9407-28c5b4a91471",
+      "device_info": {
+        "hostname": "RTR-BRANCH-06.xrnet.net",
+        "ip": "172.16.39.105",
+        "description": "WAN IP: 203.0.113.6"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T10:28:00.878787",
+      "phases": {
+        "icmp_ping": {
+          "status": "Success",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 4,
+            "packet_loss_percent": 0,
+            "rtt_min_ms": 10.2,
+            "rtt_avg_ms": 15.7,
+            "rtt_max_ms": 22.3,
+            "ttl": 64
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Success",
+          "details": {
+            "hostname": "RTR-BRANCH-06.xrnet.net",
+            "resolved_ip": "172.16.39.105",
+            "matches_expected": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "512ef359-f68d-4766-9cda-e446a91bb4e3",
+      "device_info": {
+        "hostname": "RTR-EDGE-02.xrnet.net",
+        "ip": "172.16.39.101",
+        "description": "WAN IP: 203.0.113.2"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T10:28:00.879342",
+      "phases": {
+        "icmp_ping": {
+          "status": "Success",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 4,
+            "packet_loss_percent": 0,
+            "rtt_min_ms": 10.2,
+            "rtt_avg_ms": 15.7,
+            "rtt_max_ms": 22.3,
+            "ttl": 64
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Success",
+          "details": {
+            "hostname": "RTR-EDGE-02.xrnet.net",
+            "resolved_ip": "172.16.39.101",
+            "matches_expected": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    },
+    {
+      "audit_id": "256fd885-c3e9-4904-870e-e665cdb25dda",
+      "device_info": {
+        "hostname": "RTR-BRANCH-04.xrnet.net",
+        "ip": "172.16.39.103",
+        "description": "WAN IP: 203.0.113.4"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T10:28:00.880439",
+      "phases": {
+        "icmp_ping": {
+          "status": "Success",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 4,
+            "packet_loss_percent": 0,
+            "rtt_min_ms": 10.2,
+            "rtt_avg_ms": 15.7,
+            "rtt_max_ms": 22.3,
+            "ttl": 64
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Success",
+          "details": {
+            "hostname": "RTR-BRANCH-04.xrnet.net",
+            "resolved_ip": "172.16.39.103",
+            "matches_expected": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [],
+      "notes": []
+    }
+  ]
+}

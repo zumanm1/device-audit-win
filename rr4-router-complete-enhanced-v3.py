@@ -1571,7 +1571,7 @@ HTML_BASE_LAYOUT = r"""<!DOCTYPE html>
                     btn.innerHTML = '<i class="fas fa-clock"></i> Auto: ' + liveRefreshInterval + 's';
                     btn.classList.add('auto-refresh-active');
                     startLiveLogsAutoRefresh();
-                } else {
+                    } else {
                     btn.innerHTML = '<i class="fas fa-clock"></i> Manual';
                     btn.classList.remove('auto-refresh-active');
                     stopLiveLogsAutoRefresh();
@@ -1866,7 +1866,7 @@ HTML_BASE_LAYOUT = r"""<!DOCTYPE html>
                 $('#current-device').text(data.current_device);
             }
             
-            // Update audit status and button states
+            // Update audit status
             if (data.status) {
                 const statusBadge = $('#audit-status');
                 statusBadge.text(data.status);
@@ -1890,45 +1890,6 @@ HTML_BASE_LAYOUT = r"""<!DOCTYPE html>
                     default:
                         statusBadge.addClass('badge-secondary');
                 }
-                
-                // Update button states and text based on audit status
-                updateButtonStates(data.status);
-            }
-        }
-        
-        // Update button states and text based on audit status
-        function updateButtonStates(status) {
-            const startBtn = $('#start-audit');
-            const pauseBtn = $('#pause-audit');
-            const stopBtn = $('#stop-audit');
-            const resetBtn = $('#reset-audit');
-            
-            switch(status.toLowerCase()) {
-                case 'running':
-                    startBtn.prop('disabled', true);
-                    pauseBtn.prop('disabled', false).html('<i class="fas fa-pause"></i> Pause');
-                    stopBtn.prop('disabled', false);
-                    resetBtn.prop('disabled', true);
-                    break;
-                case 'paused':
-                    startBtn.prop('disabled', true);
-                    pauseBtn.prop('disabled', false).html('<i class="fas fa-play"></i> Resume');
-                    stopBtn.prop('disabled', false);
-                    resetBtn.prop('disabled', true);
-                    break;
-                case 'completed':
-                case 'stopped':
-                case 'failed':
-                    startBtn.prop('disabled', false);
-                    pauseBtn.prop('disabled', true).html('<i class="fas fa-pause"></i> Pause/Resume');
-                    stopBtn.prop('disabled', true);
-                    resetBtn.prop('disabled', false);
-                    break;
-                default: // idle
-                    startBtn.prop('disabled', false);
-                    pauseBtn.prop('disabled', true).html('<i class="fas fa-pause"></i> Pause/Resume');
-                    stopBtn.prop('disabled', true);
-                    resetBtn.prop('disabled', false);
             }
         }
         
@@ -1977,7 +1938,7 @@ HTML_BASE_LAYOUT = r"""<!DOCTYPE html>
             
             // Start progress refresh (every 2 seconds)
             progressRefreshTimer = setInterval(() => {
-                fetchProgressData();
+            fetchProgressData();
             }, 2000);
             
             // Start timing refresh (every 1 second)
@@ -2263,20 +2224,10 @@ function pauseAudit() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Immediately fetch updated status to refresh button text
-                setTimeout(() => {
-                    fetchProgressData();
-                    fetchTimingData();
-                }, 500);
-                
                 announceToScreenReader(data.message);
             } else {
                 alert('Error: ' + data.message);
             }
-        })
-        .catch(error => {
-            console.error('Pause error:', error);
-            alert('Error pausing/resuming audit. Please try again.');
         });
 }
 
@@ -2323,7 +2274,7 @@ function resetAudit() {
             if (data.success) {
                 // Reset button states
                 $('#start-audit').prop('disabled', false);
-                $('#pause-audit').prop('disabled', true).html('<i class="fas fa-pause"></i> Pause/Resume');
+                $('#pause-audit').prop('disabled', true);
                 $('#stop-audit').prop('disabled', true);
                 $('#reset-audit').prop('disabled', false);
                 
@@ -2333,24 +2284,6 @@ function resetAudit() {
                 
                 // Reset progress displays
                 $('#audit-status').removeClass().addClass('badge badge-info').text('Idle');
-                $('.progress-bar').css('width', '0%').text('0.0%').attr('aria-valuenow', 0);
-                $('#current-device').text('None');
-                
-                // Reset timing display
-                $('#audit-start-time').text('Not Started');
-                $('#audit-start-date').text('--');
-                $('#audit-elapsed-time').text('00:00:00');
-                $('#audit-active-time').text('Active: 00:00:00');
-                $('#audit-pause-duration').text('00:00:00');
-                $('#audit-pause-status').text('Status: Not Started');
-                $('#audit-completion-time').text('Not Completed');
-                $('#audit-completion-date').text('--');
-                $('#timing-last-update').text('--');
-                
-                // Fetch updated progress data to restore device count
-                setTimeout(() => {
-                    fetchProgressData();
-                }, 1000);
                 
                 // Clear any progress charts if they exist
                 if (typeof progressChart !== 'undefined') {
@@ -3047,19 +2980,6 @@ def api_progress():
     completed_devices = enhanced_progress['completed_devices']
     total_devices = enhanced_progress['total_devices']
     
-    # If audit is not running, get device count from active inventory
-    if audit_status in ["Idle", "Completed", "Stopped", "Failed"] and total_devices == 0:
-        if active_inventory_data.get("data"):
-            total_devices = len(active_inventory_data["data"])
-        else:
-            # Try to load the inventory if it's not already loaded
-            try:
-                load_active_inventory()
-                if active_inventory_data.get("data"):
-                    total_devices = len(active_inventory_data["data"])
-            except Exception as e:
-                log_to_ui_and_console(f"Warning: Could not load inventory for device count: {e}", console_only=True)
-    
     # If audit is completed but completed_devices < total_devices, fix it
     if audit_status == "Completed" and completed_devices < total_devices and total_devices > 0:
         completed_devices = total_devices
@@ -3071,14 +2991,9 @@ def api_progress():
     if audit_results_summary.get("telnet_enabled_count"):
         violations_count = audit_results_summary["telnet_enabled_count"]
     
-    # Determine the actual status to return (handle paused state)
-    current_status = audit_status
-    if audit_status == "Running" and audit_paused:
-        current_status = "Paused"
-    
     return jsonify({
         'success': True,
-        'status': current_status,  # Return "Paused" when audit is paused
+        'status': audit_status,
         'current_device': enhanced_progress['current_device'],
         'completed_devices': completed_devices,
         'total_devices': total_devices,
@@ -3271,19 +3186,6 @@ def api_pause_audit():
             action = "resumed"
             log_to_ui_and_console("▶️ Audit resumed via WebUI")
         
-        # Emit immediate WebSocket update with correct status
-        current_status = "Paused" if audit_paused else "Running"
-        try:
-            socketio.emit('progress_update', {
-                'status': current_status,
-                'current_device': enhanced_progress['current_device'],
-                'completed_devices': enhanced_progress['completed_devices'],
-                'total_devices': enhanced_progress['total_devices'],
-                'percent_complete': enhanced_progress['percent_complete']
-            })
-        except Exception as e:
-            log_to_ui_and_console(f"Warning: WebSocket emission error: {e}", console_only=True)
-        
         return jsonify({'success': True, 'paused': audit_paused, 'message': f'Audit {action}'})
         
     except Exception as e:
@@ -3327,21 +3229,16 @@ def api_reset_audit():
         if audit_status == "Running":
             return jsonify({'success': False, 'message': 'Cannot reset while audit is running. Stop the audit first.'})
         
-        # Get device count from active inventory to restore after reset
-        total_devices_count = 0
-        if active_inventory_data.get("data"):
-            total_devices_count = len(active_inventory_data["data"])
-        
         # Reset audit status and control variables
         audit_status = "Idle"
         audit_paused = False
         audit_pause_event.set()  # Reset to unpaused state
         
-        # Reset progress tracking - but restore device count from inventory
+        # Reset progress tracking
         current_audit_progress.update({
             "status_message": "Ready",
             "devices_processed_count": 0,
-            "total_devices_to_process": total_devices_count,  # Restore from inventory
+            "total_devices_to_process": 0,
             "percentage_complete": 0,
             "current_phase": "Idle",
             "current_device_hostname": "N/A",
@@ -3349,12 +3246,12 @@ def api_reset_audit():
             "estimated_completion_time": None
         })
         
-        # Reset enhanced progress - but restore device count from inventory
+        # Reset enhanced progress
         enhanced_progress.update({
             "status": "Idle",
             "current_device": "None",
             "completed_devices": 0,
-            "total_devices": total_devices_count,  # Restore from inventory
+            "total_devices": 0,
             "percent_complete": 0,
             "elapsed_time": "00:00:00",
             "estimated_completion_time": None,
@@ -3545,7 +3442,7 @@ def ping_remote_device(ssh_client: paramiko.SSHClient, target_ip: str) -> bool:
                     command = f"{ping_cmd} {target_ip}"
             except (ValueError, SyntaxError):
                 # If parsing fails, treat as regular string
-                command = f"{ping_cmd} {target_ip}"
+            command = f"{ping_cmd} {target_ip}"
         else:
             # Handle string format
             command = f"{ping_cmd} {target_ip}"
@@ -3695,12 +3592,12 @@ def connect_to_device_via_jump_host(jump_client: paramiko.SSHClient, device: Dic
         
         # Create SSH tunnel channel
         try:
-            channel = jump_client.get_transport().open_channel(
-                "direct-tcpip", 
-                (device_ip, 22), 
-                ("127.0.0.1", 0), 
-                timeout=30
-            )
+        channel = jump_client.get_transport().open_channel(
+            "direct-tcpip", 
+            (device_ip, 22), 
+            ("127.0.0.1", 0), 
+            timeout=30
+        )
         except Exception as e:
             log_to_ui_and_console(f"❌ Failed to open SSH tunnel to {device_name}: {e}")
             return None, "SSH_TUNNEL_FAIL"
@@ -3805,36 +3702,36 @@ def connect_to_device_via_jump_host(jump_client: paramiko.SSHClient, device: Dic
             
             # Create new channel for Paramiko
             try:
-                channel = jump_client.get_transport().open_channel(
-                    "direct-tcpip", 
-                    (device_ip, 22), 
-                    ("127.0.0.1", 0), 
-                    timeout=30
-                )
-                
-                if channel is None:
-                    log_to_ui_and_console(f"❌ Failed to open Paramiko SSH tunnel to {device_name}")
+            channel = jump_client.get_transport().open_channel(
+                "direct-tcpip", 
+                (device_ip, 22), 
+                ("127.0.0.1", 0), 
+                timeout=30
+            )
+            
+            if channel is None:
+                log_to_ui_and_console(f"❌ Failed to open Paramiko SSH tunnel to {device_name}")
                     return None, "SSH_TUNNEL_FAIL"
-                
-                # Try Paramiko
-                log_to_ui_and_console(f"🔧 Attempting Paramiko connection to {device_name}...")
-                
-                device_client = paramiko.SSHClient()
-                device_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-                
-                device_client.connect(
-                    hostname=device_ip,
+            
+            # Try Paramiko
+            log_to_ui_and_console(f"🔧 Attempting Paramiko connection to {device_name}...")
+            
+            device_client = paramiko.SSHClient()
+            device_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            
+            device_client.connect(
+                hostname=device_ip,
                     username=device_username,  # From .env ONLY
                     password=device_password,  # From .env ONLY
-                    sock=channel,
-                    timeout=30,
-                    allow_agent=False,
-                    look_for_keys=False
-                )
-                
-                # Create Paramiko wrapper
-                paramiko_wrapper = ParamikoDeviceWrapper(device_client, device_name, device_enable)
-                log_to_ui_and_console(f"✅ Paramiko connection successful to {device_name}")
+                sock=channel,
+                timeout=30,
+                allow_agent=False,
+                look_for_keys=False
+            )
+            
+            # Create Paramiko wrapper
+            paramiko_wrapper = ParamikoDeviceWrapper(device_client, device_name, device_enable)
+            log_to_ui_and_console(f"✅ Paramiko connection successful to {device_name}")
                 return paramiko_wrapper, "SUCCESS"
                 
             except paramiko.AuthenticationException:
@@ -4388,7 +4285,7 @@ def run_complete_audit():
                     ping_success = ping_remote_device(jump_client, device_ip)
                     if not ping_success:
                         log_to_ui_and_console(f"❌ ICMP failed for {device_name} - Device unreachable")
-                        device_status_tracking[device_name] = "ICMP_FAIL"
+                    device_status_tracking[device_name] = "ICMP_FAIL"
                         failure_categories["ICMP_FAIL"].append({
                             "device": device_name,
                             "ip": device_ip,
@@ -4418,8 +4315,8 @@ def run_complete_audit():
                 
                 try:
                     device_connection, failure_reason = connect_to_device_via_jump_host(jump_client, device)
-                    
-                    if not device_connection:
+                
+                if not device_connection:
                         # Categorize the specific failure
                         if failure_reason == "AUTH_FAIL":
                             log_to_ui_and_console(f"🔐 Authentication failed for {device_name} - Check credentials")
@@ -4465,9 +4362,9 @@ def run_complete_audit():
                             })
                         
                         device_status_tracking[device_name] = failure_reason
-                        enhanced_progress["status_counts"]["failure"] += 1
-                        failed_devices += 1
-                        continue
+                    enhanced_progress["status_counts"]["failure"] += 1
+                    failed_devices += 1
+                    continue
                 
                 except Exception as ssh_error:
                     log_to_ui_and_console(f"❌ SSH connection crashed for {device_name}: {ssh_error}")
@@ -4544,7 +4441,7 @@ def run_complete_audit():
                     # Always disconnect - with crash protection
                     try:
                         if device_connection:
-                            device_connection.disconnect()
+                        device_connection.disconnect()
                     except Exception as disconnect_error:
                         log_to_ui_and_console(f"⚠️ Error disconnecting from {device_name}: {disconnect_error}")
                 
@@ -4664,44 +4561,11 @@ def run_complete_audit():
         audit_status = "Completed"
         complete_audit_timing()
         
-        # Emit final WebSocket update with completed status
-        try:
-            socketio.emit('progress_update', {
-                'status': 'Completed',
-                'current_device': 'Audit Complete',
-                'completed_devices': total_devices,
-                'total_devices': total_devices,
-                'percent_complete': 100.0
-            })
-        except Exception as e:
-            log_to_ui_and_console(f"Warning: WebSocket emission error: {e}", console_only=True)
-        
     except Exception as e:
         log_to_ui_and_console(f"🚨 CRITICAL AUDIT ERROR: {e}")
         log_to_ui_and_console("❌ Audit terminated due to unexpected error")
         audit_status = "Failed"
-        
-        # Emit failed status update
-        try:
-            socketio.emit('progress_update', {
-                'status': 'Failed',
-                'current_device': 'Error',
-                'completed_devices': enhanced_progress.get('completed_devices', 0),
-                'total_devices': enhanced_progress.get('total_devices', 0),
-                'percent_complete': enhanced_progress.get('percent_complete', 0)
-            })
-        except Exception as ws_error:
-            log_to_ui_and_console(f"Warning: WebSocket emission error: {ws_error}", console_only=True)
-        
         raise
-    finally:
-        # Ensure jump host connection is properly closed
-        try:
-            if 'jump_client' in locals() and jump_client:
-                jump_client.close()
-                log_to_ui_and_console("🔌 Jump host connection closed")
-        except Exception as cleanup_error:
-            log_to_ui_and_console(f"Warning: Jump host cleanup error: {cleanup_error}", console_only=True)
 
 # Additional API routes for Phase 2 functionality
 @app.route('/api/device-status')

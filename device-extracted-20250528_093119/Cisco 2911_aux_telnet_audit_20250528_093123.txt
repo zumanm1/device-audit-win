@@ -1,0 +1,10 @@
+Device: Cisco 2911
+Command: show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout
+Timestamp: 2025-05-28T09:31:23.565379
+==================================================
+hostname R1
+ login local
+line aux 0
+ login local
+ transport input ssh
+ login local

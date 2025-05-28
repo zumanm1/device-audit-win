@@ -9,6 +9,8 @@ This module focuses specifically on telnet vulnerability detection:
 - Analysis of telnet access control lists
 
 It can be run independently or as part of the comprehensive audit framework.
+
+Cross-platform compatible with Windows and Ubuntu.
 """
 
 import os
@@ -18,6 +20,8 @@ import time
 import datetime
 import argparse
 import re
+import platform
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Import core functionality

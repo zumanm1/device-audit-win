@@ -12,6 +12,8 @@ This script runs all the audit modules in the correct order:
 
 Usage:
     python run_all_in_order.py --test
+    
+Cross-platform compatible with Windows and Ubuntu.
 """
 
 import os
@@ -19,6 +21,8 @@ import sys
 import time
 import subprocess
 import argparse
+import platform
+from pathlib import Path
 
 def run_script(script_name, args=None):
     """Run a Python script and return its output and exit code"""
@@ -58,22 +62,22 @@ def main():
     
     test_arg = ["--test"] if args.test else []
     
-    # Make sure we're in the combo-01 directory
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    # Get the script directory using pathlib for cross-platform compatibility
+    script_dir = Path(__file__).parent.absolute()
     
-    # Create necessary directories if they don't exist
-    if not os.path.exists("logs"):
-        os.makedirs("logs")
-    if not os.path.exists("reports"):
-        os.makedirs("reports")
-    if not os.path.exists("data"):
-        os.makedirs("data")
-    if not os.path.exists("config"):
-        os.makedirs("config")
+    # Change to the script directory
+    os.chdir(script_dir)
+    
+    # Create necessary directories if they don't exist using pathlib
+    required_dirs = ["logs", "reports", "data", "config"]
+    for dir_name in required_dirs:
+        dir_path = script_dir / dir_name
+        dir_path.mkdir(exist_ok=True, parents=True)
+        print(f"Ensured directory exists: {dir_path}")
     
     # Prepare arguments
-    csv_path = "routers01.csv"  # CSV file in the main directory
-    csv_arg = ["--csv", csv_path]
+    csv_path = script_dir / "routers01.csv"  # CSV file in the main directory
+    csv_arg = ["--csv", str(csv_path)]
     
     # Order of execution
     scripts = [

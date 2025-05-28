@@ -197,7 +197,8 @@ class ConnectivityAuditor:
         return True
     
     def check_ping(self, ip, count=4, timeout=2):
-        """Test connectivity to a device with ICMP ping"""
+        """Test connectivity to a device with ICMP ping
+        Cross-platform compatible with Windows and Ubuntu"""
         if self.test_mode:
             # In test mode, simulate results based on IP pattern
             success = int(ip.split('.')[-1]) % 10 != 0  # Simulate failure for IPs ending in 0
@@ -217,17 +218,29 @@ class ConnectivityAuditor:
             }
         
         try:
-            # Determine the ping command based on OS
-            if sys.platform == "win32":
+            # Determine platform for correct ping command format
+            platform_system = platform.system().lower()
+            
+            # Different ping command parameters based on OS
+            if platform_system == "windows":
+                # Windows ping uses -n for count and -w for timeout in milliseconds
                 ping_cmd = ["ping", "-n", str(count), "-w", str(timeout * 1000), ip]
-            else:
+            elif platform_system in ["linux", "darwin"]:  # Linux or macOS
+                # Linux/Unix ping uses -c for count and -W for timeout in seconds
                 ping_cmd = ["ping", "-c", str(count), "-W", str(timeout), ip]
+            else:
+                # Default to Linux-style for other OSes
+                logger.warning(f"Unrecognized OS: {platform_system}, using Linux-style ping command")
+                ping_cmd = ["ping", "-c", str(count), "-W", str(timeout), ip]
+                
+            # Log the ping command being used
+            logger.debug(f"Running ping command: {' '.join(ping_cmd)}")
             
             # Execute ping command
             result = subprocess.run(ping_cmd, 
-                                    stdout=subprocess.PIPE, 
-                                    stderr=subprocess.PIPE, 
-                                    text=True)
+                                   stdout=subprocess.PIPE, 
+                                   stderr=subprocess.PIPE, 
+                                   text=True)
             
             # Parse ping output
             output = result.stdout
@@ -239,9 +252,15 @@ class ConnectivityAuditor:
             packet_loss = 100
             rtt_min = rtt_avg = rtt_max = None
             ttl = None
+            error_msg = None
             
-            # Parse packet statistics
-            if sys.platform == "win32":
+            # Log the ping output for debugging
+            logger.debug(f"Ping output for {ip}:\n{output}")
+            
+            # Parse packet statistics based on OS
+            platform_system = platform.system().lower()
+            
+            if platform_system == "windows":
                 # Windows ping output parsing
                 if "Packets: Sent = " in output:
                     stats_line = re.search(r"Packets: Sent = (\d+), Received = (\d+), Lost = (\d+) \((\d+)% loss\)", output)
@@ -251,17 +270,25 @@ class ConnectivityAuditor:
                         packet_loss = int(stats_line.group(4))
                 
                 if "Minimum = " in output:
-                    rtt_line = re.search(r"Minimum = (\d+)ms, Maximum = (\d+)ms, Average = (\d+)ms", output)
+                    # Handle both integer and decimal formats in Windows output
+                    rtt_line = re.search(r"Minimum = ([\d.]+)ms, Maximum = ([\d.]+)ms, Average = ([\d.]+)ms", output)
                     if rtt_line:
                         rtt_min = float(rtt_line.group(1))
                         rtt_max = float(rtt_line.group(2))
                         rtt_avg = float(rtt_line.group(3))
                 
-                # Extract TTL
+                # Extract TTL from Windows output
                 ttl_match = re.search(r"TTL=(\d+)", output)
                 if ttl_match:
                     ttl = int(ttl_match.group(1))
-            else:
+                    
+                # Check for specific Windows error messages
+                if "could not find host" in output.lower() or "could not resolve target" in output.lower():
+                    error_msg = "Could not resolve hostname"
+                elif "Request timed out" in output:
+                    error_msg = "Request timed out"
+                    
+            elif platform_system in ["linux", "darwin"]:  # Linux or macOS
                 # Linux/Unix ping output parsing
                 if "packets transmitted" in output:
                     stats_line = re.search(r"(\d+) packets transmitted, (\d+) received.+?([\d.]+)% packet loss", output)
@@ -277,10 +304,34 @@ class ConnectivityAuditor:
                         rtt_avg = float(rtt_line.group(2))
                         rtt_max = float(rtt_line.group(3))
                 
-                # Extract TTL
+                # Extract TTL from Linux/Unix output
                 ttl_match = re.search(r"ttl=(\d+)", output, re.IGNORECASE)
                 if ttl_match:
                     ttl = int(ttl_match.group(1))
+                    
+                # Check for specific Linux error messages
+                if "unknown host" in output.lower():
+                    error_msg = "Unknown host"
+                elif "Name or service not known" in output:
+                    error_msg = "Name or service not known"
+                elif "100% packet loss" in output:
+                    error_msg = "100% packet loss"
+            else:
+                # Generic parsing for other platforms
+                logger.warning(f"Using generic ping output parsing for platform: {platform_system}")
+                # Try both Windows and Linux patterns
+                stats_line = re.search(r"(\d+) packets transmitted, (\d+) received.+?([\d.]+)% packet loss", output)
+                if stats_line:
+                    packets_sent = int(stats_line.group(1))
+                    packets_received = int(stats_line.group(2))
+                    packet_loss = float(stats_line.group(3))
+                else:
+                    # Try Windows pattern
+                    stats_line = re.search(r"Packets: Sent = (\d+), Received = (\d+), Lost = (\d+) \((\d+)% loss\)", output)
+                    if stats_line:
+                        packets_sent = int(stats_line.group(1))
+                        packets_received = int(stats_line.group(2))
+                        packet_loss = int(stats_line.group(4))
             
             return {
                 'success': success,
@@ -290,7 +341,8 @@ class ConnectivityAuditor:
                 'rtt_min_ms': rtt_min,
                 'rtt_avg_ms': rtt_avg,
                 'rtt_max_ms': rtt_max,
-                'ttl': ttl
+                'ttl': ttl,
+                'error': error_msg
             }
             
         except Exception as e:
