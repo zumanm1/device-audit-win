@@ -1,0 +1,31 @@
+hostname,ip,phase,status,details,timestamp
+RTR-BRANCH-01.xrnet.net,172.16.39.101,connectivity,Failed,ICMP ping failed,2025-05-27 18:39:12
+RTR-BRANCH-01.xrnet.net,172.16.39.101,authentication,Failed,SSH authentication failed,2025-05-27 18:39:12
+RTR-BRANCH-01.xrnet.net,172.16.39.101,authorization,Failed,Authorization failed,2025-05-27 18:39:12
+RTR-BRANCH-01.xrnet.net,172.16.39.101,config_audit,Failed,Configuration collection failed,2025-05-27 18:39:12
+RTR-BRANCH-01.xrnet.net,172.16.39.101,risk_assessment,Failed,Telnet disabled,2025-05-27 18:39:12
+RTR-BRANCH-01.xrnet.net,172.16.39.101,reporting,Success,Report generated successfully,2025-05-27 18:39:12
+RTR-BRANCH-02.xrnet.net,172.16.39.102,connectivity,Failed,ICMP ping failed,2025-05-27 18:39:12
+RTR-BRANCH-02.xrnet.net,172.16.39.102,authentication,Failed,SSH authentication failed,2025-05-27 18:39:12
+RTR-BRANCH-02.xrnet.net,172.16.39.102,authorization,Failed,Authorization failed,2025-05-27 18:39:12
+RTR-BRANCH-02.xrnet.net,172.16.39.102,config_audit,Failed,Configuration collection failed,2025-05-27 18:39:12
+RTR-BRANCH-02.xrnet.net,172.16.39.102,risk_assessment,Failed,Telnet disabled,2025-05-27 18:39:12
+RTR-BRANCH-02.xrnet.net,172.16.39.102,reporting,Success,Report generated successfully,2025-05-27 18:39:12
+RTR-BRANCH-03.xrnet.net,172.16.39.103,connectivity,Failed,ICMP ping failed,2025-05-27 18:39:12
+RTR-BRANCH-03.xrnet.net,172.16.39.103,authentication,Failed,SSH authentication failed,2025-05-27 18:39:12
+RTR-BRANCH-03.xrnet.net,172.16.39.103,authorization,Failed,Authorization failed,2025-05-27 18:39:12
+RTR-BRANCH-03.xrnet.net,172.16.39.103,config_audit,Failed,Configuration collection failed,2025-05-27 18:39:12
+RTR-BRANCH-03.xrnet.net,172.16.39.103,risk_assessment,Failed,Telnet disabled,2025-05-27 18:39:12
+RTR-BRANCH-03.xrnet.net,172.16.39.103,reporting,Success,Report generated successfully,2025-05-27 18:39:12
+RTR-BRANCH-04.xrnet.net,172.16.39.104,connectivity,Failed,ICMP ping failed,2025-05-27 18:39:12
+RTR-BRANCH-04.xrnet.net,172.16.39.104,authentication,Failed,SSH authentication failed,2025-05-27 18:39:12
+RTR-BRANCH-04.xrnet.net,172.16.39.104,authorization,Failed,Authorization failed,2025-05-27 18:39:12
+RTR-BRANCH-04.xrnet.net,172.16.39.104,config_audit,Failed,Configuration collection failed,2025-05-27 18:39:12
+RTR-BRANCH-04.xrnet.net,172.16.39.104,risk_assessment,Failed,Telnet disabled,2025-05-27 18:39:12
+RTR-BRANCH-04.xrnet.net,172.16.39.104,reporting,Success,Report generated successfully,2025-05-27 18:39:12
+RTR-BRANCH-05.xrnet.net,172.16.39.105,connectivity,Failed,ICMP ping failed,2025-05-27 18:39:12
+RTR-BRANCH-05.xrnet.net,172.16.39.105,authentication,Failed,SSH authentication failed,2025-05-27 18:39:12
+RTR-BRANCH-05.xrnet.net,172.16.39.105,authorization,Failed,Authorization failed,2025-05-27 18:39:12
+RTR-BRANCH-05.xrnet.net,172.16.39.105,config_audit,Failed,Configuration collection failed,2025-05-27 18:39:12
+RTR-BRANCH-05.xrnet.net,172.16.39.105,risk_assessment,Failed,Telnet disabled,2025-05-27 18:39:12
+RTR-BRANCH-05.xrnet.net,172.16.39.105,reporting,Success,Report generated successfully,2025-05-27 18:39:12

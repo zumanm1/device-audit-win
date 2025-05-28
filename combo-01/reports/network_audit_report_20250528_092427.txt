@@ -1,0 +1,174 @@
+==== NETWORK AUDIT REPORT ====
+Generated: 2025-05-28 09:24:27
+Tool Version: 3.11.0
+
+Total Devices Audited: 6
+
+
+==================================================
+Device: RTR-BRANCH-04.xrnet.net (172.16.39.103)
+Audit Type: connectivity
+Audit ID: b777d3bb-ca47-49a3-96bd-63bf944a509d
+Timestamp: 2025-05-28 09:23:49
+
+✗ Phase: icmp_ping - Status: Failed
+   - packets_sent: 4
+   - packets_received: 0
+   - packet_loss_percent: 100.0
+   - error: Unknown error
+
+✗ Phase: tcp_ports - Status: Failed
+   - ports_checked: 4
+   - ports_open: 0
+   - open_ports: []
+
+✗ Phase: dns_resolution - Status: Failed
+   - hostname: RTR-BRANCH-04.xrnet.net
+   - resolved_ip: None
+   - matches_expected: False
+   - error: [Errno -5] No address associated with hostname
+
+Recommendations:
+   !! Device is not responding to ICMP ping. Check firewall settings or device status.
+   !! No open TCP ports found. Verify device is operational and accessible.
+
+
+==================================================
+Device: RTR-BRANCH-06.xrnet.net (172.16.39.105)
+Audit Type: connectivity
+Audit ID: 81f628cd-62f6-40d6-a51e-e79299187022
+Timestamp: 2025-05-28 09:23:49
+
+✗ Phase: icmp_ping - Status: Failed
+   - packets_sent: 4
+   - packets_received: 0
+   - packet_loss_percent: 100.0
+   - error: Unknown error
+
+✗ Phase: tcp_ports - Status: Failed
+   - ports_checked: 4
+   - ports_open: 0
+   - open_ports: []
+
+✗ Phase: dns_resolution - Status: Failed
+   - hostname: RTR-BRANCH-06.xrnet.net
+   - resolved_ip: None
+   - matches_expected: False
+   - error: [Errno -5] No address associated with hostname
+
+Recommendations:
+   !! Device is not responding to ICMP ping. Check firewall settings or device status.
+   !! No open TCP ports found. Verify device is operational and accessible.
+
+
+==================================================
+Device: RTR-BRANCH-05.xrnet.net (172.16.39.104)
+Audit Type: connectivity
+Audit ID: 03410dd6-7788-4fc0-a844-dd704f7022d5
+Timestamp: 2025-05-28 09:23:49
+
+✗ Phase: icmp_ping - Status: Failed
+   - packets_sent: 4
+   - packets_received: 0
+   - packet_loss_percent: 100.0
+   - error: Unknown error
+
+✗ Phase: tcp_ports - Status: Failed
+   - ports_checked: 4
+   - ports_open: 0
+   - open_ports: []
+
+✗ Phase: dns_resolution - Status: Failed
+   - hostname: RTR-BRANCH-05.xrnet.net
+   - resolved_ip: None
+   - matches_expected: False
+   - error: [Errno -5] No address associated with hostname
+
+Recommendations:
+   !! Device is not responding to ICMP ping. Check firewall settings or device status.
+   !! No open TCP ports found. Verify device is operational and accessible.
+
+
+==================================================
+Device: RTR-BRANCH-03.xrnet.net (172.16.39.102)
+Audit Type: connectivity
+Audit ID: 2f4b7633-c537-4021-83bb-6084099bd9c1
+Timestamp: 2025-05-28 09:23:49
+
+✗ Phase: icmp_ping - Status: Failed
+   - packets_sent: 4
+   - packets_received: 0
+   - packet_loss_percent: 100.0
+   - error: Unknown error
+
+✗ Phase: tcp_ports - Status: Failed
+   - ports_checked: 4
+   - ports_open: 0
+   - open_ports: []
+
+✗ Phase: dns_resolution - Status: Failed
+   - hostname: RTR-BRANCH-03.xrnet.net
+   - resolved_ip: None
+   - matches_expected: False
+   - error: [Errno -5] No address associated with hostname
+
+Recommendations:
+   !! Device is not responding to ICMP ping. Check firewall settings or device status.
+   !! No open TCP ports found. Verify device is operational and accessible.
+
+
+==================================================
+Device: RTR-CORE-01.xrnet.net (172.16.39.100)
+Audit Type: connectivity
+Audit ID: a69d6ecc-b80d-480f-8361-0c993a21fa39
+Timestamp: 2025-05-28 09:23:49
+
+✗ Phase: icmp_ping - Status: Failed
+   - packets_sent: 4
+   - packets_received: 0
+   - packet_loss_percent: 100.0
+   - error: Unknown error
+
+✗ Phase: tcp_ports - Status: Failed
+   - ports_checked: 4
+   - ports_open: 0
+   - open_ports: []
+
+✗ Phase: dns_resolution - Status: Failed
+   - hostname: RTR-CORE-01.xrnet.net
+   - resolved_ip: None
+   - matches_expected: False
+   - error: [Errno -5] No address associated with hostname
+
+Recommendations:
+   !! Device is not responding to ICMP ping. Check firewall settings or device status.
+   !! No open TCP ports found. Verify device is operational and accessible.
+
+
+==================================================
+Device: RTR-EDGE-02.xrnet.net (172.16.39.101)
+Audit Type: connectivity
+Audit ID: 49acbd26-e715-488d-a03e-13bc414f9972
+Timestamp: 2025-05-28 09:23:49
+
+✗ Phase: icmp_ping - Status: Failed
+   - packets_sent: 4
+   - packets_received: 0
+   - packet_loss_percent: 100.0
+   - error: Unknown error
+
+✗ Phase: tcp_ports - Status: Failed
+   - ports_checked: 4
+   - ports_open: 0
+   - open_ports: []
+
+✗ Phase: dns_resolution - Status: Failed
+   - hostname: RTR-EDGE-02.xrnet.net
+   - resolved_ip: None
+   - matches_expected: False
+   - error: [Errno -5] No address associated with hostname
+
+Recommendations:
+   !! Device is not responding to ICMP ping. Check firewall settings or device status.
+   !! No open TCP ports found. Verify device is operational and accessible.
+

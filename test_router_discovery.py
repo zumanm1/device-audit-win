@@ -48,22 +48,22 @@ class TestRouterDiscovery(unittest.TestCase):
         csv_writer.writerow(['TEST-ROUTER-2', '192.168.1.2', 'admin', 'password2', 'secret2', 'C4500'])
         self.temp_csv.close()
         
-        # Mock the read_inventory_file method
-        self.original_read_inventory = self.auditor.read_inventory_file
-        self.auditor.read_inventory_file = self.mock_read_inventory_file
+        # Mock the load_routers_from_csv method
+        self.original_load_routers = getattr(self.auditor, "load_routers_from_csv", None)
+        self.auditor.load_routers_from_csv = self.mock_load_routers_from_csv
     
     def tearDown(self):
         """Clean up after tests"""
         if os.path.exists(self.csv_path):
             os.unlink(self.csv_path)
             
-    def mock_read_inventory_file(self, csv_file=None):
-        """Mock the read_inventory_file method to return test data"""
+    def mock_load_routers_from_csv(self, csv_file=None):
+        """Mock the load_routers_from_csv method to load test data"""
         if not csv_file:
             csv_file = self.csv_path
             
         # Read from our test CSV file
-        routers = []
+        self.auditor.routers = []
         with open(csv_file, 'r') as f:
             reader = csv.DictReader(f)
             for row in reader:
@@ -75,13 +75,13 @@ class TestRouterDiscovery(unittest.TestCase):
                     'secret': row['secret'],
                     'model': row.get('model', 'Unknown')
                 }
-                routers.append(router)
-        return routers
+                self.auditor.routers.append(router)
+        return self.auditor.routers
     
     def test_inventory_file_loading(self):
         """Test loading routers from inventory file"""
         # Test reading from our temp CSV
-        routers = self.auditor.read_inventory_file(self.csv_path)
+        routers = self.auditor.load_routers_from_csv(self.csv_path)
         
         # Verify we loaded 2 routers from the CSV
         self.assertEqual(len(routers), 2)

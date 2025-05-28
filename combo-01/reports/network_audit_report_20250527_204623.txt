@@ -1,0 +1,292 @@
+==== NETWORK AUDIT REPORT ====
+Generated: 2025-05-27 21:00:45
+Tool Version: 3.11.0
+
+Total Devices Audited: 10
+
+
+==================================================
+Device: router1.example.com (192.168.1.1)
+Audit Type: security
+Audit ID: f37e5dbf-e2f1-45bc-a8e7-59adc404b7ee
+Timestamp: 2025-05-27 21:00:45
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 287
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 2
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 2
+   - recommendations_count: 2
+
+Recommendations:
+   !!! Disable Telnet and use SSH with strong authentication
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   ! Remove unused accounts to reduce attack surface
+     (Reference: NIST SP 800-53: AC-2)
+
+
+==================================================
+Device: router2.example.com (192.168.1.2)
+Audit Type: security
+Audit ID: 34045462-3a92-4172-abc9-cfad61242285
+Timestamp: 2025-05-27 21:00:45
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 287
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 1
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 1
+   - recommendations_count: 1
+
+Recommendations:
+   !!! Disable Telnet and use SSH with strong authentication
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+
+
+==================================================
+Device: switch1.example.com (192.168.1.10)
+Audit Type: security
+Audit ID: 26fd9c32-9f95-4107-b12c-b2464e1b4e0b
+Timestamp: 2025-05-27 21:00:45
+
+✗ Phase: connectivity - Status: Failed
+   - method: ICMP ping (simulated)
+   - response_time_ms: None
+   Error: Simulated connectivity failure
+
+✗ Phase: authentication - Status: Skipped
+   Error: Skipped due to connectivity failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 2
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 2
+   - recommendations_count: 2
+
+Recommendations:
+   !!! Implement strong password policy with minimum complexity requirements
+     (Reference: NIST SP 800-53: IA-5)
+   ! Remove unused accounts to reduce attack surface
+     (Reference: NIST SP 800-53: AC-2)
+
+
+==================================================
+Device: switch2.example.com (192.168.1.11)
+Audit Type: security
+Audit ID: 4cf6aa26-fdfb-4713-ac31-ab21bcc73036
+Timestamp: 2025-05-27 21:00:45
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 287
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 1
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 1
+   - recommendations_count: 1
+
+Recommendations:
+   !!! Implement strong password policy with minimum complexity requirements
+     (Reference: NIST SP 800-53: IA-5)
+
+
+==================================================
+Device: firewall.example.com (192.168.1.254)
+Audit Type: security
+Audit ID: 8290f757-8668-4424-8835-84f15a41bc0e
+Timestamp: 2025-05-27 21:00:45
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✗ Phase: authentication - Status: Failed
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+   Error: Simulated authentication failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 1
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 1
+   - recommendations_count: 1
+
+Recommendations:
+   !! Disable unnecessary services to reduce attack surface
+     (Reference: NIST SP 800-53: CM-7)
+
+
+==================================================
+Device: router1.example.com (192.168.1.1)
+Audit Type: telnet
+Audit ID: 42671e96-af2a-4c6e-ab03-e49aec5f9da7
+Timestamp: 2025-05-27 21:00:45
+
+✓ Phase: connection - Status: Success
+   - method: SSH
+
+✗ Phase: telnet_config - Status: Vulnerable
+   - telnet_enabled: True
+   - vty_lines: 2
+   - aux_lines: 1
+   - con_lines: 1
+   - telnet_lines: 2
+
+✗ Phase: telnet_port - Status: Vulnerable
+   - port_23_accessible: True
+
+Recommendations:
+   !!! Disable Telnet and use SSH for secure remote access
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   !! Apply access control lists to restrict telnet access
+     (Reference: NIST SP 800-53: AC-3)
+   !!! Disable telnet on AUX ports to prevent unauthorized access
+     (Reference: NIST SP 800-53: AC-17)
+   !!! Block telnet port (23) at the network level with firewall rules
+     (Reference: NIST SP 800-53: SC-7)
+
+
+==================================================
+Device: firewall.example.com (192.168.1.254)
+Audit Type: telnet
+Audit ID: ee272ddc-983f-447b-86c6-d38f1b398ed2
+Timestamp: 2025-05-27 21:00:45
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection refused
+
+
+==================================================
+Device: switch1.example.com (192.168.1.10)
+Audit Type: telnet
+Audit ID: 38a1adf3-9385-4e1a-a570-2dfe8d59dd53
+Timestamp: 2025-05-27 21:00:45
+
+✓ Phase: connection - Status: Success
+   - method: SSH
+
+✗ Phase: telnet_config - Status: Vulnerable
+   - telnet_enabled: True
+   - vty_lines: 2
+   - aux_lines: 0
+   - con_lines: 1
+   - telnet_lines: 1
+
+✗ Phase: telnet_port - Status: Vulnerable
+   - port_23_accessible: True
+
+Recommendations:
+   !!! Disable Telnet and use SSH for secure remote access
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   !! Apply access control lists to restrict telnet access
+     (Reference: NIST SP 800-53: AC-3)
+   !!! Block telnet port (23) at the network level with firewall rules
+     (Reference: NIST SP 800-53: SC-7)
+
+
+==================================================
+Device: router2.example.com (192.168.1.2)
+Audit Type: telnet
+Audit ID: 8bd5c4d8-a963-446d-a806-431aacb8bfb0
+Timestamp: 2025-05-27 21:00:45
+
+✓ Phase: connection - Status: Success
+   - method: SSH
+
+✗ Phase: telnet_config - Status: Vulnerable
+   - telnet_enabled: True
+   - vty_lines: 2
+   - aux_lines: 1
+   - con_lines: 1
+   - telnet_lines: 2
+
+✗ Phase: telnet_port - Status: Vulnerable
+   - port_23_accessible: True
+
+Recommendations:
+   !!! Disable Telnet and use SSH for secure remote access
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   !! Apply access control lists to restrict telnet access
+     (Reference: NIST SP 800-53: AC-3)
+   !!! Disable telnet on AUX ports to prevent unauthorized access
+     (Reference: NIST SP 800-53: AC-17)
+   !!! Block telnet port (23) at the network level with firewall rules
+     (Reference: NIST SP 800-53: SC-7)
+
+
+==================================================
+Device: switch2.example.com (192.168.1.11)
+Audit Type: telnet
+Audit ID: 8de9b4e4-d93f-4a08-8c44-21ff3ced6316
+Timestamp: 2025-05-27 21:00:45
+
+✓ Phase: connection - Status: Success
+   - method: SSH
+
+✗ Phase: telnet_config - Status: Secure
+   - telnet_enabled: False
+   - vty_lines: 1
+   - aux_lines: 0
+   - con_lines: 1
+   - telnet_lines: 0
+
+✗ Phase: telnet_port - Status: Secure
+   - port_23_accessible: False
+

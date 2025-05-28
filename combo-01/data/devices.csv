@@ -1,0 +1,6 @@
+hostname,ip,device_type,username,password,secret,model
+router1.example.com,192.168.1.1,cisco_ios,admin,cisco123,cisco123,Cisco 2901
+router2.example.com,192.168.1.2,cisco_ios,admin,cisco123,cisco123,Cisco 2911
+switch1.example.com,192.168.1.10,cisco_ios,admin,cisco123,cisco123,Cisco 3560
+switch2.example.com,192.168.1.11,cisco_ios,admin,cisco123,cisco123,Cisco 2960
+firewall.example.com,192.168.1.254,cisco_asa,admin,cisco123,cisco123,Cisco ASA 5505

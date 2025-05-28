@@ -1,0 +1,6 @@
+hostname,host,device_type,username,password,secret,model
+RTR-BRANCH-01.xrnet.net,172.16.39.101,cisco_ios,admin,cisco,enable,Cisco 2901
+RTR-BRANCH-02.xrnet.net,172.16.39.102,cisco_ios,admin,cisco,enable,Cisco 2911
+RTR-BRANCH-03.xrnet.net,172.16.39.103,cisco_ios,admin,cisco,enable,Cisco 3925
+RTR-BRANCH-04.xrnet.net,172.16.39.104,cisco_ios,admin,cisco,enable,Cisco 2921
+RTR-BRANCH-05.xrnet.net,172.16.39.105,cisco_ios,admin,cisco,enable,Cisco 3945

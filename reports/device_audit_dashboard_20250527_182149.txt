@@ -1,0 +1,28 @@
+================================================================================
+CISCO ROUTER AUDIT DASHBOARD - 20250527_182149
+================================================================================
+
+Total Devices Audited: 5
+A1 Connectivity Success: 4/5 (80.0%)
+A2 Authentication Success: 0/5 (0.0%)
+A3-A4 Authorization Success: 0/5 (0.0%)
+A5 Data Collection Success: 0/5 (0.0%)
+A6-A7 Analysis Success: 0/5 (0.0%)
+Telnet Enabled: 0/5 (0.0%)
+
+PHASE TIMING SUMMARY
+--------------------------------------------------------------------------------
+Connectivity Phase: Avg 0.00s across 5 devices
+Authentication Phase: Avg 4.01s across 5 devices
+
+SECURITY FINDINGS
+--------------------------------------------------------------------------------
+No devices with telnet enabled were found.
+
+FAILED DEVICES
+--------------------------------------------------------------------------------
+  - RTR-BRANCH-01.xrnet.net (172.16.39.101): SSH connection failed
+  - RTR-BRANCH-02.xrnet.net (172.16.39.102): SSH connection failed
+  - RTR-BRANCH-03.xrnet.net (172.16.39.103): SSH connection failed
+  - RTR-BRANCH-04.xrnet.net (172.16.39.104): SSH connection failed
+  - RTR-BRANCH-05.xrnet.net (172.16.39.105): SSH connection failed

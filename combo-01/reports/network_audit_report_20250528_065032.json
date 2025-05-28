@@ -1,0 +1,141 @@
+{
+  "meta": {
+    "generated_at": "2025-05-28T06:50:32.417746",
+    "version": "3.11.0",
+    "report_id": "01ac19cd-ac6f-4667-8626-2a76fb98953c"
+  },
+  "results": [
+    {
+      "audit_id": "98e0500d-ec07-4f1a-872d-6dea9879b380",
+      "device_info": {
+        "hostname": "RTR-BRANCH-05.xrnet.net",
+        "ip": "172.16.39.104",
+        "model": "Cisco 2911 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T06:50:22.393833",
+      "phases": {
+        "connection": {
+          "status": "Failed",
+          "details": {
+            "method": "SSH"
+          },
+          "error": "Connection timed out"
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "7801ac50-254b-46fd-b256-616399fa5411",
+      "device_info": {
+        "hostname": "RTR-BRANCH-04.xrnet.net",
+        "ip": "172.16.39.103",
+        "model": "Cisco 4321 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T06:50:22.391635",
+      "phases": {
+        "connection": {
+          "status": "Failed",
+          "details": {
+            "method": "SSH"
+          },
+          "error": "Connection timed out"
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "4b6f518d-ab52-4b7c-9489-e4caa8e190a1",
+      "device_info": {
+        "hostname": "RTR-BRANCH-06.xrnet.net",
+        "ip": "172.16.39.105",
+        "model": "Cisco 2911 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T06:50:25.467182",
+      "phases": {
+        "connection": {
+          "status": "Failed",
+          "details": {
+            "method": "SSH"
+          },
+          "error": "Connection timed out"
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "0f87cb1e-48d2-45f6-9958-98ac3d158942",
+      "device_info": {
+        "hostname": "RTR-EDGE-02.xrnet.net",
+        "ip": "172.16.39.101",
+        "model": "Cisco 4451-X Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T06:50:22.391432",
+      "phases": {
+        "connection": {
+          "status": "Failed",
+          "details": {
+            "method": "SSH"
+          },
+          "error": "Connection timed out"
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "ff63965f-9b2b-4699-b47c-59a7d8d56243",
+      "device_info": {
+        "hostname": "RTR-CORE-01.xrnet.net",
+        "ip": "172.16.39.100",
+        "model": "Cisco 4431 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T06:50:22.389307",
+      "phases": {
+        "connection": {
+          "status": "Failed",
+          "details": {
+            "method": "SSH"
+          },
+          "error": "Connection timed out"
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "e803e800-e245-439f-985e-a1c4b59d452f",
+      "device_info": {
+        "hostname": "RTR-BRANCH-03.xrnet.net",
+        "ip": "172.16.39.102",
+        "model": "Cisco 3945 Integrated Services Router",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-28T06:50:22.390116",
+      "phases": {
+        "connection": {
+          "status": "Failed",
+          "details": {
+            "method": "SSH"
+          },
+          "error": "Connection timed out"
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    }
+  ]
+}

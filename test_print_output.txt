@@ -1,0 +1,2 @@
+--- MINIMAL PYTHON TEST: Output from test_print.py written to file ---
+--- MINIMAL PYTHON TEST: File write successful ---

@@ -1,0 +1,212 @@
+{
+  "meta": {
+    "generated_at": "2025-05-27T20:30:53.518523",
+    "version": "3.11.0",
+    "report_id": "46fb5dd9-493b-40b4-8c4e-e477e8c0094b"
+  },
+  "results": [
+    {
+      "audit_id": "5b42df4e-b860-41ca-9458-2ec1a49310d1",
+      "device_info": {
+        "hostname": "router1.example.com",
+        "ip": "192.168.1.1",
+        "description": ""
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-27T20:30:53.498542",
+      "phases": {
+        "icmp_ping": {
+          "status": "Success",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 4,
+            "packet_loss_percent": 0,
+            "rtt_min_ms": 10.2,
+            "rtt_avg_ms": 15.7,
+            "rtt_max_ms": 22.3,
+            "ttl": 64
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "82b69f50-bfc6-464c-94b1-829d5671f601",
+      "device_info": {
+        "hostname": "router2.example.com",
+        "ip": "192.168.1.2",
+        "description": ""
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-27T20:30:53.503035",
+      "phases": {
+        "icmp_ping": {
+          "status": "Success",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 4,
+            "packet_loss_percent": 0,
+            "rtt_min_ms": 10.2,
+            "rtt_avg_ms": 15.7,
+            "rtt_max_ms": 22.3,
+            "ttl": 64
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "036db908-5f67-4841-a8ab-70b9c69622cf",
+      "device_info": {
+        "hostname": "switch1.example.com",
+        "ip": "192.168.1.10",
+        "description": ""
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-27T20:30:53.503500",
+      "phases": {
+        "icmp_ping": {
+          "status": "Failed",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 0,
+            "packet_loss_percent": 100,
+            "error": "Unknown error"
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Device is not responding to ICMP ping. Check firewall settings or device status.",
+          "severity": "high",
+          "reference": null
+        }
+      ]
+    },
+    {
+      "audit_id": "859df199-6a6a-4676-b9d1-121ed3970951",
+      "device_info": {
+        "hostname": "firewall.example.com",
+        "ip": "192.168.1.254",
+        "description": ""
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-27T20:30:53.505987",
+      "phases": {
+        "icmp_ping": {
+          "status": "Success",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 4,
+            "packet_loss_percent": 0,
+            "rtt_min_ms": 10.2,
+            "rtt_avg_ms": 15.7,
+            "rtt_max_ms": 22.3,
+            "ttl": 64
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "caae3d47-b26f-4700-9109-187bdb1c1b33",
+      "device_info": {
+        "hostname": "switch2.example.com",
+        "ip": "192.168.1.11",
+        "description": ""
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-27T20:30:53.505779",
+      "phases": {
+        "icmp_ping": {
+          "status": "Success",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 4,
+            "packet_loss_percent": 0,
+            "rtt_min_ms": 10.2,
+            "rtt_avg_ms": 15.7,
+            "rtt_max_ms": 22.3,
+            "ttl": 64
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Success",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 3,
+            "open_ports": [
+              22,
+              80,
+              443
+            ]
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    }
+  ]
+}

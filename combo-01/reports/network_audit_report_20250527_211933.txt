@@ -1,0 +1,126 @@
+==== NETWORK AUDIT REPORT ====
+Generated: 2025-05-27 21:19:33
+Tool Version: 3.11.0
+
+Total Devices Audited: 6
+
+
+==================================================
+Device: RTR-CORE-01.xrnet.net (172.16.39.100)
+Audit Type: telnet
+Audit ID: 8c529050-e3dc-49e1-b310-d0cc911427e3
+Timestamp: 2025-05-27 21:19:33
+
+✓ Phase: connection - Status: Success
+   - method: SSH
+
+✗ Phase: telnet_config - Status: Secure
+   - telnet_enabled: False
+   - vty_lines: 1
+   - aux_lines: 0
+   - con_lines: 1
+   - telnet_lines: 0
+
+✗ Phase: telnet_port - Status: Secure
+   - port_23_accessible: False
+
+
+==================================================
+Device: RTR-EDGE-02.xrnet.net (172.16.39.101)
+Audit Type: telnet
+Audit ID: 09422705-d2c6-40f1-a48c-2762b6ffe0be
+Timestamp: 2025-05-27 21:19:33
+
+✓ Phase: connection - Status: Success
+   - method: SSH
+
+✗ Phase: telnet_config - Status: Secure
+   - telnet_enabled: False
+   - vty_lines: 1
+   - aux_lines: 0
+   - con_lines: 1
+   - telnet_lines: 0
+
+✗ Phase: telnet_port - Status: Secure
+   - port_23_accessible: False
+
+
+==================================================
+Device: RTR-BRANCH-03.xrnet.net (172.16.39.102)
+Audit Type: telnet
+Audit ID: 5897928f-6f97-4372-956e-c0b4d4a9653d
+Timestamp: 2025-05-27 21:19:33
+
+✓ Phase: connection - Status: Success
+   - method: SSH
+
+✗ Phase: telnet_config - Status: Secure
+   - telnet_enabled: False
+   - vty_lines: 1
+   - aux_lines: 0
+   - con_lines: 1
+   - telnet_lines: 0
+
+✗ Phase: telnet_port - Status: Secure
+   - port_23_accessible: False
+
+
+==================================================
+Device: RTR-BRANCH-04.xrnet.net (172.16.39.103)
+Audit Type: telnet
+Audit ID: eedae441-e3ef-4e8e-b035-2a6025c0d237
+Timestamp: 2025-05-27 21:19:33
+
+✓ Phase: connection - Status: Success
+   - method: SSH
+
+✗ Phase: telnet_config - Status: Secure
+   - telnet_enabled: False
+   - vty_lines: 1
+   - aux_lines: 0
+   - con_lines: 1
+   - telnet_lines: 0
+
+✗ Phase: telnet_port - Status: Secure
+   - port_23_accessible: False
+
+
+==================================================
+Device: RTR-BRANCH-06.xrnet.net (172.16.39.105)
+Audit Type: telnet
+Audit ID: afc25cec-4082-41f9-b970-fd3ea9227297
+Timestamp: 2025-05-27 21:19:33
+
+✓ Phase: connection - Status: Success
+   - method: SSH
+
+✗ Phase: telnet_config - Status: Secure
+   - telnet_enabled: False
+   - vty_lines: 1
+   - aux_lines: 0
+   - con_lines: 1
+   - telnet_lines: 0
+
+✗ Phase: telnet_port - Status: Secure
+   - port_23_accessible: False
+
+
+==================================================
+Device: RTR-BRANCH-05.xrnet.net (172.16.39.104)
+Audit Type: telnet
+Audit ID: f8bb4e65-fdfa-4430-a576-ce5e543d8f84
+Timestamp: 2025-05-27 21:19:33
+
+✓ Phase: connection - Status: Success
+   - method: SSH
+
+✗ Phase: telnet_config - Status: Secure
+   - telnet_enabled: False
+   - vty_lines: 1
+   - aux_lines: 0
+   - con_lines: 1
+   - telnet_lines: 0
+
+✗ Phase: telnet_port - Status: Secure
+   - port_23_accessible: False
+

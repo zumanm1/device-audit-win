@@ -1,0 +1,76 @@
+
+============================================================
+CISCO ROUTER AUDIT - PHASED APPROACH
+Starting audit at 2025-05-27 17:54:45
+============================================================
+Connecting to jump host 172.16.39.128...
+[TEST MODE] Simulating jump host connection
+✓ [TEST MODE] Successfully connected to jump host
+
+============================================================
+Auditing device: RTR-BRANCH-01.xrnet.net (172.16.39.101)
+============================================================
+
+A1: Testing connectivity to RTR-BRANCH-01.xrnet.net (172.16.39.101) with ping...
+✓ A1: Ping to RTR-BRANCH-01.xrnet.net (172.16.39.101) successful
+
+A2: Authenticating to RTR-BRANCH-01.xrnet.net (172.16.39.101) via SSH...
+✗ A2: Authentication to RTR-BRANCH-01.xrnet.net (172.16.39.101) failed
+
+============================================================
+Auditing device: RTR-BRANCH-02.xrnet.net (172.16.39.102)
+============================================================
+
+A1: Testing connectivity to RTR-BRANCH-02.xrnet.net (172.16.39.102) with ping...
+✓ A1: Ping to RTR-BRANCH-02.xrnet.net (172.16.39.102) successful
+
+A2: Authenticating to RTR-BRANCH-02.xrnet.net (172.16.39.102) via SSH...
+✗ A2: Authentication to RTR-BRANCH-02.xrnet.net (172.16.39.102) failed
+
+============================================================
+Auditing device: RTR-BRANCH-03.xrnet.net (172.16.39.103)
+============================================================
+
+A1: Testing connectivity to RTR-BRANCH-03.xrnet.net (172.16.39.103) with ping...
+✓ A1: Ping to RTR-BRANCH-03.xrnet.net (172.16.39.103) successful
+
+A2: Authenticating to RTR-BRANCH-03.xrnet.net (172.16.39.103) via SSH...
+✗ A2: Authentication to RTR-BRANCH-03.xrnet.net (172.16.39.103) failed
+
+============================================================
+Auditing device: RTR-BRANCH-04.xrnet.net (172.16.39.104)
+============================================================
+
+A1: Testing connectivity to RTR-BRANCH-04.xrnet.net (172.16.39.104) with ping...
+⚠️ A1: Ping to RTR-BRANCH-04.xrnet.net (172.16.39.104) failed
+
+A2: Authenticating to RTR-BRANCH-04.xrnet.net (172.16.39.104) via SSH...
+✗ A2: Authentication to RTR-BRANCH-04.xrnet.net (172.16.39.104) failed
+
+============================================================
+Auditing device: RTR-BRANCH-05.xrnet.net (172.16.39.105)
+============================================================
+
+A1: Testing connectivity to RTR-BRANCH-05.xrnet.net (172.16.39.105) with ping...
+✓ A1: Ping to RTR-BRANCH-05.xrnet.net (172.16.39.105) successful
+
+A2: Authenticating to RTR-BRANCH-05.xrnet.net (172.16.39.105) via SSH...
+✗ A2: Authentication to RTR-BRANCH-05.xrnet.net (172.16.39.105) failed
+
+A8: Generating audit reports and dashboard...
+✓ A8: Report saved to /root/za-con/reports/device_audit_report_20250527_175505.csv
+✓ A8: Dashboard saved to /root/za-con/reports/device_audit_dashboard_20250527_175505.txt
+
+=== AUDIT DASHBOARD ===
+Total Devices: 5
+Connectivity Success: 4/5
+Authentication Success: 0/5
+Authorization Success: 0/5
+Data Collection Success: 0/5
+Analysis Success: 0/5
+Telnet Enabled: 0/5
+
+============================================================
+Audit completed at 2025-05-27 17:55:05
+Total audit duration: 20.06 seconds
+============================================================

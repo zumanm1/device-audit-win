@@ -1,0 +1,173 @@
+==== NETWORK AUDIT REPORT ====
+Generated: 2025-05-27 21:34:19
+Tool Version: 3.11.0
+
+Total Devices Audited: 5
+
+
+==================================================
+Device: router1.example.com (192.168.1.1)
+Audit Type: security
+Audit ID: 0efcae63-5203-4b4d-a437-0b747a6e0cc8
+Timestamp: 2025-05-27 21:34:19
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 287
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 2
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 2
+   - recommendations_count: 2
+
+Recommendations:
+   !!! Disable Telnet and use SSH with strong authentication
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   ! Remove unused accounts to reduce attack surface
+     (Reference: NIST SP 800-53: AC-2)
+
+
+==================================================
+Device: router2.example.com (192.168.1.2)
+Audit Type: security
+Audit ID: 7468c248-ac4f-40aa-a100-598bea13eb48
+Timestamp: 2025-05-27 21:34:19
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 287
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 1
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 1
+   - recommendations_count: 1
+
+Recommendations:
+   !!! Disable Telnet and use SSH with strong authentication
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+
+
+==================================================
+Device: switch1.example.com (192.168.1.10)
+Audit Type: security
+Audit ID: a42b2412-bb4b-4dba-9427-d93bb7319b77
+Timestamp: 2025-05-27 21:34:19
+
+✗ Phase: connectivity - Status: Failed
+   - method: ICMP ping (simulated)
+   - response_time_ms: None
+   Error: Simulated connectivity failure
+
+✗ Phase: authentication - Status: Skipped
+   Error: Skipped due to connectivity failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 2
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 2
+   - recommendations_count: 2
+
+Recommendations:
+   !!! Implement strong password policy with minimum complexity requirements
+     (Reference: NIST SP 800-53: IA-5)
+   ! Remove unused accounts to reduce attack surface
+     (Reference: NIST SP 800-53: AC-2)
+
+
+==================================================
+Device: switch2.example.com (192.168.1.11)
+Audit Type: security
+Audit ID: 4aa67dd2-20ea-465c-bafd-20dffa3ce9bc
+Timestamp: 2025-05-27 21:34:19
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 287
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 1
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 1
+   - recommendations_count: 1
+
+Recommendations:
+   !!! Implement strong password policy with minimum complexity requirements
+     (Reference: NIST SP 800-53: IA-5)
+
+
+==================================================
+Device: firewall.example.com (192.168.1.254)
+Audit Type: security
+Audit ID: 62af3a17-189c-4486-a2ba-551342af0d80
+Timestamp: 2025-05-27 21:34:19
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✗ Phase: authentication - Status: Failed
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+   Error: Simulated authentication failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 1
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 1
+   - recommendations_count: 1
+
+Recommendations:
+   !! Disable unnecessary services to reduce attack surface
+     (Reference: NIST SP 800-53: CM-7)
+

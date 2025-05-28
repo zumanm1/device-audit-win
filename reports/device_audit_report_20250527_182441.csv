@@ -1,0 +1,6 @@
+hostname,host,connectivity,authentication,authorization,data_collection,analysis,telnet_enabled,aux_lines_count,vty_lines_count,con_lines_count,error
+RTR-BRANCH-01.xrnet.net,172.16.39.101,False,False,False,False,False,False,0,0,0,SSH connection failed
+RTR-BRANCH-02.xrnet.net,172.16.39.102,False,False,False,False,False,False,0,0,0,SSH connection failed
+RTR-BRANCH-03.xrnet.net,172.16.39.103,False,False,False,False,False,False,0,0,0,SSH connection failed
+RTR-BRANCH-04.xrnet.net,172.16.39.104,False,False,False,False,False,False,0,0,0,SSH connection failed
+RTR-BRANCH-05.xrnet.net,172.16.39.105,False,False,False,False,False,False,0,0,0,SSH connection failed

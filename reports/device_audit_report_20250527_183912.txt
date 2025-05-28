@@ -1,0 +1,123 @@
+==== CISCO ROUTER AUDIT REPORT ====
+Generated: 2025-05-27 18:39:12
+
+
+==================================================
+Device: RTR-BRANCH-01.xrnet.net (172.16.39.101)
+Model: Unknown
+Audit Time: 2025-05-27 18:39:12
+
+✗ Phase: connectivity - Status: Failed
+   Details: ICMP ping failed
+
+✗ Phase: authentication - Status: Failed
+   Details: SSH authentication failed
+
+✗ Phase: authorization - Status: Failed
+   Details: Authorization failed
+
+✗ Phase: config_audit - Status: Failed
+   Details: Configuration collection failed
+
+✗ Phase: risk_assessment - Status: Failed
+   Details: Telnet disabled
+
+✓ Phase: reporting - Status: Success
+   Details: Report generated successfully
+
+
+==================================================
+Device: RTR-BRANCH-02.xrnet.net (172.16.39.102)
+Model: Unknown
+Audit Time: 2025-05-27 18:39:12
+
+✗ Phase: connectivity - Status: Failed
+   Details: ICMP ping failed
+
+✗ Phase: authentication - Status: Failed
+   Details: SSH authentication failed
+
+✗ Phase: authorization - Status: Failed
+   Details: Authorization failed
+
+✗ Phase: config_audit - Status: Failed
+   Details: Configuration collection failed
+
+✗ Phase: risk_assessment - Status: Failed
+   Details: Telnet disabled
+
+✓ Phase: reporting - Status: Success
+   Details: Report generated successfully
+
+
+==================================================
+Device: RTR-BRANCH-03.xrnet.net (172.16.39.103)
+Model: Unknown
+Audit Time: 2025-05-27 18:39:12
+
+✗ Phase: connectivity - Status: Failed
+   Details: ICMP ping failed
+
+✗ Phase: authentication - Status: Failed
+   Details: SSH authentication failed
+
+✗ Phase: authorization - Status: Failed
+   Details: Authorization failed
+
+✗ Phase: config_audit - Status: Failed
+   Details: Configuration collection failed
+
+✗ Phase: risk_assessment - Status: Failed
+   Details: Telnet disabled
+
+✓ Phase: reporting - Status: Success
+   Details: Report generated successfully
+
+
+==================================================
+Device: RTR-BRANCH-04.xrnet.net (172.16.39.104)
+Model: Unknown
+Audit Time: 2025-05-27 18:39:12
+
+✗ Phase: connectivity - Status: Failed
+   Details: ICMP ping failed
+
+✗ Phase: authentication - Status: Failed
+   Details: SSH authentication failed
+
+✗ Phase: authorization - Status: Failed
+   Details: Authorization failed
+
+✗ Phase: config_audit - Status: Failed
+   Details: Configuration collection failed
+
+✗ Phase: risk_assessment - Status: Failed
+   Details: Telnet disabled
+
+✓ Phase: reporting - Status: Success
+   Details: Report generated successfully
+
+
+==================================================
+Device: RTR-BRANCH-05.xrnet.net (172.16.39.105)
+Model: Unknown
+Audit Time: 2025-05-27 18:39:12
+
+✗ Phase: connectivity - Status: Failed
+   Details: ICMP ping failed
+
+✗ Phase: authentication - Status: Failed
+   Details: SSH authentication failed
+
+✗ Phase: authorization - Status: Failed
+   Details: Authorization failed
+
+✗ Phase: config_audit - Status: Failed
+   Details: Configuration collection failed
+
+✗ Phase: risk_assessment - Status: Failed
+   Details: Telnet disabled
+
+✓ Phase: reporting - Status: Success
+   Details: Report generated successfully
+

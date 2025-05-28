@@ -1,0 +1,228 @@
+==== NETWORK AUDIT REPORT ====
+Generated: 2025-05-28 06:52:32
+Tool Version: 3.11.0
+
+Total Devices Audited: 6
+
+
+==================================================
+Device: RTR-CORE-01.xrnet.net (172.16.39.100)
+Audit Type: security
+Audit ID: 5a4896aa-be40-45cf-84df-b9a5bfc39797
+Timestamp: 2025-05-28 06:52:03
+
+✗ Phase: connectivity - Status: Failed
+   - method: ICMP ping
+   - response_time_ms: None
+   Error: ICMP ping failed
+
+✗ Phase: authentication - Status: Skipped
+   Error: Skipped due to connectivity failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 4
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 4
+   - recommendations_count: 4
+
+Recommendations:
+   !!! Disable Telnet and use SSH with strong authentication
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   !!! Implement strong password policy with minimum complexity requirements
+     (Reference: NIST SP 800-53: IA-5)
+   ! Remove unused accounts to reduce attack surface
+     (Reference: NIST SP 800-53: AC-2)
+   !! Disable unnecessary services to reduce attack surface
+     (Reference: NIST SP 800-53: CM-7)
+
+
+==================================================
+Device: RTR-EDGE-02.xrnet.net (172.16.39.101)
+Audit Type: security
+Audit ID: aaab70ee-d0a5-4253-94ce-e38574f89886
+Timestamp: 2025-05-28 06:52:08
+
+✗ Phase: connectivity - Status: Failed
+   - method: ICMP ping
+   - response_time_ms: None
+   Error: ICMP ping failed
+
+✗ Phase: authentication - Status: Skipped
+   Error: Skipped due to connectivity failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 4
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 4
+   - recommendations_count: 4
+
+Recommendations:
+   !!! Disable Telnet and use SSH with strong authentication
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   !!! Implement strong password policy with minimum complexity requirements
+     (Reference: NIST SP 800-53: IA-5)
+   ! Remove unused accounts to reduce attack surface
+     (Reference: NIST SP 800-53: AC-2)
+   !! Disable unnecessary services to reduce attack surface
+     (Reference: NIST SP 800-53: CM-7)
+
+
+==================================================
+Device: RTR-BRANCH-03.xrnet.net (172.16.39.102)
+Audit Type: security
+Audit ID: f9cc83a8-bbe6-4eec-8a57-d92046a40a23
+Timestamp: 2025-05-28 06:52:14
+
+✗ Phase: connectivity - Status: Failed
+   - method: ICMP ping
+   - response_time_ms: None
+   Error: ICMP ping failed
+
+✗ Phase: authentication - Status: Skipped
+   Error: Skipped due to connectivity failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 4
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 4
+   - recommendations_count: 4
+
+Recommendations:
+   !!! Disable Telnet and use SSH with strong authentication
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   !!! Implement strong password policy with minimum complexity requirements
+     (Reference: NIST SP 800-53: IA-5)
+   ! Remove unused accounts to reduce attack surface
+     (Reference: NIST SP 800-53: AC-2)
+   !! Disable unnecessary services to reduce attack surface
+     (Reference: NIST SP 800-53: CM-7)
+
+
+==================================================
+Device: RTR-BRANCH-04.xrnet.net (172.16.39.103)
+Audit Type: security
+Audit ID: 90d4e053-d0c2-4b5d-b17b-deb5b4ef38d0
+Timestamp: 2025-05-28 06:52:19
+
+✗ Phase: connectivity - Status: Failed
+   - method: ICMP ping
+   - response_time_ms: None
+   Error: ICMP ping failed
+
+✗ Phase: authentication - Status: Skipped
+   Error: Skipped due to connectivity failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 4
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 4
+   - recommendations_count: 4
+
+Recommendations:
+   !!! Disable Telnet and use SSH with strong authentication
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   !!! Implement strong password policy with minimum complexity requirements
+     (Reference: NIST SP 800-53: IA-5)
+   ! Remove unused accounts to reduce attack surface
+     (Reference: NIST SP 800-53: AC-2)
+   !! Disable unnecessary services to reduce attack surface
+     (Reference: NIST SP 800-53: CM-7)
+
+
+==================================================
+Device: RTR-BRANCH-05.xrnet.net (172.16.39.104)
+Audit Type: security
+Audit ID: 5dba29f6-106b-42c5-855e-ca96e3b1124b
+Timestamp: 2025-05-28 06:52:24
+
+✗ Phase: connectivity - Status: Failed
+   - method: ICMP ping
+   - response_time_ms: None
+   Error: ICMP ping failed
+
+✗ Phase: authentication - Status: Skipped
+   Error: Skipped due to connectivity failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 4
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 4
+   - recommendations_count: 4
+
+Recommendations:
+   !!! Disable Telnet and use SSH with strong authentication
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   !!! Implement strong password policy with minimum complexity requirements
+     (Reference: NIST SP 800-53: IA-5)
+   ! Remove unused accounts to reduce attack surface
+     (Reference: NIST SP 800-53: AC-2)
+   !! Disable unnecessary services to reduce attack surface
+     (Reference: NIST SP 800-53: CM-7)
+
+
+==================================================
+Device: RTR-BRANCH-06.xrnet.net (172.16.39.105)
+Audit Type: security
+Audit ID: 6dc93903-fa51-478c-a2db-f758e5a5a4d0
+Timestamp: 2025-05-28 06:52:27
+
+✗ Phase: connectivity - Status: Failed
+   - method: ICMP ping
+   - response_time_ms: None
+   Error: ICMP ping failed
+
+✗ Phase: authentication - Status: Skipped
+   Error: Skipped due to connectivity failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 4
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 4
+   - recommendations_count: 4
+
+Recommendations:
+   !!! Disable Telnet and use SSH with strong authentication
+     (Reference: NIST SP 800-53: AC-17, IA-2)
+   !!! Implement strong password policy with minimum complexity requirements
+     (Reference: NIST SP 800-53: IA-5)
+   ! Remove unused accounts to reduce attack surface
+     (Reference: NIST SP 800-53: AC-2)
+   !! Disable unnecessary services to reduce attack surface
+     (Reference: NIST SP 800-53: CM-7)
+

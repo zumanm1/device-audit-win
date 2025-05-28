@@ -1,0 +1,465 @@
+{
+  "meta": {
+    "generated_at": "2025-05-28T06:52:32.330692",
+    "version": "3.11.0",
+    "report_id": "d5c64973-81df-4717-ae5a-8e7cda877059"
+  },
+  "results": [
+    {
+      "audit_id": "5a4896aa-be40-45cf-84df-b9a5bfc39797",
+      "device_info": {
+        "hostname": "RTR-CORE-01.xrnet.net",
+        "ip": "172.16.39.100",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T06:52:03.855778",
+      "phases": {
+        "connectivity": {
+          "status": "Failed",
+          "details": {
+            "method": "ICMP ping",
+            "response_time_ms": null
+          },
+          "error": "ICMP ping failed"
+        },
+        "authentication": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to connectivity failure"
+        },
+        "config_audit": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to authentication failure"
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 4
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 4,
+            "recommendations_count": 4
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH with strong authentication",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Implement strong password policy with minimum complexity requirements",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: IA-5"
+        },
+        {
+          "text": "Remove unused accounts to reduce attack surface",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: AC-2"
+        },
+        {
+          "text": "Disable unnecessary services to reduce attack surface",
+          "severity": "high",
+          "reference": "NIST SP 800-53: CM-7"
+        }
+      ]
+    },
+    {
+      "audit_id": "aaab70ee-d0a5-4253-94ce-e38574f89886",
+      "device_info": {
+        "hostname": "RTR-EDGE-02.xrnet.net",
+        "ip": "172.16.39.101",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T06:52:08.940326",
+      "phases": {
+        "connectivity": {
+          "status": "Failed",
+          "details": {
+            "method": "ICMP ping",
+            "response_time_ms": null
+          },
+          "error": "ICMP ping failed"
+        },
+        "authentication": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to connectivity failure"
+        },
+        "config_audit": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to authentication failure"
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 4
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 4,
+            "recommendations_count": 4
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH with strong authentication",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Implement strong password policy with minimum complexity requirements",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: IA-5"
+        },
+        {
+          "text": "Remove unused accounts to reduce attack surface",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: AC-2"
+        },
+        {
+          "text": "Disable unnecessary services to reduce attack surface",
+          "severity": "high",
+          "reference": "NIST SP 800-53: CM-7"
+        }
+      ]
+    },
+    {
+      "audit_id": "f9cc83a8-bbe6-4eec-8a57-d92046a40a23",
+      "device_info": {
+        "hostname": "RTR-BRANCH-03.xrnet.net",
+        "ip": "172.16.39.102",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T06:52:14.028656",
+      "phases": {
+        "connectivity": {
+          "status": "Failed",
+          "details": {
+            "method": "ICMP ping",
+            "response_time_ms": null
+          },
+          "error": "ICMP ping failed"
+        },
+        "authentication": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to connectivity failure"
+        },
+        "config_audit": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to authentication failure"
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 4
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 4,
+            "recommendations_count": 4
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH with strong authentication",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Implement strong password policy with minimum complexity requirements",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: IA-5"
+        },
+        {
+          "text": "Remove unused accounts to reduce attack surface",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: AC-2"
+        },
+        {
+          "text": "Disable unnecessary services to reduce attack surface",
+          "severity": "high",
+          "reference": "NIST SP 800-53: CM-7"
+        }
+      ]
+    },
+    {
+      "audit_id": "90d4e053-d0c2-4b5d-b17b-deb5b4ef38d0",
+      "device_info": {
+        "hostname": "RTR-BRANCH-04.xrnet.net",
+        "ip": "172.16.39.103",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T06:52:19.114205",
+      "phases": {
+        "connectivity": {
+          "status": "Failed",
+          "details": {
+            "method": "ICMP ping",
+            "response_time_ms": null
+          },
+          "error": "ICMP ping failed"
+        },
+        "authentication": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to connectivity failure"
+        },
+        "config_audit": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to authentication failure"
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 4
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 4,
+            "recommendations_count": 4
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH with strong authentication",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Implement strong password policy with minimum complexity requirements",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: IA-5"
+        },
+        {
+          "text": "Remove unused accounts to reduce attack surface",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: AC-2"
+        },
+        {
+          "text": "Disable unnecessary services to reduce attack surface",
+          "severity": "high",
+          "reference": "NIST SP 800-53: CM-7"
+        }
+      ]
+    },
+    {
+      "audit_id": "5dba29f6-106b-42c5-855e-ca96e3b1124b",
+      "device_info": {
+        "hostname": "RTR-BRANCH-05.xrnet.net",
+        "ip": "172.16.39.104",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T06:52:24.175204",
+      "phases": {
+        "connectivity": {
+          "status": "Failed",
+          "details": {
+            "method": "ICMP ping",
+            "response_time_ms": null
+          },
+          "error": "ICMP ping failed"
+        },
+        "authentication": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to connectivity failure"
+        },
+        "config_audit": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to authentication failure"
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 4
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 4,
+            "recommendations_count": 4
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH with strong authentication",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Implement strong password policy with minimum complexity requirements",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: IA-5"
+        },
+        {
+          "text": "Remove unused accounts to reduce attack surface",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: AC-2"
+        },
+        {
+          "text": "Disable unnecessary services to reduce attack surface",
+          "severity": "high",
+          "reference": "NIST SP 800-53: CM-7"
+        }
+      ]
+    },
+    {
+      "audit_id": "6dc93903-fa51-478c-a2db-f758e5a5a4d0",
+      "device_info": {
+        "hostname": "RTR-BRANCH-06.xrnet.net",
+        "ip": "172.16.39.105",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-28T06:52:27.259377",
+      "phases": {
+        "connectivity": {
+          "status": "Failed",
+          "details": {
+            "method": "ICMP ping",
+            "response_time_ms": null
+          },
+          "error": "ICMP ping failed"
+        },
+        "authentication": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to connectivity failure"
+        },
+        "config_audit": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to authentication failure"
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 4
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 4,
+            "recommendations_count": 4
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH with strong authentication",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Implement strong password policy with minimum complexity requirements",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: IA-5"
+        },
+        {
+          "text": "Remove unused accounts to reduce attack surface",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: AC-2"
+        },
+        {
+          "text": "Disable unnecessary services to reduce attack surface",
+          "severity": "high",
+          "reference": "NIST SP 800-53: CM-7"
+        }
+      ]
+    }
+  ]
+}

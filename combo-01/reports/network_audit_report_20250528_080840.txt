@@ -1,0 +1,264 @@
+==== NETWORK AUDIT REPORT ====
+Generated: 2025-05-28 08:10:16
+Tool Version: 3.11.0
+
+Total Devices Audited: 12
+
+
+==================================================
+Device: RTR-CORE-01.xrnet.net (172.16.39.100)
+Audit Type: security
+Audit ID: 42b6d5fb-8eda-425a-a258-43928faedb8c
+Timestamp: 2025-05-28 08:10:06
+
+✗ Phase: connectivity - Status: Failed
+   - method: ICMP ping (simulated)
+   - response_time_ms: None
+   Error: Simulated connectivity failure
+
+✗ Phase: authentication - Status: Skipped
+   Error: Skipped due to connectivity failure
+
+✗ Phase: config_audit - Status: Skipped
+   Error: Skipped due to authentication failure
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 0
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 0
+   - recommendations_count: 0
+
+
+==================================================
+Device: RTR-EDGE-02.xrnet.net (172.16.39.101)
+Audit Type: security
+Audit ID: 4ef68c37-89f9-4da5-894f-cea9ded2dac3
+Timestamp: 2025-05-28 08:10:06
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 291
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 0
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 0
+   - recommendations_count: 1
+
+Recommendations:
+   ! Implement regular security audits and monitoring
+     (Reference: NIST SP 800-53: CA-7)
+
+
+==================================================
+Device: RTR-BRANCH-03.xrnet.net (172.16.39.102)
+Audit Type: security
+Audit ID: 59214053-a5f5-42ce-9336-eaed21f10ff7
+Timestamp: 2025-05-28 08:10:06
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 295
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 0
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 0
+   - recommendations_count: 1
+
+Recommendations:
+   ! Implement regular security audits and monitoring
+     (Reference: NIST SP 800-53: CA-7)
+
+
+==================================================
+Device: RTR-BRANCH-04.xrnet.net (172.16.39.103)
+Audit Type: security
+Audit ID: c4ee15d8-5c55-4892-b50f-801c0e010572
+Timestamp: 2025-05-28 08:10:06
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 295
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 0
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 0
+   - recommendations_count: 1
+
+Recommendations:
+   ! Implement regular security audits and monitoring
+     (Reference: NIST SP 800-53: CA-7)
+
+
+==================================================
+Device: RTR-BRANCH-05.xrnet.net (172.16.39.104)
+Audit Type: security
+Audit ID: 5342799c-b464-41b5-bc39-966587877e49
+Timestamp: 2025-05-28 08:10:06
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 295
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 0
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 0
+   - recommendations_count: 1
+
+Recommendations:
+   ! Implement regular security audits and monitoring
+     (Reference: NIST SP 800-53: CA-7)
+
+
+==================================================
+Device: RTR-BRANCH-06.xrnet.net (172.16.39.105)
+Audit Type: security
+Audit ID: 35d7d8c0-83bd-4a0c-9e92-08f3841743e8
+Timestamp: 2025-05-28 08:10:06
+
+✓ Phase: connectivity - Status: Success
+   - method: ICMP ping (simulated)
+   - response_time_ms: 15.7
+
+✓ Phase: authentication - Status: Success
+   - method: SSH authentication (simulated)
+   - protocol: SSH
+   - username: admin
+
+✓ Phase: config_audit - Status: Success
+   - commands_executed: ['show running-config', 'show interfaces', 'show version']
+   - config_size_bytes: 295
+
+✓ Phase: risk_assessment - Status: Success
+   - checks_performed: ['telnet_enabled', 'weak_passwords', 'unused_accounts', 'insecure_services', 'unsecured_interfaces']
+   - issues_found: 0
+
+✓ Phase: reporting - Status: Success
+   - report_type: security
+   - findings_count: 0
+   - recommendations_count: 1
+
+Recommendations:
+   ! Implement regular security audits and monitoring
+     (Reference: NIST SP 800-53: CA-7)
+
+
+==================================================
+Device: RTR-BRANCH-05.xrnet.net (172.16.39.104)
+Audit Type: telnet
+Audit ID: 9ffbcb18-4174-449a-9eab-5dcd6f029f20
+Timestamp: 2025-05-28 08:10:06
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
+
+==================================================
+Device: RTR-BRANCH-04.xrnet.net (172.16.39.103)
+Audit Type: telnet
+Audit ID: 90494ccf-d260-46c8-91dd-d3a9a6762ea3
+Timestamp: 2025-05-28 08:10:06
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
+
+==================================================
+Device: RTR-BRANCH-06.xrnet.net (172.16.39.105)
+Audit Type: telnet
+Audit ID: 9e0177c7-b601-4564-bd5e-3896b0b86956
+Timestamp: 2025-05-28 08:10:09
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
+
+==================================================
+Device: RTR-CORE-01.xrnet.net (172.16.39.100)
+Audit Type: telnet
+Audit ID: b6d7bfd1-77d9-4ac3-8183-6cf75307fea3
+Timestamp: 2025-05-28 08:10:06
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
+
+==================================================
+Device: RTR-EDGE-02.xrnet.net (172.16.39.101)
+Audit Type: telnet
+Audit ID: 5c2d453f-4dd1-4e6d-b24f-30f74fd59446
+Timestamp: 2025-05-28 08:10:06
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+
+
+==================================================
+Device: RTR-BRANCH-03.xrnet.net (172.16.39.102)
+Audit Type: telnet
+Audit ID: ec4e0b43-8200-4452-a0dd-a6f033656da7
+Timestamp: 2025-05-28 08:10:06
+
+✗ Phase: connection - Status: Failed
+   - method: SSH
+   Error: Connection timed out
+

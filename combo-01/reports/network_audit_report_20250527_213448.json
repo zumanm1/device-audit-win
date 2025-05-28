@@ -1,0 +1,601 @@
+{
+  "meta": {
+    "generated_at": "2025-05-27T21:35:08.805021",
+    "version": "3.11.0",
+    "report_id": "86c510c2-ac88-4d0d-8205-315e5bcdf400"
+  },
+  "results": [
+    {
+      "audit_id": "21ae8226-18a6-451c-8b3a-bb29b9220a8e",
+      "device_info": {
+        "hostname": "router1.example.com",
+        "ip": "192.168.1.1",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-27T21:35:08.769943",
+      "phases": {
+        "connectivity": {
+          "status": "Success",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": 15.7
+          },
+          "error": null
+        },
+        "authentication": {
+          "status": "Success",
+          "details": {
+            "method": "SSH authentication (simulated)",
+            "protocol": "SSH",
+            "username": "admin"
+          },
+          "error": null
+        },
+        "config_audit": {
+          "status": "Success",
+          "details": {
+            "commands_executed": [
+              "show running-config",
+              "show interfaces",
+              "show version"
+            ],
+            "config_size_bytes": 287
+          },
+          "error": null
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 2
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 2,
+            "recommendations_count": 2
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH with strong authentication",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Remove unused accounts to reduce attack surface",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: AC-2"
+        }
+      ]
+    },
+    {
+      "audit_id": "a8c6037a-63e2-4e3e-9efe-797c0a384ed7",
+      "device_info": {
+        "hostname": "router2.example.com",
+        "ip": "192.168.1.2",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-27T21:35:08.770827",
+      "phases": {
+        "connectivity": {
+          "status": "Success",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": 15.7
+          },
+          "error": null
+        },
+        "authentication": {
+          "status": "Success",
+          "details": {
+            "method": "SSH authentication (simulated)",
+            "protocol": "SSH",
+            "username": "admin"
+          },
+          "error": null
+        },
+        "config_audit": {
+          "status": "Success",
+          "details": {
+            "commands_executed": [
+              "show running-config",
+              "show interfaces",
+              "show version"
+            ],
+            "config_size_bytes": 287
+          },
+          "error": null
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 1
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 1,
+            "recommendations_count": 1
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH with strong authentication",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        }
+      ]
+    },
+    {
+      "audit_id": "63f6aaac-6729-40ca-abb5-adca87b93df9",
+      "device_info": {
+        "hostname": "switch1.example.com",
+        "ip": "192.168.1.10",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-27T21:35:08.771622",
+      "phases": {
+        "connectivity": {
+          "status": "Failed",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": null
+          },
+          "error": "Simulated connectivity failure"
+        },
+        "authentication": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to connectivity failure"
+        },
+        "config_audit": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to authentication failure"
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 2
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 2,
+            "recommendations_count": 2
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Implement strong password policy with minimum complexity requirements",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: IA-5"
+        },
+        {
+          "text": "Remove unused accounts to reduce attack surface",
+          "severity": "medium",
+          "reference": "NIST SP 800-53: AC-2"
+        }
+      ]
+    },
+    {
+      "audit_id": "b1d0ad75-c470-4700-a80f-34c6916df959",
+      "device_info": {
+        "hostname": "switch2.example.com",
+        "ip": "192.168.1.11",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-27T21:35:08.772367",
+      "phases": {
+        "connectivity": {
+          "status": "Success",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": 15.7
+          },
+          "error": null
+        },
+        "authentication": {
+          "status": "Success",
+          "details": {
+            "method": "SSH authentication (simulated)",
+            "protocol": "SSH",
+            "username": "admin"
+          },
+          "error": null
+        },
+        "config_audit": {
+          "status": "Success",
+          "details": {
+            "commands_executed": [
+              "show running-config",
+              "show interfaces",
+              "show version"
+            ],
+            "config_size_bytes": 287
+          },
+          "error": null
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 1
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 1,
+            "recommendations_count": 1
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Implement strong password policy with minimum complexity requirements",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: IA-5"
+        }
+      ]
+    },
+    {
+      "audit_id": "d8c10d0e-6b4e-4608-80f1-aa28ba251ff4",
+      "device_info": {
+        "hostname": "firewall.example.com",
+        "ip": "192.168.1.254",
+        "device_type": "cisco_asa"
+      },
+      "audit_type": "security",
+      "timestamp": "2025-05-27T21:35:08.773143",
+      "phases": {
+        "connectivity": {
+          "status": "Success",
+          "details": {
+            "method": "ICMP ping (simulated)",
+            "response_time_ms": 15.7
+          },
+          "error": null
+        },
+        "authentication": {
+          "status": "Failed",
+          "details": {
+            "method": "SSH authentication (simulated)",
+            "protocol": "SSH",
+            "username": "admin"
+          },
+          "error": "Simulated authentication failure"
+        },
+        "config_audit": {
+          "status": "Skipped",
+          "details": {},
+          "error": "Skipped due to authentication failure"
+        },
+        "risk_assessment": {
+          "status": "Success",
+          "details": {
+            "checks_performed": [
+              "telnet_enabled",
+              "weak_passwords",
+              "unused_accounts",
+              "insecure_services",
+              "unsecured_interfaces"
+            ],
+            "issues_found": 1
+          },
+          "error": null
+        },
+        "reporting": {
+          "status": "Success",
+          "details": {
+            "report_type": "security",
+            "findings_count": 1,
+            "recommendations_count": 1
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable unnecessary services to reduce attack surface",
+          "severity": "high",
+          "reference": "NIST SP 800-53: CM-7"
+        }
+      ]
+    },
+    {
+      "audit_id": "6e3fcb15-2295-40c5-b448-c11d45bcdec6",
+      "device_info": {
+        "hostname": "firewall.example.com",
+        "ip": "192.168.1.254",
+        "model": "Cisco ASA 5505",
+        "device_type": "cisco_asa"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-27T21:35:08.788505",
+      "phases": {
+        "connection": {
+          "status": "Failed",
+          "details": {
+            "method": "SSH"
+          },
+          "error": "Connection refused"
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "8b09f0b5-262b-4a2f-97f0-f4c71723ecff",
+      "device_info": {
+        "hostname": "router1.example.com",
+        "ip": "192.168.1.1",
+        "model": "Cisco 2901",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-27T21:35:08.781585",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Vulnerable",
+          "details": {
+            "telnet_enabled": true,
+            "vty_lines": 2,
+            "aux_lines": 1,
+            "con_lines": 1,
+            "telnet_lines": 2
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Vulnerable",
+          "details": {
+            "port_23_accessible": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH for secure remote access",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Apply access control lists to restrict telnet access",
+          "severity": "high",
+          "reference": "NIST SP 800-53: AC-3"
+        },
+        {
+          "text": "Disable telnet on AUX ports to prevent unauthorized access",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17"
+        },
+        {
+          "text": "Block telnet port (23) at the network level with firewall rules",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: SC-7"
+        }
+      ]
+    },
+    {
+      "audit_id": "18e31fc7-2a07-4f6f-8a51-7f79821bd71b",
+      "device_info": {
+        "hostname": "switch2.example.com",
+        "ip": "192.168.1.11",
+        "model": "Cisco 2960",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-27T21:35:08.788948",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "a03796c3-f2ae-4b8d-b756-6259def8676b",
+      "device_info": {
+        "hostname": "switch1.example.com",
+        "ip": "192.168.1.10",
+        "model": "Cisco 3560",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-27T21:35:08.789542",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Vulnerable",
+          "details": {
+            "telnet_enabled": true,
+            "vty_lines": 2,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 1
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Vulnerable",
+          "details": {
+            "port_23_accessible": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH for secure remote access",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Apply access control lists to restrict telnet access",
+          "severity": "high",
+          "reference": "NIST SP 800-53: AC-3"
+        },
+        {
+          "text": "Block telnet port (23) at the network level with firewall rules",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: SC-7"
+        }
+      ]
+    },
+    {
+      "audit_id": "2a79ce22-8864-4fd9-b2f6-bb6f58c1b394",
+      "device_info": {
+        "hostname": "router2.example.com",
+        "ip": "192.168.1.2",
+        "model": "Cisco 2911",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-27T21:35:08.787911",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Vulnerable",
+          "details": {
+            "telnet_enabled": true,
+            "vty_lines": 2,
+            "aux_lines": 1,
+            "con_lines": 1,
+            "telnet_lines": 2
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Vulnerable",
+          "details": {
+            "port_23_accessible": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH for secure remote access",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Apply access control lists to restrict telnet access",
+          "severity": "high",
+          "reference": "NIST SP 800-53: AC-3"
+        },
+        {
+          "text": "Disable telnet on AUX ports to prevent unauthorized access",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17"
+        },
+        {
+          "text": "Block telnet port (23) at the network level with firewall rules",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: SC-7"
+        }
+      ]
+    }
+  ]
+}
