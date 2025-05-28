@@ -21,6 +21,7 @@ import ipaddress
 import subprocess
 import datetime
 import argparse
+import platform
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -745,6 +746,8 @@ def main():
     parser = argparse.ArgumentParser(description=f"Network Audit Tool - {MODULE_NAME} v{VERSION}")
     parser.add_argument("-t", "--test", action="store_true", help="Run in test mode with simulated responses")
     parser.add_argument("-c", "--csv", type=str, default="devices.csv", help="CSV file with device details")
+    parser.add_argument("--no-report", action="store_true", help="Skip report generation (used when running as part of a unified audit)")
+    parser.add_argument("--timestamp", type=str, help="Use specified timestamp for report naming (for consistency across reports)")
     args = parser.parse_args()
     
     # Ensure directories exist
@@ -764,8 +767,14 @@ def main():
         print(f"{Fore.RED}Failed to run audit. Exiting.{Style.RESET_ALL}")
         return 1
     
-    # Generate reports
-    auditor.generate_reports()
+    # Generate reports (unless --no-report was specified)
+    if not args.no_report:
+        # Pass timestamp if provided
+        if args.timestamp:
+            auditor.timestamp = datetime.datetime.strptime(args.timestamp, "%Y%m%d_%H%M%S")
+        auditor.generate_reports()
+    else:
+        print(f"{Fore.YELLOW}Skipping report generation (--no-report specified){Style.RESET_ALL}")
     
     return 0
 

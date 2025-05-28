@@ -57,9 +57,20 @@ class NetworkAuditTool:
         self.auto_fallback = options.auto_fallback
         self.csv_file = options.csv
         self.jump_host = options.jump_host
+        self.no_report = options.no_report if hasattr(options, 'no_report') else False
         self.master_password = None
         self.cred_manager = None
-        self.timestamp = datetime.datetime.now()
+        
+        # Set timestamp based on command line or generate a new one
+        if hasattr(options, 'timestamp') and options.timestamp:
+            try:
+                self.timestamp = datetime.datetime.strptime(options.timestamp, "%Y%m%d_%H%M%S")
+                logger.info(f"Using provided timestamp: {options.timestamp}")
+            except ValueError:
+                logger.warning(f"Invalid timestamp format: {options.timestamp}, using current time instead")
+                self.timestamp = datetime.datetime.now()
+        else:
+            self.timestamp = datetime.datetime.now()
         self.devices = []
         self.results = {}  # Results by audit type
         self.connection_failures = 0
@@ -263,6 +274,7 @@ class NetworkAuditTool:
             # First attempt with current test mode setting
             auditor = ConnectivityAuditor(test_mode=self.test_mode)
             auditor.devices = self.devices.copy()
+            auditor.timestamp = self.timestamp  # Use consistent timestamp
             
             # Run the audit
             if not auditor.run_audit() and not self.test_mode and self.auto_fallback:
@@ -278,6 +290,7 @@ class NetworkAuditTool:
                 # Create a new auditor in test mode
                 auditor = ConnectivityAuditor(test_mode=True)
                 auditor.devices = self.devices.copy()
+                auditor.timestamp = self.timestamp  # Use consistent timestamp
                 
                 # Run in test mode
                 if not auditor.run_audit():
@@ -291,8 +304,13 @@ class NetworkAuditTool:
                 return False
             
             # If we got here, the audit was successful (either in real mode or test fallback)
-            auditor.generate_reports()
             self.results['connectivity'] = auditor.results
+            
+            # Generate reports unless no_report flag is set
+            if not self.no_report:
+                auditor.generate_reports()
+            else:
+                print(f"{Fore.YELLOW}Skipping individual connectivity report generation (--no-report specified){Style.RESET_ALL}")
             
             # Add a note about fallback in the results if it was used
             if fallback_used:
@@ -373,10 +391,14 @@ class NetworkAuditTool:
             auditor.results = results
             self.results['security'] = results
             
-            # Generate reports
-            report = AuditReport(results)
-            report.generate_all_reports()
-            report.print_summary()
+            # Generate reports unless no_report flag is set
+            report = AuditReport(results, timestamp=self.timestamp.strftime("%Y%m%d_%H%M%S"))
+            
+            if not self.no_report:
+                report.generate_all_reports()
+                report.print_summary()
+            else:
+                print(f"{Fore.YELLOW}Skipping individual security report generation (--no-report specified){Style.RESET_ALL}")
             
             # Display message if fallback was used
             if fallback_used:
@@ -413,6 +435,7 @@ class NetworkAuditTool:
             # First attempt with current test mode setting
             auditor = TelnetAuditor(test_mode=self.test_mode, jump_host=self.jump_host)
             auditor.devices = self.devices.copy()
+            auditor.timestamp = self.timestamp  # Use consistent timestamp
             
             # Run the audit
             success = auditor.run_audit()
@@ -430,6 +453,7 @@ class NetworkAuditTool:
                 # Create a new auditor in test mode
                 auditor = TelnetAuditor(test_mode=True, jump_host=self.jump_host)
                 auditor.devices = self.devices.copy()
+                auditor.timestamp = self.timestamp  # Use consistent timestamp
                 
                 # Run in test mode
                 success = auditor.run_audit()
@@ -445,8 +469,13 @@ class NetworkAuditTool:
                 return False
             
             # If we got here, the audit was successful (either in real mode or test fallback)
-            auditor.generate_reports()
             self.results['telnet'] = auditor.results
+            
+            # Generate reports unless no_report flag is set
+            if not self.no_report:
+                auditor.generate_reports()
+            else:
+                print(f"{Fore.YELLOW}Skipping individual telnet report generation (--no-report specified){Style.RESET_ALL}")
             
             # Add a note about fallback in the results if it was used
             if fallback_used:
@@ -574,6 +603,10 @@ def main():
                         help="Automatically fall back to test mode if real connections fail (default: enabled)")
     parser.add_argument("--no-fallback", action="store_false", dest="auto_fallback",
                         help="Disable automatic fallback to test mode")
+    parser.add_argument("--timestamp", type=str, 
+                        help="Use specified timestamp for report naming (for consistency across reports)")
+    parser.add_argument("--no-report", action="store_true", 
+                        help="Skip individual module reports and only generate the unified report")
     
     args = parser.parse_args()
     

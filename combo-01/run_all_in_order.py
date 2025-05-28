@@ -22,6 +22,7 @@ import time
 import subprocess
 import argparse
 import platform
+import datetime
 from pathlib import Path
 
 def run_script(script_name, args=None):
@@ -79,13 +80,20 @@ def main():
     csv_path = script_dir / "routers01.csv"  # CSV file in the main directory
     csv_arg = ["--csv", str(csv_path)]
     
-    # Order of execution
+    # Create a timestamp to be used consistently across all scripts
+    current_time = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+    
+    # Add the --no-report flag to the audit scripts to prevent individual reports
+    # This ensures only the final network_audit.py generates the consolidated report
+    no_report_arg = ["--no-report"] if not args.test else []
+    
+    # Order of execution with proper args
     scripts = [
         ("audit_core.py", []),  # Core doesn't take args
-        ("connectivity_audit.py", test_arg + csv_arg),
-        ("security_audit.py", test_arg + csv_arg),
-        ("telnet_audit.py", test_arg + csv_arg),
-        ("network_audit.py", test_arg + csv_arg)
+        ("connectivity_audit.py", test_arg + csv_arg + no_report_arg),
+        ("security_audit.py", test_arg + csv_arg + no_report_arg),
+        ("telnet_audit.py", test_arg + csv_arg + no_report_arg),
+        ("network_audit.py", test_arg + csv_arg + ["-a", "--timestamp", current_time])
     ]
     
     # Run each script in order

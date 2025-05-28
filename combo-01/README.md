@@ -1,6 +1,6 @@
 # Network Audit Tool v3.11
 
-A modular network device audit framework designed for comprehensive network security auditing. This tool combines multiple audit capabilities into a cohesive framework while ensuring each module can operate independently. Fully cross-platform compatible between Windows and Ubuntu systems.
+A modular network device audit framework designed for comprehensive network security auditing. This tool combines multiple audit capabilities into a cohesive framework while ensuring each module can operate independently. Fully cross-platform compatible between Windows and Ubuntu systems with consistent reporting across all modules.
 
 ## Features
 
@@ -9,7 +9,8 @@ A modular network device audit framework designed for comprehensive network secu
 - **Comprehensive Telnet Vulnerability Detection**: Specialized module for identifying telnet-related security issues
 - **Basic Connectivity Testing**: Verify network reachability before deeper security audits
 - **Secure Credential Management**: Built-in encryption for sensitive credentials
-- **Unified Reporting**: Consistent reporting across all audit types
+- **Unified Reporting**: Consistent reporting across all audit types with consolidated summary reports
+- **Synchronized Timestamps**: All audit modules use the same timestamp for consistent report naming and data correlation
 - **Test Mode with Auto-Fallback**: Simulate audit functions without connecting to actual devices, with automatic fallback to test mode when real connections fail
 - **Cross-Platform Compatibility**: Runs seamlessly on both Windows and Ubuntu systems with no code modifications
 - **Portable Deployment**: Self-contained directory structure that can be moved to any location on any machine
@@ -88,7 +89,7 @@ python network_audit.py --csv your_devices.csv
 ### Command-line Options
 
 ```
-usage: network_audit.py [-h] [-a] [-c] [-s] [-n] [-t] [--csv CSV] [-j JUMP_HOST] [--auto-fallback] [--no-fallback]
+usage: network_audit.py [-h] [-a] [-c] [-s] [-n] [-t] [--csv CSV] [-j JUMP_HOST] [--auto-fallback] [--no-fallback] [--timestamp TIMESTAMP] [--no-report]
 
 Network Audit Tool v3.11
 
@@ -100,6 +101,8 @@ options:
                         Jump host IP for accessing devices
   --auto-fallback       Automatically fallback to test mode when real connections fail (default)
   --no-fallback         Disable automatic fallback to test mode
+  --timestamp TIMESTAMP Use specified timestamp for report naming (for consistency across reports)
+  --no-report           Skip individual module reports and only generate the unified report
 
 Audit Types:
   -a, --all             Run all audit types (default)
@@ -112,7 +115,7 @@ Audit Types:
 
 Each module can be run independently:
 
-```
+```bash
 # Run just the connectivity audit
 python connectivity_audit.py --csv your_devices.csv
 
@@ -122,6 +125,25 @@ python security_audit.py --csv your_devices.csv
 # Run just the telnet audit
 python telnet_audit.py --csv your_devices.csv
 ```
+
+### Running All Modules in Sequence
+
+Use the run_all_in_order.py script to run all modules in the correct sequence with consistent reporting:
+
+```bash
+# Run all modules in sequence with consistent reporting
+python run_all_in_order.py --csv your_devices.csv
+
+# Run all modules in test mode
+python run_all_in_order.py --test
+```
+
+The run_all_in_order.py script offers several advantages:
+- Ensures all modules are run in the correct order
+- Uses a consistent timestamp across all reports
+- Generates a single comprehensive report at the end
+- Prevents duplicate individual reports
+- Manages shared resources consistently
 
 ## Device CSV Format
 
@@ -141,7 +163,7 @@ router1,192.168.1.1,cisco_ios,admin,password,enable_pass,Cisco 2901
 switch1,192.168.1.10,cisco_ios,admin,password,enable_pass,Cisco 3560
 ```
 
-## Test Mode and Auto-Fallback
+## Test Mode and Reporting Features
 
 ### Basic Test Mode
 
@@ -166,6 +188,32 @@ This allows the tool to demonstrate functionality even when:
 - SSH/Telnet services are unavailable
 
 The fallback is enabled by default. Use `--no-fallback` to disable it if you want to see actual connection errors.
+
+### Consolidated Reporting
+
+When running all modules together, you can use the `--no-report` flag to skip individual module reports and only generate a unified report at the end:
+
+```bash
+python network_audit.py --csv your_devices.csv --no-report
+```
+
+This is particularly useful when running multiple audit types to avoid duplicate reports with different timestamps.
+
+### Synchronized Timestamps
+
+When running modules separately but wanting consistent report naming, use the `--timestamp` parameter:
+
+```bash
+# Set a timestamp for the first module
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+
+# Use the same timestamp for all modules
+python connectivity_audit.py --csv your_devices.csv --timestamp $TIMESTAMP
+python security_audit.py --csv your_devices.csv --timestamp $TIMESTAMP
+python telnet_audit.py --csv your_devices.csv --timestamp $TIMESTAMP
+```
+
+The run_all_in_order.py script automatically manages timestamp synchronization for you.
 
 ## Output and Reports
 
@@ -231,6 +279,16 @@ with open(file_path, 'r', encoding='utf-8') as f:
     content = f.read()
 ```
 
+### Portable Deployment
+
+The tool is completely self-contained within the combo-01 directory. You can:
+
+1. Copy the entire combo-01 directory to any location on any machine
+2. Run the scripts from that location without any path modifications
+3. Move the directory between Windows and Linux systems seamlessly
+
+No absolute paths are hardcoded, making the tool fully portable.
+
 ## Troubleshooting
 
 ### Common Issues
@@ -248,9 +306,18 @@ with open(file_path, 'r', encoding='utf-8') as f:
    - Windows: Ensure Python is in your PATH environment variable
    - Linux: Ensure proper file permissions with `chmod +x *.py`
 
+4. **Multiple Reports with Different Timestamps**
+   - Use the run_all_in_order.py script to ensure consistent timestamps
+   - Or manually specify `--timestamp` parameter for consistent naming
+   - Use `--no-report` flag with individual modules when running in sequence
+
+5. **'check_ports' Errors**
+   - This typically occurs when the port list is missing or malformed in the CSV
+   - Verify your device CSV has the 'check_ports' column or use test mode
+
 ### Debugging
 
-Check the log files in the `logs` directory for detailed information about any errors.
+Check the log files in the `logs` directory for detailed information about any errors. Each module creates its own log file with a timestamp matching the corresponding report.
 
 ## License
 
