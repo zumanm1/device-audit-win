@@ -1,0 +1,183 @@
+{
+  "audit_metadata": {
+    "version": "v3.0.0-CLI-LITE",
+    "timestamp": "2025-05-28T21:21:49.244279",
+    "audit_start_time": 1748467261.274089,
+    "audit_completion_time": 1748467309.2428958,
+    "duration_seconds": 47.968806743621826,
+    "status": "Completed"
+  },
+  "summary": {
+    "total_devices": 6,
+    "successful_devices": 2,
+    "failed_devices": 4,
+    "telnet_enabled_count": 0,
+    "high_risk_devices": 0
+  },
+  "device_results": {
+    "172.16.39.100": {
+      "device_ip": "172.16.39.100",
+      "hostname": "RTR-CORE-01.xrnet.net",
+      "success": true,
+      "error_message": "",
+      "audit_findings": {
+        "hostname": "R0",
+        "aux_telnet_enabled": false,
+        "vty_telnet_enabled": false,
+        "con_telnet_enabled": false,
+        "telnet_violations": [],
+        "risk_level": "LOW",
+        "compliance_status": "COMPLIANT"
+      },
+      "commands": {
+        "show_line": {
+          "command": "show line",
+          "success": true,
+          "stdout": "   Tty Typ     Tx/Rx    A Modem  Roty AccO AccI   Uses   Noise  Overruns   Int\r\n      0 CTY              -    -      -    -    -      0       0     0/0       -\r\n     97 AUX   9600/9600  -    -      -    -    -      0       0     0/0       -\r\n*    98 VTY              -    -      -    -    -      7       0     0/0       -\r\n     99 VTY              -    -      -    -    -      0       0     0/0       -\r\n    100 VTY              -    -      -    -    -      0       0     0/0       -\r\n    101 VTY              -    -      -    -    -      0       0     0/0       -\r\n    102 VTY              -    -      -    -    -      0       0     0/0       -\r\n    103 VTY              -    -      -    -    -      0       0     0/0       -\r\nLine(s) not in async mode -or- with no hardware support: \r\n1-96\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:08.488709"
+        },
+        "aux_telnet_audit": {
+          "command": "show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout",
+          "success": true,
+          "stdout": "show running-config | include ^hostname|^line aux|^ transport input|^ logi\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b$g-config | include ^hostname|^line aux|^ transport input|^ login         \b\b\b\b\b\b\b\b\b|^ exec-t\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b include ^hostname|^line aux|^ transport input|^ login|^ exec-ti         \b\b\b\b\b\b\b\b\bmeout\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:10.592337"
+        },
+        "vty_telnet_audit": {
+          "command": "show running-config | include ^line vty|^ transport input|^ login|^ exec-timeout",
+          "success": true,
+          "stdout": "hostname R0\r\n login local\r\nline aux 0\r\n login local\r\n transport input ssh\r\n login local\r\nR0#show running-config | include ^line vty|^ transport input|^ login|^ exec-t\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b$g-config | include ^line vty|^ transport input|^ login|^ exec-ti         \b\b\b\b\b\b\b\b\bmeout\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:13.096799"
+        },
+        "con_telnet_audit": {
+          "command": "show running-config | include ^line con|^ transport input|^ login|^ exec-timeout",
+          "success": true,
+          "stdout": " login local\r\nline vty 0 4\r\n login local\r\n transport input ssh\r\nline vty 5\r\n login local\r\nR0#show running-config | include ^line con|^ transport input|^ login|^ exec-t\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b$g-config | include ^line con|^ transport input|^ login|^ exec-ti         \b\b\b\b\b\b\b\b\bmeout\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:15.800293"
+        },
+        "show_version": {
+          "command": "show version",
+          "success": true,
+          "stdout": "line con 0\r\n login local\r\n login local\r\n transport input ssh\r\n login local\r\nCisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(15)T14, RELEASE SOFTWARE (fc2)\r\nTechnical Support: http://www.cisco.com/techsupport\r\nCopyright (c) 1986-2010 by Cisco Systems, Inc.\r\nCompiled Tue 17-Aug-10 12:08 by prod_rel_team\r\nROM: ROMMON Emulation Microcode\r\nROM: 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(15)T14, RELEASE SOFTWARE (fc2)\r\nR0 uptime is 8 hours, 40 minutes\r\nSystem returned to ROM by unknown reload cause - suspect boot_data[BOOT_COUNT] 0x0, BOOT_COUNT 0, BOOTDATA 19\r\nSystem image file is \"tftp://255.255.255.255/unknown\"\r\nThis product contains cryptographic features and is subject to United\r\nStates and local country laws governing import, export, transfer and\r\nuse. Delivery of Cisco cryptographic products does not imply\r\nthird-party authority to import, export, distribute or use encryption.\r\nImporters, exporters, distributors and users are responsible for\r\ncompliance with U.S. and local country laws. By using this product you\r\nagree to comply with applicable laws and regulations. If you are unable\r\nto comply with U.S. and local laws, return this product immediately.\r\nA summary of U.S. laws governing Cisco cryptographic products may be found at:\r\nhttp://www.cisco.com/wwl/export/crypto/tool/stqrg.html\r\nIf you require further assistance please contact us by sending email to\r\nexport@cisco.com.\r\nCisco 3725 (R7000) processor (revision 0.1) with 249856K/12288K bytes of memory.\r\nProcessor board ID FTX0945W0MY\r\nR7000 CPU at 240MHz, Implementation 39, Rev 2.1, 256KB L2, 512KB L3 Cache\r\n2 FastEthernet interfaces\r\nDRAM configuration is 64 bits wide with parity enabled.\r\n55K bytes of NVRAM.\r\n131072K bytes of ATA System CompactFlash (Read/Write)\r\n131072K bytes of ATA Slot0 CompactFlash (Read/Write)\r\nConfiguration register is 0x2102\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:17.903809"
+        },
+        "show_running_config": {
+          "command": "show running-config",
+          "success": true,
+          "stdout": "Building configuration...\r\nCurrent configuration : 1248 bytes\r\n!\r\nversion 12.4\r\nservice timestamps debug datetime msec\r\nservice timestamps log datetime msec\r\nno service password-encryption\r\n!\r\nhostname R0\r\n!\r\nboot-start-marker\r\nboot-end-marker\r\n!\r\n!\r\nno aaa new-model\r\nmemory-size iomem 5\r\nip cef\r\n!\r\n!\r\n!\r\n!\r\nip domain name lab.local\r\n!\r\nmultilink bundle-name authenticated\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\nusername cisco privilege 15 password 0 cisco\r\narchive\r\n log config\r\n  hidekeys\r\n! \r\n!\r\n!\r\n!\r\nip ssh version 2\r\n!\r\n!\r\n!\r\n!\r\ninterface Loopback0\r\n ip address 192.168.200.5 255.255.255.255\r\n!\r\ninterface FastEthernet0/0\r\n ip address 172.16.39.100 255.255.255.0\r\n speed 100\r\n full-duplex\r\n!\r\ninterface FastEthernet0/1\r\n ip address 192.168.200.33 255.255.255.252\r\n shutdown\r\n duplex auto\r\n speed auto\r\n!\r\nrouter ospf 1\r\n log-adjacency-changes\r\n passive-interface default\r\n no passive-interface FastEthernet0/0\r\n no passive-interface FastEthernet0/1\r\n network 172.16.39.0 0.0.0.255 area 0\r\n network 192.168.200.0 0.0.0.255 area 0\r\n!\r\nip forward-protocol nd\r\nip route 0.0.0.0 0.0.0.0 FastEthernet0/0 172.16.39.2\r\n!\r\n!\r\nip http server\r\nno ip http secure-server\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\ncontrol-plane\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\n!\r\nline con 0\r\n privilege level 15\r\n login local\r\nline aux 0\r\nline vty 0 4\r\n privilege level 15\r\n login local\r\n transport input ssh\r\nline vty 5\r\n login local\r\n!\r\n!\r\nend\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:20.209902"
+        }
+      },
+      "timestamp": "2025-05-28T21:21:03.329073"
+    },
+    "172.16.39.101": {
+      "device_ip": "172.16.39.101",
+      "hostname": "RTR-EDGE-02.xrnet.net",
+      "success": true,
+      "error_message": "",
+      "audit_findings": {
+        "hostname": "R1",
+        "aux_telnet_enabled": false,
+        "vty_telnet_enabled": false,
+        "con_telnet_enabled": false,
+        "telnet_violations": [],
+        "risk_level": "LOW",
+        "compliance_status": "COMPLIANT"
+      },
+      "commands": {
+        "show_line": {
+          "command": "show line",
+          "success": true,
+          "stdout": "   Tty Typ     Tx/Rx    A Modem  Roty AccO AccI   Uses   Noise  Overruns   Int\r\n      0 CTY              -    -      -    -    -      0       0     0/0       -\r\n     97 AUX   9600/9600  -    -      -    -    -      0       0     0/0       -\r\n*    98 VTY              -    -      -    -    -      7       0     0/0       -\r\n     99 VTY              -    -      -    -    -      0       0     0/0       -\r\n    100 VTY              -    -      -    -    -      0       0     0/0       -\r\n    101 VTY              -    -      -    -    -      0       0     0/0       -\r\n    102 VTY              -    -      -    -    -      0       0     0/0       -\r\n    103 VTY              -    -      -    -    -      0       0     0/0       -\r\nLine(s) not in async mode -or- with no hardware support: \r\n1-96\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:25.893888"
+        },
+        "aux_telnet_audit": {
+          "command": "show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout",
+          "success": true,
+          "stdout": "show running-config | include ^hostname|^line aux|^ transport input|^ logi\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b$g-config | include ^hostname|^line aux|^ transport input|^ login         \b\b\b\b\b\b\b\b\b|^ exec-t\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b include ^hostname|^line aux|^ transport input|^ login|^ exec-ti         \b\b\b\b\b\b\b\b\bmeout\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:27.996628"
+        },
+        "vty_telnet_audit": {
+          "command": "show running-config | include ^line vty|^ transport input|^ login|^ exec-timeout",
+          "success": true,
+          "stdout": "hostname R1\r\n login local\r\nline aux 0\r\n login local\r\n transport input ssh\r\n login local\r\nR1#show running-config | include ^line vty|^ transport input|^ login|^ exec-t\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b$g-config | include ^line vty|^ transport input|^ login|^ exec-ti         \b\b\b\b\b\b\b\b\bmeout\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:30.099798"
+        },
+        "con_telnet_audit": {
+          "command": "show running-config | include ^line con|^ transport input|^ login|^ exec-timeout",
+          "success": true,
+          "stdout": " login local\r\nline vty 0 4\r\n login local\r\n transport input ssh\r\nline vty 5\r\n login local\r\nR1#show running-config | include ^line con|^ transport input|^ login|^ exec-t\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b$g-config | include ^line con|^ transport input|^ login|^ exec-ti         \b\b\b\b\b\b\b\b\bmeout\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:32.704962"
+        },
+        "show_version": {
+          "command": "show version",
+          "success": true,
+          "stdout": "line con 0\r\n login local\r\n login local\r\n transport input ssh\r\n login local\r\nCisco IOS Software, 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(15)T14, RELEASE SOFTWARE (fc2)\r\nTechnical Support: http://www.cisco.com/techsupport\r\nCopyright (c) 1986-2010 by Cisco Systems, Inc.\r\nCompiled Tue 17-Aug-10 12:08 by prod_rel_team\r\nROM: ROMMON Emulation Microcode\r\nROM: 3700 Software (C3725-ADVENTERPRISEK9-M), Version 12.4(15)T14, RELEASE SOFTWARE (fc2)\r\nR1 uptime is 8 hours, 41 minutes\r\nSystem returned to ROM by unknown reload cause - suspect boot_data[BOOT_COUNT] 0x0, BOOT_COUNT 0, BOOTDATA 19\r\nSystem image file is \"tftp://255.255.255.255/unknown\"\r\nThis product contains cryptographic features and is subject to United\r\nStates and local country laws governing import, export, transfer and\r\nuse. Delivery of Cisco cryptographic products does not imply\r\nthird-party authority to import, export, distribute or use encryption.\r\nImporters, exporters, distributors and users are responsible for\r\ncompliance with U.S. and local country laws. By using this product you\r\nagree to comply with applicable laws and regulations. If you are unable\r\nto comply with U.S. and local laws, return this product immediately.\r\nA summary of U.S. laws governing Cisco cryptographic products may be found at:\r\nhttp://www.cisco.com/wwl/export/crypto/tool/stqrg.html\r\nIf you require further assistance please contact us by sending email to\r\nexport@cisco.com.\r\nCisco 3725 (R7000) processor (revision 0.1) with 249856K/12288K bytes of memory.\r\nProcessor board ID FTX0945W0MY\r\nR7000 CPU at 240MHz, Implementation 39, Rev 2.1, 256KB L2, 512KB L3 Cache\r\n2 FastEthernet interfaces\r\nDRAM configuration is 64 bits wide with parity enabled.\r\n55K bytes of NVRAM.\r\n131072K bytes of ATA System CompactFlash (Read/Write)\r\n131072K bytes of ATA Slot0 CompactFlash (Read/Write)\r\nConfiguration register is 0x2102\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:34.807844"
+        },
+        "show_running_config": {
+          "command": "show running-config",
+          "success": true,
+          "stdout": "Building configuration...\r",
+          "stderr": "",
+          "timestamp": "2025-05-28T21:21:36.910580"
+        }
+      },
+      "timestamp": "2025-05-28T21:21:20.724520"
+    },
+    "172.16.39.102": {
+      "device_ip": "172.16.39.102",
+      "hostname": "RTR-BRANCH-03.xrnet.net",
+      "success": false,
+      "error_message": "Failed to connect to device 172.16.39.102",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T21:21:36.912474"
+    },
+    "172.16.39.103": {
+      "device_ip": "172.16.39.103",
+      "hostname": "RTR-BRANCH-04.xrnet.net",
+      "success": false,
+      "error_message": "Failed to connect to device 172.16.39.103",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T21:21:40.028536"
+    },
+    "172.16.39.104": {
+      "device_ip": "172.16.39.104",
+      "hostname": "RTR-BRANCH-05.xrnet.net",
+      "success": false,
+      "error_message": "Failed to connect to device 172.16.39.104",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T21:21:43.102471"
+    },
+    "172.16.39.105": {
+      "device_ip": "172.16.39.105",
+      "hostname": "RTR-BRANCH-06.xrnet.net",
+      "success": false,
+      "error_message": "Failed to connect to device 172.16.39.105",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T21:21:46.174927"
+    }
+  },
+  "configuration": {
+    "jump_host": "172.16.39.128",
+    "jump_username": "root",
+    "jump_password": "e*e",
+    "device_username": "cisco",
+    "device_password": "c***o",
+    "inventory_file": "routers01.csv"
+  }
+}

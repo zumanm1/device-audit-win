@@ -1,0 +1,54 @@
+{
+  "audit_metadata": {
+    "version": "v3.0.0-CLI-LITE",
+    "timestamp": "2025-05-28T20:11:28.567017",
+    "audit_start_time": 1748463028.2033536,
+    "audit_completion_time": 1748463088.565794,
+    "duration_seconds": 60.36244034767151,
+    "status": "Interrupted"
+  },
+  "summary": {
+    "total_devices": 3,
+    "successful_devices": 0,
+    "failed_devices": 3,
+    "telnet_enabled_count": 0,
+    "high_risk_devices": 0
+  },
+  "device_results": {
+    "192.168.1.1": {
+      "device_ip": "192.168.1.1",
+      "hostname": "Router-01",
+      "success": false,
+      "error_message": "Failed to connect to device 192.168.1.1",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T20:10:30.463070"
+    },
+    "192.168.1.2": {
+      "device_ip": "192.168.1.2",
+      "hostname": "Switch-01",
+      "success": false,
+      "error_message": "Failed to connect to device 192.168.1.2",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T20:10:49.862365"
+    },
+    "192.168.1.3": {
+      "device_ip": "192.168.1.3",
+      "hostname": "Router-02",
+      "success": false,
+      "error_message": "Failed to connect to device 192.168.1.3",
+      "audit_findings": {},
+      "commands": {},
+      "timestamp": "2025-05-28T20:11:09.163976"
+    }
+  },
+  "configuration": {
+    "jump_host": "172.16.39.128",
+    "jump_username": "root",
+    "jump_password": "e*e",
+    "device_username": "cisco",
+    "device_password": "c***o",
+    "inventory_file": "inventories/test_sample.csv"
+  }
+}

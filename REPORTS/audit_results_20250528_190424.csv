@@ -1,0 +1,7 @@
+device_ip,hostname,success,timestamp,aux_telnet_enabled,vty_telnet_enabled,con_telnet_enabled,telnet_violations_count,risk_level,compliance_status,error_message
+172.16.39.100,RTR-CORE-01.xrnet.net,True,2025-05-28T19:03:39.162523,False,False,False,0,LOW,COMPLIANT,
+172.16.39.101,RTR-EDGE-02.xrnet.net,True,2025-05-28T19:03:56.246491,False,False,False,0,LOW,COMPLIANT,
+172.16.39.102,RTR-BRANCH-03.xrnet.net,False,2025-05-28T19:04:12.635785,False,False,False,0,UNKNOWN,UNKNOWN,Failed to connect to device 172.16.39.102
+172.16.39.103,RTR-BRANCH-04.xrnet.net,False,2025-05-28T19:04:15.771881,False,False,False,0,UNKNOWN,UNKNOWN,Failed to connect to device 172.16.39.103
+172.16.39.104,RTR-BRANCH-05.xrnet.net,False,2025-05-28T19:04:18.846823,False,False,False,0,UNKNOWN,UNKNOWN,Failed to connect to device 172.16.39.104
+172.16.39.105,RTR-BRANCH-06.xrnet.net,False,2025-05-28T19:04:21.914371,False,False,False,0,UNKNOWN,UNKNOWN,Failed to connect to device 172.16.39.105

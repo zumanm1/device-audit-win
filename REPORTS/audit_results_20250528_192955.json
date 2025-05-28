@@ -1,0 +1,26 @@
+{
+  "audit_metadata": {
+    "version": "v3.0.0-CLI-LITE",
+    "timestamp": "2025-05-28T19:29:55.615375",
+    "audit_start_time": 1748460594.0456903,
+    "audit_completion_time": 1748460595.614275,
+    "duration_seconds": 1.568584680557251,
+    "status": "Interrupted"
+  },
+  "summary": {
+    "total_devices": 6,
+    "successful_devices": 0,
+    "failed_devices": 0,
+    "telnet_enabled_count": 0,
+    "high_risk_devices": 0
+  },
+  "device_results": {},
+  "configuration": {
+    "jump_host": "172.16.39.128",
+    "jump_username": "root",
+    "jump_password": "e*e",
+    "device_username": "cisco",
+    "device_password": "c***o",
+    "inventory_file": "routers01.csv"
+  }
+}

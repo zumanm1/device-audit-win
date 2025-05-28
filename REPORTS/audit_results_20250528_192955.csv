@@ -1,0 +1,1 @@
+device_ip,hostname,success,timestamp,aux_telnet_enabled,vty_telnet_enabled,con_telnet_enabled,telnet_violations_count,risk_level,compliance_status,error_message
