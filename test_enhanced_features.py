@@ -95,7 +95,7 @@ def test_password_masking():
     
     if all_passed:
         print("✅ Password masking tests passed")
-    else:
+            else:
         print("❌ Some password masking tests failed")
     
     return all_passed
@@ -167,7 +167,7 @@ def test_validation_functions():
     all_passed = ip_tests_passed and hostname_tests_passed and port_tests_passed
     if all_passed:
         print("✅ All validation tests passed")
-    else:
+                    else:
         print("❌ Some validation tests failed")
     
     return all_passed
@@ -195,7 +195,7 @@ def test_error_handling():
     
     if all_passed:
         print("✅ Error handling tests passed")
-    else:
+                else:
         print("❌ Some error handling tests failed")
     
     return all_passed
@@ -226,7 +226,7 @@ def test_system_resources():
             print("  ⚠️ System warnings:")
             for warning in resources['warnings']:
                 print(f"    - {warning}")
-        else:
+            else:
             print("  ✅ System resources OK")
             
         if 'cpu_percent' in resources:
@@ -296,8 +296,8 @@ def test_performance():
     print(f"  IP validation (1000 calls): {ip_time:.3f}s")
     
     print("✅ Performance tests completed")
-    return True
-
+            return True
+            
 def create_test_env_file():
     """Create a test .env-t file for testing"""
     print("\n📄 Creating test .env-t file...")
@@ -332,14 +332,14 @@ def cleanup_test_files():
                 print(f"  Removed: {file}")
         except Exception as e:
             print(f"  Failed to remove {file}: {e}")
-
+    
 def main():
-    """Run all tests"""
+        """Run all tests"""
     print("🧪 NetAuditPro CLI Lite - Comprehensive Enhanced Features Test Suite")
     print("=" * 80)
-    
-    test_results = []
-    
+        
+        test_results = []
+        
     try:
         # Run all tests
         test_results.append(("Imports", test_imports()))

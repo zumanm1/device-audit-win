@@ -1,0 +1,52 @@
+{
+  "run_id": "collector-run-20250529-133121",
+  "timestamp": "2025-05-29 13:31:47",
+  "summary": {
+    "total_devices": 3,
+    "completed_devices": 1,
+    "failed_devices": 2,
+    "device_completion_rate": 33.33333333333333,
+    "task_completion_rate": 0.0,
+    "elapsed_time": 25.09212327003479,
+    "is_running": false
+  },
+  "device_results": {
+    "R0": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R3": {
+      "success_count": 0,
+      "failure_count": 1,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": false,
+          "duration": 0.0,
+          "error": "Unknown error"
+        }
+      ]
+    },
+    "R7": {
+      "success_count": 0,
+      "failure_count": 1,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": false,
+          "duration": 0.0,
+          "error": "Unknown error"
+        }
+      ]
+    }
+  },
+  "layer_summary": {}
+}

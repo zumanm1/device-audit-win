@@ -1,0 +1,444 @@
+PRODUCT REQUIREMENTS DOCUMENT (PRD)
+====================================
+Project: RR4 Complete Enhanced v4 CLI - Network State Collector
+Document Version: 1.0
+Created: 2025-01-27
+Author: AI Assistant (Based on Unified Requirements)
+
+1. EXECUTIVE SUMMARY
+===================
+This document outlines requirements for an automated, read-only, CLI-based network state 
+collection system for IP-MPLS networks with Cisco IOS, IOS XE, and IOS XR devices. 
+The system leverages Nornir for concurrent task execution, Netmiko for CLI transport, 
+and pyATS/Genie for structured data parsing.
+
+Primary Goal: Build a comprehensive knowledge base of network configuration and 
+operational state through automated data collection, reducing manual effort by 95%.
+
+Key Features:
+- CLI-only operation (no web interface)
+- Multi-threaded concurrent device access
+- Raw text + structured JSON output
+- Hierarchical file organization
+- Jump host connectivity support
+- Scalable architecture for IOS XE/XR expansion
+
+2. BUSINESS OBJECTIVES
+=====================
+G-1 (Primary): Automate Network State Collection
+    - Reduce manual data gathering effort by ≥95%
+    - Enable consistent, repeatable collection processes
+
+G-2 (Coverage): Comprehensive Layer Coverage
+    - Health monitoring (CPU, memory, environment)
+    - Interface/Ethernet/IPv4 configuration and status
+    - IGP (OSPF, IS-IS) topology and database
+    - MPLS (LDP, forwarding, traffic engineering)
+    - BGP (global, MP-BGP, VPNv4/v6)
+    - L3VPN (VRF definitions, routing tables)
+    - L2VPN (xconnect, bridge-domains)
+    - Static routing and policy configuration
+
+G-3 (Data Quality): Structured Data Accuracy
+    - >99% structured parsing success for targeted commands
+    - Both raw text and JSON structured output
+    - Automatic compression for large datasets
+
+G-4 (Performance): Scale and Efficiency
+    - 100+ devices within 60 minutes
+    - Target: 300 routers ≤10 minutes (optimal hardware)
+    - <5% CPU impact on target devices
+    - Configurable concurrency limits
+
+G-5 (Reliability): Robust Operation
+    - >99% successful collection runs
+    - Comprehensive error handling and retry logic
+    - Graceful failure with detailed reporting
+
+G-6 (Security): Secure Operations
+    - No credential storage in code/output
+    - Encrypted SSH connections
+    - Audit logging of all operations
+
+3. TECHNICAL ARCHITECTURE
+=========================
+
+3.1 Technology Stack
+-------------------
+- Orchestration: Nornir 3.x (inventory, threading, task management)
+- Connectivity: Netmiko (SSH connections, command execution)
+- Parsing: pyATS/Genie (structured data conversion)
+- Language: Python 3.8+
+- Configuration: YAML-based inventory and settings
+- Storage: File-based (text, gzipped, JSON)
+
+3.2 Project Structure
+--------------------
+rr4-complete-enchanced-v4-cli/
+├── rr4-complete-enchanced-v4-cli.py          # Main CLI script
+├── core/                                      # Core modules
+│   ├── __init__.py
+│   ├── inventory_loader.py                   # Nornir inventory management
+│   ├── connection_manager.py                 # SSH connection handling
+│   ├── task_executor.py                      # Nornir task execution
+│   ├── data_parser.py                        # pyATS/Genie integration
+│   ├── output_handler.py                     # File I/O and compression
+│   └── credential_manager.py                 # Secure credential handling
+├── tasks/                                     # Layer-specific collectors
+│   ├── __init__.py
+│   ├── health_collector.py                   # System health commands
+│   ├── interface_collector.py                # Interface/IP commands
+│   ├── igp_collector.py                      # OSPF/IS-IS commands
+│   ├── mpls_collector.py                     # MPLS/LDP commands
+│   ├── bgp_collector.py                      # BGP commands
+│   ├── vpn_collector.py                      # L2VPN/L3VPN commands
+│   └── static_route_collector.py             # Static routing
+├── config/                                    # Configuration files
+│   ├── nornir_config.yaml                    # Nornir configuration
+│   ├── inventory/                             # Device inventory
+│   │   ├── hosts.yaml                        # Device definitions
+│   │   └── groups.yaml                       # Device groups
+│   ├── commands/                              # Command templates
+│   │   ├── ios_commands.yaml                 # IOS command sets
+│   │   ├── iosxe_commands.yaml               # IOS XE command sets
+│   │   └── iosxr_commands.yaml               # IOS XR command sets
+│   └── settings.yaml                         # Global settings
+├── output/                                    # Collection output
+│   └── collector-run-YYYYMMDD-HHMMSS/        # Timestamped runs
+│       └── ROUTER_HOSTNAME/                  # Per-device folders
+│           ├── health/                        # Layer-based organization
+│           ├── interfaces/
+│           ├── igp/
+│           ├── mpls/
+│           ├── bgp/
+│           ├── vpn/
+│           └── static/
+├── logs/                                      # Application logs
+├── requirements.txt                           # Python dependencies
+└── README.md                                 # Documentation
+
+3.3 Data Flow
+-------------
+1. Initialization: Load configuration, inventory, and command templates
+2. Credential Loading: Secure credential retrieval from .env-t
+3. Inventory Processing: Parse routers01.csv and create Nornir inventory
+4. Task Orchestration: Dispatch collection tasks via Nornir threading
+5. Device Connection: Establish SSH via jump host using Netmiko
+6. Command Execution: Execute platform-specific command sets
+7. Data Collection: Capture raw CLI output
+8. Data Parsing: Process with pyATS/Genie for structured data
+9. Data Storage: Save raw text and JSON to hierarchical folders
+10. Compression: Gzip large files (BGP tables, etc.)
+11. Logging: Record execution status and performance metrics
+
+4. FUNCTIONAL REQUIREMENTS
+==========================
+
+FR1: Inventory Management
+------------------------
+FR1.1: CSV Inventory Processing
+- Parse routers01.csv for device definitions
+- Support columns: hostname, ip_address, platform, username, password
+- Auto-detect platform types (ios, iosxe, iosxr)
+- Generate Nornir inventory dynamically
+
+FR1.2: Jump Host Integration
+- Use .env-t file for jump host credentials
+- Support SSH tunneling through jump host
+- Maintain persistent jump host connections
+
+FR1.3: Credential Security
+- Load credentials from environment variables
+- No credential storage in code or output files
+- Support for per-device credential overrides
+
+FR2: Data Collection
+-------------------
+FR2.1: SSH Connectivity
+- SSHv2 connections via Netmiko
+- Jump host proxy support
+- Connection pooling and reuse
+- Configurable timeouts and retries
+
+FR2.2: Command Execution
+- Platform-specific command sets
+- Session preamble (terminal length 0, etc.)
+- Large output handling (BGP tables)
+- Command timeout management
+
+FR2.3: Layer Coverage
+- Health: version, platform, CPU, memory, environment
+- Interfaces: descriptions, status, IP config, ARP, LLDP/CDP
+- IGP: OSPF/IS-IS processes, neighbors, database
+- MPLS: LDP discovery/neighbors/bindings, LFIB, TE tunnels
+- BGP: summary, neighbors, full tables (IPv4/IPv6)
+- MP-BGP: VPNv4/v6 summary, neighbors, tables
+- L3VPN: VRF definitions, per-VRF routing/CEF
+- L2VPN: xconnect, bridge-domains, service instances
+- Static: global and per-VRF static routes
+- Policy: route-maps, prefix-lists, community-sets
+
+FR3: Data Processing
+-------------------
+FR3.1: Raw Output Storage
+- Save unmodified CLI output to text files
+- Preserve original formatting and content
+- Automatic file naming based on command
+
+FR3.2: Structured Parsing
+- pyATS/Genie parsing for supported commands
+- JSON output for structured data
+- Graceful handling of parsing failures
+- Fallback to raw text for unsupported commands
+
+FR3.3: Data Compression
+- Automatic gzip for files >1MB
+- Configurable compression thresholds
+- Preserve both compressed and metadata
+
+FR4: Output Organization
+-----------------------
+FR4.1: Directory Structure
+- Timestamped collection runs
+- Per-device subdirectories
+- Layer-based command organization
+- Consistent file naming conventions
+
+FR4.2: File Management
+- Raw text files (.txt)
+- Structured data files (.json)
+- Compressed files (.txt.gz)
+- Metadata and execution logs
+
+FR4.3: Data Retention
+- Configurable retention policies
+- Automatic cleanup of old collections
+- Archive and backup capabilities
+
+FR5: Error Handling
+------------------
+FR5.1: Connection Errors
+- SSH connection failures
+- Authentication errors
+- Network connectivity issues
+- Jump host proxy failures
+
+FR5.2: Command Errors
+- Command execution timeouts
+- Invalid command responses
+- Device-specific error handling
+- Partial collection recovery
+
+FR5.3: Parsing Errors
+- Genie parser failures
+- Malformed output handling
+- Version compatibility issues
+- Graceful degradation to raw text
+
+5. NON-FUNCTIONAL REQUIREMENTS
+==============================
+
+NFR1: Performance
+----------------
+- Concurrent Connections: 10-15 simultaneous (configurable)
+- Collection Time: <60 min for 100 devices (target: 300 in ≤10 min)
+- Memory Usage: <8GB RAM for 100 device collection
+- Device Impact: <5% CPU utilization on targets
+- Command Timeout: 30-60 seconds (configurable, longer for BGP)
+
+NFR2: Security
+--------------
+- No credential storage in code/output
+- SSHv2 with strong ciphers/MACs
+- Audit logging of all operations
+- Sensitive data redaction in logs
+- Secure jump host proxy handling
+
+NFR3: Reliability
+----------------
+- >99% successful collection rate
+- Comprehensive error reporting
+- Retry mechanisms with exponential backoff
+- Graceful failure handling
+- Continue on individual device/command failures
+
+NFR4: Maintainability
+--------------------
+- Modular, well-documented code
+- PEP8 compliance
+- External configuration files
+- Easy command set expansion
+- Platform-agnostic design for future OS support
+
+NFR5: Usability
+--------------
+- Clear CLI interface with options
+- Intuitive output directory structure
+- Comprehensive logging and status reporting
+- Progress indicators during collection
+- Detailed error messages and troubleshooting
+
+6. COMMAND REFERENCE
+===================
+
+6.1 Health Layer Commands
+-------------------------
+IOS/IOS XE:
+- show version
+- show inventory
+- show processes cpu history
+- show memory summary
+- show environment all
+- show logging
+
+IOS XR:
+- show version
+- show platform
+- show inventory
+- show processes cpu history
+- show memory summary detail
+- show environment all
+- show logging last 1000
+
+6.2 Interface Layer Commands
+---------------------------
+IOS/IOS XE:
+- show interfaces description
+- show ip interface brief
+- show ipv6 interface brief
+- show interfaces detail
+- show ip interface
+- show ipv6 interface
+- show arp
+- show ipv6 neighbors
+- show lldp neighbors detail
+- show cdp neighbors detail
+
+IOS XR:
+- show interfaces description
+- show ipv4 interface brief
+- show ipv6 interface brief
+- show interfaces detail
+- show ipv4 interface
+- show ipv6 interface
+- show arp detail location all
+- show ipv6 neighbors detail
+- show lldp neighbors detail
+- show cdp neighbors detail
+
+6.3 IGP Layer Commands
+---------------------
+OSPF (IOS/IOS XE):
+- show ip ospf
+- show ip ospf interface brief
+- show ip ospf neighbor detail
+- show ip ospf database summary
+
+OSPF (IOS XR):
+- show ospf
+- show ospf interface brief
+- show ospf neighbor detail
+- show ospf database summary
+
+6.4 MPLS Layer Commands
+----------------------
+IOS/IOS XE:
+- show mpls interfaces detail
+- show mpls ldp discovery
+- show mpls ldp neighbor detail
+- show mpls ldp bindings detail
+- show mpls forwarding-table detail
+- show ip cef summary
+
+IOS XR:
+- show mpls interfaces detail
+- show mpls ldp discovery all-instances
+- show mpls ldp neighbor detail all-instances
+- show mpls ldp bindings detail local-label all-instances
+- show mpls forwarding detail
+- show cef summary
+
+6.5 BGP Layer Commands
+---------------------
+IOS/IOS XE:
+- show ip bgp summary
+- show ip bgp neighbors
+- show ip bgp
+- show bgp vpnv4 unicast summary
+- show bgp vpnv4 unicast all
+
+IOS XR:
+- show bgp instance all summary
+- show bgp ipv4 unicast summary
+- show bgp ipv4 unicast neighbors
+- show bgp ipv4 unicast
+- show bgp vpnv4 unicast summary
+- show bgp vpnv4 unicast
+
+6.6 VPN Layer Commands
+---------------------
+L3VPN (IOS/IOS XE):
+- show vrf detail
+- show ip route vrf <vrf-name>
+- show ip cef vrf <vrf-name>
+- show ip bgp vpnv4 vrf <vrf-name>
+
+L3VPN (IOS XR):
+- show vrf all detail
+- show route vrf <vrf-name>
+- show cef vrf <vrf-name> detail
+- show bgp vpnv4 unicast vrf <vrf-name>
+
+L2VPN (IOS XR):
+- show l2vpn summary
+- show l2vpn xconnect detail
+- show l2vpn bridge-domain detail
+
+7. SUCCESS METRICS
+==================
+- End-to-end runtime (100 routers): ≤60 minutes
+- Data collection failure rate: <0.5% per command
+- Genie parser coverage: ≥95% for targeted commands
+- Device CPU impact: <5% sustained utilization
+- Structured data accuracy: >99.9% for parsed commands
+- System reliability: >99% successful runs
+
+8. ASSUMPTIONS & CONSTRAINTS
+============================
+- Jump-host: Linux x86_64, Python 3.8+, adequate resources
+- Target devices: Cisco IOS/IOS XE/IOS XR (2019-2024) with SSHv2
+- Connectivity: Reliable IP connectivity from jump-host to targets
+- Authentication: TACACS+ or local AAA supporting SSH
+- BGP tables: Max ~1M lines, gzip compression ~90% reduction
+- CSV format: Standard routers01.csv with required columns
+
+9. RISKS & MITIGATION
+=====================
+R1: Genie Parser Limitations
+- Risk: Missing/immature parsers for critical commands
+- Mitigation: TextFSM fallback, contribute to Genie community
+
+R2: SSH Rate Limiting
+- Risk: Device rate limiting during concurrent collection
+- Mitigation: Configurable concurrency, retry with backoff
+
+R3: Large Dataset Handling
+- Risk: Memory issues with large BGP tables
+- Mitigation: Streaming to compressed files, line-by-line processing
+
+R4: Platform Variations
+- Risk: Command/output differences across OS versions
+- Mitigation: Extensive testing, flexible command templates
+
+R5: Jump Host Dependencies
+- Risk: Single point of failure for connectivity
+- Mitigation: Connection pooling, robust error handling
+
+10. FUTURE ENHANCEMENTS
+======================
+- Support for additional platforms (Juniper, Arista)
+- Real-time streaming telemetry integration
+- Advanced analytics and anomaly detection
+- Integration with network automation frameworks
+- REST API for programmatic access
+- Database backend for historical analysis 

@@ -1,0 +1,28 @@
+{
+  "run_id": "collector-run-20250529-132433",
+  "timestamp": "2025-05-29 13:25:04",
+  "summary": {
+    "total_devices": 1,
+    "completed_devices": 1,
+    "failed_devices": 0,
+    "device_completion_rate": 100.0,
+    "task_completion_rate": 0.0,
+    "elapsed_time": 30.031495094299316,
+    "is_running": false
+  },
+  "device_results": {
+    "R0": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    }
+  },
+  "layer_summary": {}
+}
