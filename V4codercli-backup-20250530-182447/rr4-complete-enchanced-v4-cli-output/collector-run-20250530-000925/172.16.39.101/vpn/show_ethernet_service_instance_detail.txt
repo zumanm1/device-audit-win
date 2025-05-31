@@ -1,0 +1,3 @@
+show ethernet service instance detail
+          ^
+% Invalid input detected at '^' marker.

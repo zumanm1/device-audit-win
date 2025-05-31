@@ -1,0 +1,50 @@
+RP/0/0/CPU0:R7#show bgp summary
+Thu May 29 21:56:15.456 UTC
+
+BGP router identifier 7.7.7.7, local AS number 65007
+BGP generic scan interval 60 secs
+Non-stop routing is enabled
+BGP table state: Active
+Table ID: 0xe0000000   RD version: 156
+BGP main routing table version 156
+BGP NSR Initial initsync version 145 (Reached)
+BGP NSR/ISSU Sync-Group versions 0/0
+BGP scan interval 60 secs
+
+          Network            Next Hop            Metric LocPrf Weight Path
+* i7.7.7.7/32          7.7.7.7                      0    100      0 i
+*>i10.7.100.0/24      0.0.0.0                      0    100  32768 i
+
+Neighbor        Spk    AS MsgRcvd MsgSent   TblVer  InQ OutQ  Up/Down  St/PfxRcd
+172.16.39.100     0 65000   67890   67789      156    0    0 3d08h        25
+172.16.39.106     0 65006   45123   45234      156    0    0 2d14h        18
+
+RP/0/0/CPU0:R7#show running-config router bgp
+Thu May 29 21:56:25.789 UTC
+
+router bgp 65007
+ bgp router-id 7.7.7.7
+ bgp graceful-restart
+ address-family ipv4 unicast
+  network 7.7.7.7/32
+  network 10.7.100.0/24
+ !
+ address-family vpnv4 unicast
+ !
+ neighbor 172.16.39.100
+  remote-as 65000
+  description Core_MPLS_PE_Router
+  address-family ipv4 unicast
+   soft-reconfiguration inbound always
+  !
+  address-family vpnv4 unicast
+  !
+ !
+ neighbor 172.16.39.106
+  remote-as 65006
+  description Peer_PE_Router_R6
+  address-family ipv4 unicast
+   soft-reconfiguration inbound always
+  !
+  address-family vpnv4 unicast
+  ! 

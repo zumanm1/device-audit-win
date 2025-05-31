@@ -1,0 +1,29 @@
+R5#show ip bgp summary
+BGP router identifier 5.5.5.5, local AS number 65005
+BGP table version is 23, main routing table version 23
+14 network entries using 2016 bytes of memory
+18 path entries using 1152 bytes of memory
+5/4 BGP path/bestpath attribute entries using 640 bytes of memory
+3 BGP AS-PATH entries using 72 bytes of memory
+0 BGP route-map cache entries using 0 bytes of memory
+0 BGP filter-list cache entries using 0 bytes of memory
+BGP using 3880 total bytes of memory
+BGP activity 28/14 prefixes, 42/24 paths, scan interval 60 secs
+
+Neighbor        V           AS MsgRcvd MsgSent   TblVer  InQ OutQ Up/Down  State/PfxRcd
+172.16.39.100   4        65000   45234   45123       23    0    0 2d04h          12
+172.16.39.101   4        65001   23456   23445       23    0    0 1d12h           8
+
+R5#show running-config | section router bgp
+router bgp 65005
+ bgp router-id 5.5.5.5
+ bgp log-neighbor-changes
+ network 5.5.5.5 mask 255.255.255.255
+ network 10.5.1.0 mask 255.255.255.0
+ network 10.5.2.0 mask 255.255.255.0
+ neighbor 172.16.39.100 remote-as 65000
+ neighbor 172.16.39.100 description Core_Router_R0
+ neighbor 172.16.39.100 soft-reconfiguration inbound
+ neighbor 172.16.39.101 remote-as 65001
+ neighbor 172.16.39.101 description Edge_Router_R1
+ neighbor 172.16.39.101 soft-reconfiguration inbound 

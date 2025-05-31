@@ -1,0 +1,6 @@
+Flags:  D - down        P - in port-channel
+        I - stand-alone s - suspended
+        R - Layer3      S - Layer2
+        U - in use
+Group Port-channel  Ports
+-----+------------+-----------------------------------------------------------

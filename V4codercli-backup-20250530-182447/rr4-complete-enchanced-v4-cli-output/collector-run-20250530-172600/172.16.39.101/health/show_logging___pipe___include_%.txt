@@ -1,0 +1,36 @@
+*May 30 17:06:51.571: %AAAA-4-CLI_DEPRECATED: WARNING: Command has been added to the configuration using a type 5 password. However, type 5 passwords will soon be deprecated. Migrate to a supported password type
+*May 30 17:06:51.987: %LINEPROTO-5-UPDOWN: Line protocol on Interface Loopback0, changed state to up
+*May 30 17:06:53.546: %LINK-5-CHANGED: Interface GigabitEthernet5, changed state to administratively down
+*May 30 17:06:53.877: %OSPF-6-DFT_OPT: Protocol timers for fast convergence are Enabled.
+*May 30 17:06:54.074: %SYS-5-CONFIG_I: Configured from memory by console
+*May 30 17:06:54.826: %IOSXE_OIR-6-INSCARD: Card (rp) inserted in slot R1
+*May 30 17:06:54.834: %IOSXE_OIR-6-INSCARD: Card (fp) inserted in slot F0
+*May 30 17:06:54.834: %IOSXE_OIR-6-ONLINECARD: Card (fp) online in slot F0
+*May 30 17:06:56.654: %LINK-5-CHANGED: Interface GigabitEthernet8, changed state to administratively down
+*May 30 17:06:56.743: %LINK-3-UPDOWN: Interface GigabitEthernet4, changed state to up
+*May 30 17:06:56.828: %LINK-3-UPDOWN: Interface GigabitEthernet3, changed state to up
+*May 30 17:06:56.884: %LINK-3-UPDOWN: Interface GigabitEthernet6, changed state to up
+*May 30 17:06:59.740: %LINK-5-CHANGED: Interface GigabitEthernet7, changed state to administratively down
+*May 30 17:06:59.768: %LINK-3-UPDOWN: Interface GigabitEthernet1, changed state to up
+*May 30 17:06:59.786: %LINK-3-UPDOWN: Interface GigabitEthernet2, changed state to up
+*May 30 17:06:59.814: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet5, changed state to down
+*May 30 17:06:59.820: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet8, changed state to down
+*May 30 17:07:01.083: %LINEPROTO-5-UPDOWN: Line protocol on Interface GigabitEthernet7, changed state to down
+*May 30 17:07:01.139: %SYS-5-RESTART: System restarted --
+*May 30 17:07:01.333: %SSH-5-ENABLED: SSH 2.0 has been enabled
+*May 30 17:07:01.701: %CRYPTO-6-ISAKMP_ON_OFF: ISAKMP is OFF
+*May 30 17:07:01.706: %CRYPTO-6-GDOI_ON_OFF: GDOI is OFF
+*May 30 17:07:07.234: %PNP-6-PNP_DISCOVERY_STOPPED: PnP Discovery stopped (Startup Config Present)
+*May 30 17:07:12.277: %OSPF-5-ADJCHG: Process 1, Nbr 192.168.100.104 on GigabitEthernet1 from LOADING to FULL, Loading Done
+*May 30 17:07:12.278: %OSPF-5-ADJCHG: Process 1, Nbr 192.168.200.5 on GigabitEthernet1 from LOADING to FULL, Loading Done
+*May 30 17:07:22.228: %PKI-2-NON_AUTHORITATIVE_CLOCK: PKI functions can not be initialized until an authoritative time source, like NTP, can be obtained.
+*May 30 17:07:32.422: %CRYPTO_ENGINE-5-KEY_ADDITION: A key named TP-self-signed-3340554171.server has been generated or imported by crypto-engine
+*May 30 17:09:22.635: %SEC_LOGIN-5-LOGIN_SUCCESS: Login Success [user: cisco] [Source: 172.16.39.128] [localport: 22] at 17:09:22 UTC Fri May 30 2025
+*May 30 17:10:15.547: %SYS-6-LOGOUT: User cisco has exited tty session 1(172.16.39.128)
+*May 30 17:11:09.374: %SEC_LOGIN-5-LOGIN_SUCCESS: Login Success [user: cisco] [Source: 172.16.39.128] [localport: 22] at 17:11:09 UTC Fri May 30 2025
+*May 30 17:11:34.455: %SYS-6-LOGOUT: User cisco has exited tty session 1(172.16.39.128)
+*May 30 17:12:15.092: %SEC_LOGIN-5-LOGIN_SUCCESS: Login Success [user: cisco] [Source: 172.16.39.128] [localport: 22] at 17:12:15 UTC Fri May 30 2025
+*May 30 17:12:45.669: %SYS-6-LOGOUT: User cisco has exited tty session 1(172.16.39.128)
+*May 30 17:14:29.427: %SEC_LOGIN-5-LOGIN_SUCCESS: Login Success [user: cisco] [Source: 172.16.39.128] [localport: 22] at 17:14:29 UTC Fri May 30 2025
+*May 30 17:15:14.059: %SYS-6-LOGOUT: User cisco has exited tty session 1(172.16.39.128)
+*May 30 17:26:28.578: %SEC_LOGIN-5-LOGIN_SUCCESS: Login Success [user: cisco] [Source: 172.16.39.128] [localport: 22] at 17:26:28 UTC Fri May 30 2025

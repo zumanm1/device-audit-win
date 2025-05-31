@@ -1,0 +1,18 @@
+
+            OSPF Router with ID (192.168.200.5) (Process ID 1)
+
+		Net Link States (Area 0)
+
+  Routing Bit Set on this LSA
+  LS age: 198
+  Options: (No TOS-capability, DC)
+  LS Type: Network Links
+  Link State ID: 172.16.39.100 (address of Designated Router)
+  Advertising Router: 192.168.200.5
+  LS Seq Number: 80000009
+  Checksum: 0x48C5
+  Length: 36
+  Network Mask: /24
+	Attached Router: 192.168.200.5
+	Attached Router: 192.168.100.101
+	Attached Router: 192.168.100.104

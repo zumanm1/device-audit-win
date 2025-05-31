@@ -1,0 +1,12 @@
+
+ *: interface is up
+ IHQ: pkts in input hold queue     IQD: pkts dropped from input queue
+ OHQ: pkts in output hold queue    OQD: pkts dropped from output queue
+ RXBS: rx rate (bits/sec)          RXPS: rx rate (pkts/sec)
+ TXBS: tx rate (bits/sec)          TXPS: tx rate (pkts/sec)
+ TRTL: throttle count
+
+  Interface              IHQ   IQD  OHQ   OQD  RXBS RXPS  TXBS TXPS TRTL
+------------------------------------------------------------------------
+* FastEthernet0/0          0     0    0     0  5000    5  8000    5    0
+  FastEthernet0/1          0     0    0     0     0    0     0    0    0

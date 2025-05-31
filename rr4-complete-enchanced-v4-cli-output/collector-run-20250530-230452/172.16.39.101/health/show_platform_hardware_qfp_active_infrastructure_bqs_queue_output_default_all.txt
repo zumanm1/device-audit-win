@@ -1,0 +1,240 @@
+Interface: internal0/0/recycle:0 QFP: 0.0 if_h: 1 Num Queues/Schedules: 0
+  No Queue/Schedule Info
+
+Interface: internal0/0/rp:0 QFP: 0.0 if_h: 2 Num Queues/Schedules: 2
+  Queue specifics:
+    Index 0 (Queue ID:0x6a, Name: i2l_if_2_cpp_0_prio0)
+    PARQ Software Control Info:
+      (cache) queue id: 0x0000006a, wred: 0xe736fd20, qlimit (pkts ): 4168
+      parent_sid: 0x80, debug_name: i2l_if_2_cpp_0_prio0
+      sw_flags: 0x08000001, sw_state: 0x00000c01, port_uidb: 65534
+      orig_min  : 0                   ,      min: 0                   
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 1
+      plevel    : 0, priority: 65535
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 63518               ,          (packets): 965                 
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+  Queue specifics:
+    Index 1 (Queue ID:0x6b, Name: i2l_if_2_cpp_0_prio1)
+    PARQ Software Control Info:
+      (cache) queue id: 0x0000006b, wred: 0xe736fd40, qlimit (pkts ): 4168
+      parent_sid: 0x80, debug_name: i2l_if_2_cpp_0_prio1
+      sw_flags: 0x18000001, sw_state: 0x00000c01, port_uidb: 65534
+      orig_min  : 0                   ,      min: 0                   
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 0
+      plevel    : 1, priority: 0
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 20960               ,          (packets): 601                 
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+
+Interface: internal0/0/svc_eng:0 QFP: 0.0 if_h: 3 Num Queues/Schedules: 1
+  Queue specifics:
+    Index 0 (Queue ID:0x6c, Name: i2l_if_3_cpp_0_prio0)
+    PARQ Software Control Info:
+      (cache) queue id: 0x0000006c, wred: 0xe736fd60, qlimit (pkts ): 4168
+      parent_sid: 0x83, debug_name: i2l_if_3_cpp_0_prio0
+      sw_flags: 0x08000001, sw_state: 0x00000c01, port_uidb: 65533
+      orig_min  : 0                   ,      min: 0                   
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 1
+      plevel    : 0, priority: 65535
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 0                   ,          (packets): 0                   
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+
+Interface: Null0 QFP: 0.0 if_h: 4 Num Queues/Schedules: 0
+  No Queue/Schedule Info
+
+Interface: CPP_Null QFP: 0.0 if_h: 5 Num Queues/Schedules: 0
+  No Queue/Schedule Info
+
+Interface: GigabitEthernet1 QFP: 0.0 if_h: 6 Num Queues/Schedules: 1
+  Queue specifics:
+    Index 0 (Queue ID:0x6d, Name: GigabitEthernet1)
+    PARQ Software Control Info:
+      (cache) queue id: 0x0000006d, wred: 0xe736fd80, qlimit (pkts ): 418
+      parent_sid: 0x87, debug_name: GigabitEthernet1
+      sw_flags: 0x08000011, sw_state: 0x00000c01, port_uidb: 65530
+      orig_min  : 0                   ,      min: 105000000           
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 1
+      plevel    : 0, priority: 65535
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 140053              ,          (packets): 640                 
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+
+Interface: GigabitEthernet2 QFP: 0.0 if_h: 7 Num Queues/Schedules: 1
+  Queue specifics:
+    Index 0 (Queue ID:0x6e, Name: GigabitEthernet2)
+    PARQ Software Control Info:
+      (cache) queue id: 0x0000006e, wred: 0xe736fda0, qlimit (pkts ): 418
+      parent_sid: 0x89, debug_name: GigabitEthernet2
+      sw_flags: 0x08000011, sw_state: 0x00000c01, port_uidb: 65529
+      orig_min  : 0                   ,      min: 105000000           
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 1
+      plevel    : 0, priority: 65535
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 0                   ,          (packets): 0                   
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+
+Interface: GigabitEthernet3 QFP: 0.0 if_h: 8 Num Queues/Schedules: 1
+  Queue specifics:
+    Index 0 (Queue ID:0x6f, Name: GigabitEthernet3)
+    PARQ Software Control Info:
+      (cache) queue id: 0x0000006f, wred: 0xe736fdc0, qlimit (pkts ): 418
+      parent_sid: 0x8b, debug_name: GigabitEthernet3
+      sw_flags: 0x08000011, sw_state: 0x00000c01, port_uidb: 65528
+      orig_min  : 0                   ,      min: 105000000           
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 1
+      plevel    : 0, priority: 65535
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 0                   ,          (packets): 0                   
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+
+Interface: GigabitEthernet4 QFP: 0.0 if_h: 9 Num Queues/Schedules: 1
+  Queue specifics:
+    Index 0 (Queue ID:0x70, Name: GigabitEthernet4)
+    PARQ Software Control Info:
+      (cache) queue id: 0x00000070, wred: 0xe736fde0, qlimit (pkts ): 418
+      parent_sid: 0x8d, debug_name: GigabitEthernet4
+      sw_flags: 0x08000011, sw_state: 0x00000c01, port_uidb: 65527
+      orig_min  : 0                   ,      min: 105000000           
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 1
+      plevel    : 0, priority: 65535
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 0                   ,          (packets): 0                   
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+
+Interface: GigabitEthernet5 QFP: 0.0 if_h: 10 Num Queues/Schedules: 1
+  Queue specifics:
+    Index 0 (Queue ID:0x71, Name: GigabitEthernet5)
+    PARQ Software Control Info:
+      (cache) queue id: 0x00000071, wred: 0xe736fe00, qlimit (pkts ): 418
+      parent_sid: 0x8f, debug_name: GigabitEthernet5
+      sw_flags: 0x08000011, sw_state: 0x00000c01, port_uidb: 65526
+      orig_min  : 0                   ,      min: 105000000           
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 1
+      plevel    : 0, priority: 65535
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 0                   ,          (packets): 0                   
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+
+Interface: GigabitEthernet6 QFP: 0.0 if_h: 11 Num Queues/Schedules: 1
+  Queue specifics:
+    Index 0 (Queue ID:0x72, Name: GigabitEthernet6)
+    PARQ Software Control Info:
+      (cache) queue id: 0x00000072, wred: 0xe736fe20, qlimit (pkts ): 418
+      parent_sid: 0x91, debug_name: GigabitEthernet6
+      sw_flags: 0x08000011, sw_state: 0x00000c01, port_uidb: 65525
+      orig_min  : 0                   ,      min: 105000000           
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 1
+      plevel    : 0, priority: 65535
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 434                 ,          (packets): 6                   
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+
+Interface: GigabitEthernet7 QFP: 0.0 if_h: 12 Num Queues/Schedules: 1
+  Queue specifics:
+    Index 0 (Queue ID:0x73, Name: GigabitEthernet7)
+    PARQ Software Control Info:
+      (cache) queue id: 0x00000073, wred: 0xe736fe40, qlimit (pkts ): 418
+      parent_sid: 0x93, debug_name: GigabitEthernet7
+      sw_flags: 0x08000011, sw_state: 0x00000c01, port_uidb: 65524
+      orig_min  : 0                   ,      min: 105000000           
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 1
+      plevel    : 0, priority: 65535
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 0                   ,          (packets): 0                   
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+
+Interface: GigabitEthernet8 QFP: 0.0 if_h: 13 Num Queues/Schedules: 1
+  Queue specifics:
+    Index 0 (Queue ID:0x74, Name: GigabitEthernet8)
+    PARQ Software Control Info:
+      (cache) queue id: 0x00000074, wred: 0xe736fe60, qlimit (pkts ): 418
+      parent_sid: 0x95, debug_name: GigabitEthernet8
+      sw_flags: 0x08000011, sw_state: 0x00000c01, port_uidb: 65523
+      orig_min  : 0                   ,      min: 105000000           
+      min_qos   : 0                   , min_dflt: 0                   
+      orig_max  : 0                   ,      max: 0                   
+      max_qos   : 0                   , max_dflt: 0                   
+      share     : 1
+      plevel    : 0, priority: 65535
+      defer_obj_refcnt: 0
+    Statistics:
+      tail drops  (bytes): 0                   ,          (packets): 0                   
+      total enqs  (bytes): 0                   ,          (packets): 0                   
+      queue_depth (pkts ): 0                   
+      licensed throughput oversubscription drops:
+                  (bytes): 0                   ,          (packets): 0                   
+
+Interface: Loopback0 QFP: 0.0 if_h: 14 Num Queues/Schedules: 0
+  No Queue/Schedule Info

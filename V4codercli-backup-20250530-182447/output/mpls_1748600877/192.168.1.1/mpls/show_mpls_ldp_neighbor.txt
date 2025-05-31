@@ -1,0 +1,17 @@
+
+Peer LDP Ident: 10.0.0.2:0; Local LDP Ident 10.0.0.1:0
+    TCP connection: 10.0.0.2.646 - 10.0.0.1.12345
+    State: Operational; Msgs sent/rcvd: 123/456; Downstream
+    Up time: 02:03:04
+    LDP discovery sources:
+      GigabitEthernet0/1
+    Addresses bound to peer LDP Ident:
+      10.0.0.2        10.1.1.2        
+Peer LDP Ident: 10.0.0.3:0; Local LDP Ident 10.0.0.1:0
+    TCP connection: 10.0.0.3.646 - 10.0.0.1.12346
+    State: Operational; Msgs sent/rcvd: 234/567; Downstream
+    Up time: 01:02:03
+    LDP discovery sources:
+      GigabitEthernet0/2
+    Addresses bound to peer LDP Ident:
+      10.0.0.3        10.1.1.3

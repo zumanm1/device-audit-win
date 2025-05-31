@@ -1,0 +1,14 @@
+interface Loopback0
+ ip address 192.168.100.101 255.255.255.255
+interface FastEthernet0/0
+ ip address 172.16.39.101 255.255.255.0
+ speed 100
+ full-duplex
+interface FastEthernet0/1
+ ip address 192.168.100.137 255.255.255.252
+ shutdown
+ duplex auto
+ speed auto
+ passive-interface default
+ no passive-interface FastEthernet0/0
+ no passive-interface FastEthernet0/1

@@ -1,0 +1,5 @@
+
+Fri May 30 17:29:40.150 UTC
+   Line            User                 Service  Conns   Idle        Location
+   con0/RP0/CPU0   cisco                hardware     0  00:00:00     
+*  vty0            cisco                ssh          0  00:00:00     172.16.39.128

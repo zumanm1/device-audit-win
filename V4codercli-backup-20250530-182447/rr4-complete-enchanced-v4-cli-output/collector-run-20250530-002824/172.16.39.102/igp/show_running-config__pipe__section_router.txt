@@ -1,0 +1,7 @@
+router ospf 1
+ log-adjacency-changes
+ passive-interface default
+ no passive-interface FastEthernet0/0
+ no passive-interface FastEthernet0/1
+ network 172.16.39.0 0.0.0.255 area 0
+ network 192.168.200.0 0.0.0.255 area 0

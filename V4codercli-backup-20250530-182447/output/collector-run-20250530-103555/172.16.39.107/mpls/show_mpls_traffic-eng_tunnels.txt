@@ -1,0 +1,5 @@
+
+Fri May 30 10:40:53.577 UTC
+Error retrieving data from TE: process not running
+TE:process not running
+TE:process not running

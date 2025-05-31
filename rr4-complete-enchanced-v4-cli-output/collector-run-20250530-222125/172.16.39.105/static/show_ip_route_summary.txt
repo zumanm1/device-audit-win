@@ -1,0 +1,8 @@
+IP routing table name is Default-IP-Routing-Table(0)
+IP routing table maximum-paths is 16
+Route Source    Networks    Subnets     Overhead    Memory (bytes)
+connected       0           1           72          128
+static          0           0           0           0
+internal        1                                   1148
+Total           1           1           72          1276
+Removing Queue Size 0

@@ -1,0 +1,12 @@
+Prefix              Next Hop             Interface
+0.0.0.0/0           drop                 Null0 (default route handler entry)
+0.0.0.0/32          receive
+172.16.39.0/24      attached             FastEthernet0/0
+172.16.39.0/32      receive
+172.16.39.2/32      172.16.39.2          FastEthernet0/0
+172.16.39.103/32    receive
+172.16.39.128/32    172.16.39.128        FastEthernet0/0
+172.16.39.255/32    receive
+224.0.0.0/4         drop
+224.0.0.0/24        receive
+255.255.255.255/32  receive

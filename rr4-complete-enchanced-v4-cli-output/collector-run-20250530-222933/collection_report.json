@@ -1,0 +1,113 @@
+{
+  "run_id": "collector-run-20250530-222933",
+  "timestamp": "2025-05-30 22:32:41",
+  "summary": {
+    "total_devices": 8,
+    "completed_devices": 6,
+    "failed_devices": 2,
+    "device_completion_rate": 75.0,
+    "task_completion_rate": 0.0,
+    "elapsed_time": 186.71796464920044,
+    "is_running": false
+  },
+  "device_results": {
+    "R0": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R1": {
+      "success_count": 0,
+      "failure_count": 1,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": false,
+          "duration": 0.0,
+          "error": "Unknown error"
+        }
+      ]
+    },
+    "R2": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R3": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R4": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R5": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R6": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R7": {
+      "success_count": 0,
+      "failure_count": 1,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": false,
+          "duration": 0.0,
+          "error": "Unknown error"
+        }
+      ]
+    }
+  },
+  "layer_summary": {},
+  "run_directory": "rr4-complete-enchanced-v4-cli-output/collector-run-20250530-222933"
+}

@@ -1,0 +1,2 @@
+Requirement already satisfied: scrapli-cfg in /usr/local/lib/python3.10/dist-packages (2025.1.30)
+Requirement already satisfied: scrapli>=2022.01.30a2 in /usr/local/lib/python3.10/dist-packages (from scrapli-cfg) (2025.1.30)

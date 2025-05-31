@@ -1,0 +1,33 @@
+RP/0/0/CPU0:R7#show version
+Thu May 29 21:55:12.345 UTC
+
+Cisco IOS XR Software, Version 7.3.2
+Copyright (c) 2013-2021 by Cisco Systems, Inc.
+
+Build Information:
+ Built By     : aab
+ Built On     : Wed Oct 13 20:58:29 PDT 2021
+ Built Host   : iox-ucs-017
+ Workspace    : /auto/srcarchive13/prod/7.3.2/asr9k/ws
+ Version      : 7.3.2
+ Location     : /opt/cisco/XR/packages/
+
+cisco ASR1001-X () processor
+System uptime is 3 weeks, 2 days, 8 hours, 45 minutes
+
+RP/0/0/CPU0:R7#show processes cpu | head -10
+Thu May 29 21:55:25.123 UTC
+
+CPU utilization for one minute: 1%; five minutes: 2%; fifteen minutes: 3%
+PID    1Min    5Min   15Min Process                    
+1234     0%      1%      1% kernel                     
+5678     0%      0%      0% bgp                        
+9012     0%      0%      0% ospf                       
+3456     0%      0%      1% isis                       
+7890     0%      0%      0% ldp                        
+
+RP/0/0/CPU0:R7#show memory summary location 0/0/CPU0
+Thu May 29 21:55:30.456 UTC
+
+Physical Memory: 4194304K total (3145728K available)
+Application Memory : 3145728K (2097152K available) 

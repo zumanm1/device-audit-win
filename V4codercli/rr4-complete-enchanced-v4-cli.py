@@ -178,7 +178,7 @@ CONFIG = {
     'author': __author__,
     'description': __description__,
     'supported_platforms': ['ios', 'iosxe', 'iosxr'],
-    'supported_layers': ['health', 'interfaces', 'igp', 'mpls', 'bgp', 'vpn', 'static'],
+    'supported_layers': ['health', 'interfaces', 'igp', 'mpls', 'bgp', 'vpn', 'static', 'console'],
     'default_workers': 15,
     'default_timeout': 60,
     'default_output_dir': 'rr4-complete-enchanced-v4-cli-output',

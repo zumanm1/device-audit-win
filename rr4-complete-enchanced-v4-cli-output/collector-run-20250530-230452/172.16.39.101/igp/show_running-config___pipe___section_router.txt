@@ -1,0 +1,9 @@
+router ospf 1
+ passive-interface default
+ no passive-interface GigabitEthernet1
+ no passive-interface GigabitEthernet2
+ no passive-interface GigabitEthernet3
+ no passive-interface GigabitEthernet4
+ network 172.16.39.0 0.0.0.255 area 0
+ network 192.168.100.0 0.0.0.3 area 0
+ network 192.168.200.0 0.0.0.255 area 0

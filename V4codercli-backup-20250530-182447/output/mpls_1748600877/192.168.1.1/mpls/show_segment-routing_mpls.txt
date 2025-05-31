@@ -1,0 +1,12 @@
+
+Segment Routing Global Block (SRGB):
+  Size: 10000, Range: [16000..26000]
+  
+Connected-Prefix-SID:
+  10.0.0.1/32 index 1 range 1
+  10.1.1.0/24 index 2 range 1
+  10.2.2.0/24 index 3 range 1
+  
+Segment Routing Mapping Server Entries:
+  10.3.3.0/24 index 4 range 1
+  10.4.4.0/24 index 5 range 1

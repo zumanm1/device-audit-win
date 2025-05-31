@@ -1,0 +1,3 @@
+show platform hardware qfp active infrastructure bqs queue output default all
+              ^
+% Invalid input detected at '^' marker.

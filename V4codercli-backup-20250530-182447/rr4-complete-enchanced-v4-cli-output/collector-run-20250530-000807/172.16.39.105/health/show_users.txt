@@ -1,0 +1,5 @@
+    Line       User       Host(s)              Idle       Location
+   0 con 0     cisco      idle                 00:02:40   
+* 98 vty 0     cisco      idle                 00:00:00 172.16.39.128
+
+  Interface    User               Mode         Idle     Peer Address

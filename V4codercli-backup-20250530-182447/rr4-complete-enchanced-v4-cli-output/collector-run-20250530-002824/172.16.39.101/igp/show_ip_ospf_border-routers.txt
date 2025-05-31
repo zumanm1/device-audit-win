@@ -1,0 +1,4 @@
+
+OSPF Process 1 internal Routing Table
+
+Codes: i - Intra-area route, I - Inter-area route

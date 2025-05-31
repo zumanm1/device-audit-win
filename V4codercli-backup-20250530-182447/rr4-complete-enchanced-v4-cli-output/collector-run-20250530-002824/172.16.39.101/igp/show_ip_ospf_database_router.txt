@@ -1,0 +1,61 @@
+
+            OSPF Router with ID (192.168.100.101) (Process ID 1)
+
+		Router Link States (Area 0)
+
+  LS age: 197
+  Options: (No TOS-capability, DC)
+  LS Type: Router Links
+  Link State ID: 192.168.100.101
+  Advertising Router: 192.168.100.101
+  LS Seq Number: 8000000D
+  Checksum: 0xEA44
+  Length: 36
+  Number of Links: 1
+
+    Link connected to: a Transit Network
+     (Link ID) Designated Router address: 172.16.39.100
+     (Link Data) Router Interface address: 172.16.39.101
+      Number of TOS metrics: 0
+       TOS 0 Metrics: 1
+
+
+  LS age: 140
+  Options: (No TOS-capability, DC)
+  LS Type: Router Links
+  Link State ID: 192.168.100.104
+  Advertising Router: 192.168.100.104
+  LS Seq Number: 8000000C
+  Checksum: 0xCA5E
+  Length: 36
+  Number of Links: 1
+
+    Link connected to: a Transit Network
+     (Link ID) Designated Router address: 172.16.39.100
+     (Link Data) Router Interface address: 172.16.39.102
+      Number of TOS metrics: 0
+       TOS 0 Metrics: 1
+
+
+  LS age: 102
+  Options: (No TOS-capability, DC)
+  LS Type: Router Links
+  Link State ID: 192.168.200.5
+  Advertising Router: 192.168.200.5
+  LS Seq Number: 8000000C
+  Checksum: 0xE9F6
+  Length: 48
+  Number of Links: 2
+
+    Link connected to: a Stub Network
+     (Link ID) Network/subnet number: 192.168.200.5
+     (Link Data) Network Mask: 255.255.255.255
+      Number of TOS metrics: 0
+       TOS 0 Metrics: 1
+
+    Link connected to: a Transit Network
+     (Link ID) Designated Router address: 172.16.39.100
+     (Link Data) Router Interface address: 172.16.39.100
+      Number of TOS metrics: 0
+       TOS 0 Metrics: 1
+

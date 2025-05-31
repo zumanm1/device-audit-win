@@ -1,0 +1,29 @@
+{
+  "run_id": "collector-run-20250530-224550",
+  "timestamp": "2025-05-30 22:45:55",
+  "summary": {
+    "total_devices": 1,
+    "completed_devices": 1,
+    "failed_devices": 0,
+    "device_completion_rate": 100.0,
+    "task_completion_rate": 0.0,
+    "elapsed_time": 3.4022183418273926,
+    "is_running": false
+  },
+  "device_results": {
+    "R0": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    }
+  },
+  "layer_summary": {},
+  "run_directory": "rr4-complete-enchanced-v4-cli-output/collector-run-20250530-224550"
+}

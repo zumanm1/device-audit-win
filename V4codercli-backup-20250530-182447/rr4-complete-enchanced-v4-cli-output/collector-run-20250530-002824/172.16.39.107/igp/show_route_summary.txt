@@ -1,0 +1,8 @@
+
+Fri May 30 00:31:47.818 UTC
+Route Source                     Routes     Backup     Deleted     Memory(bytes)
+connected                        1          0          0           240          
+local                            1          0          0           240          
+static                           0          0          0           0            
+dagr                             0          0          0           0            
+Total                            2          0          0           480          

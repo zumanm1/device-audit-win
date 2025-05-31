@@ -1,0 +1,9 @@
+{
+  "lines": [
+    "Fri May 30 00:29:07.177 UTC",
+    "Node              Type                       State             Config state",
+    "--------------------------------------------------------------------------------",
+    "0/RP0/CPU0        R-IOSXRV9000-RP-C(Active)  IOS XR RUN        NSHUT"
+  ],
+  "line_count": 4
+}

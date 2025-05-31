@@ -1,0 +1,16 @@
+{
+  "lines": [
+    "Fri May 30 23:10:48.467 UTC",
+    "NAME: \"0/RP0\", DESCR: \"Cisco XRv9K Centralized Route Processor\"",
+    "PID: R-IOSXRV9000-RP-C , VID: V01, SN: 3B8CE1866DC",
+    "NAME: \"Rack 0\", DESCR: \"Cisco XRv9K Centralized Virtual Router\"",
+    "PID: R-IOSXRV9000-CC   , VID: V01, SN: 548787EA9B9"
+  ],
+  "line_count": 5,
+  "potential_headers": [
+    [
+      2,
+      "NAME: \"0/RP0\", DESCR: \"Cisco XRv9K Centralized Route Processor\""
+    ]
+  ]
+}

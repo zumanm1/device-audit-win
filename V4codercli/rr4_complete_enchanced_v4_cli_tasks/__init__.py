@@ -9,9 +9,11 @@ This package contains task modules for collecting:
 - MPLS configuration
 - BGP routing
 - VPN services
+- Static routes
+- Console line configurations (NEW)
 """
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 from typing import List, Optional, Type, Any
 
@@ -41,12 +43,15 @@ def get_layer_collector(layer: str) -> Optional[Type[Any]]:
     elif layer_lower == 'static':
         from .static_route_collector import StaticRouteCollector
         return StaticRouteCollector
+    elif layer_lower == 'console':
+        from .console_line_collector import ConsoleLineCollector
+        return ConsoleLineCollector
     else:
         return None
 
 def get_available_layers() -> List[str]:
     """Get list of available collection layers."""
-    return ['mpls', 'igp', 'bgp', 'vpn', 'interfaces', 'health', 'static']
+    return ['mpls', 'igp', 'bgp', 'vpn', 'interfaces', 'health', 'static', 'console']
 
 def validate_layers(layers: List[str]) -> bool:
     """Validate that all specified layers are supported."""

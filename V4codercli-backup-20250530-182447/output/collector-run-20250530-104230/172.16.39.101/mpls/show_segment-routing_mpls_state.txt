@@ -1,0 +1,3 @@
+show segment-routing mpls state
+       ^
+% Invalid input detected at '^' marker.

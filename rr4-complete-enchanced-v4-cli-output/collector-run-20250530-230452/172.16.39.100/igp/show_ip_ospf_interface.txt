@@ -1,0 +1,32 @@
+Loopback0 is up, line protocol is up 
+  Internet Address 192.168.200.5/32, Area 0 
+  Process ID 1, Router ID 192.168.200.5, Network Type LOOPBACK, Cost: 1
+  Loopback interface is treated as a stub Host
+FastEthernet0/1 is administratively down, line protocol is down 
+  Internet Address 192.168.200.33/30, Area 0 
+  Process ID 1, Router ID 192.168.200.5, Network Type BROADCAST, Cost: 10
+  Transmit Delay is 1 sec, State DOWN, Priority 1
+  No designated router on this network
+  No backup designated router on this network
+  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5
+    oob-resync timeout 40
+FastEthernet0/0 is up, line protocol is up 
+  Internet Address 172.16.39.100/24, Area 0 
+  Process ID 1, Router ID 192.168.200.5, Network Type BROADCAST, Cost: 1
+  Transmit Delay is 1 sec, State DR, Priority 1
+  Designated Router (ID) 192.168.200.5, Interface address 172.16.39.100
+  Backup Designated router (ID) 192.168.100.104, Interface address 172.16.39.102
+  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5
+    oob-resync timeout 40
+    Hello due in 00:00:03
+  Supports Link-local Signaling (LLS)
+  Cisco NSF helper support enabled
+  IETF NSF helper support enabled
+  Index 1/1, flood queue length 0
+  Next 0x0(0)/0x0(0)
+  Last flood scan length is 1, maximum is 1
+  Last flood scan time is 0 msec, maximum is 4 msec
+  Neighbor Count is 2, Adjacent neighbor count is 2 
+    Adjacent with neighbor 192.168.100.104  (Backup Designated Router)
+    Adjacent with neighbor 192.168.200.1
+  Suppress hello for 0 neighbor(s)

@@ -1,0 +1,3 @@
+show mpls memory
+          ^
+% Invalid input detected at '^' marker.

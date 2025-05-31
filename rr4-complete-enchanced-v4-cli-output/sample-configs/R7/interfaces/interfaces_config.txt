@@ -1,0 +1,37 @@
+RP/0/0/CPU0:R7#show interfaces brief
+Thu May 29 21:55:45.789 UTC
+
+               Intf       Intf        LineP              Encap  MTU        BW
+               Name       Type        State              Type   (byte)    (Kbps)
+--------------------------------------------------------------------------------
+               Lo0        Loopback    Up                 -      1514      -
+        Gi0/0/0/0        ARPA        Up                ARPA    1514    1000000
+        Gi0/0/0/1        ARPA        Up                ARPA    1514    1000000
+        Gi0/0/0/2        ARPA        Down              ARPA    1514    1000000
+        Gi0/0/0/3        ARPA        Admin-Down        ARPA    1514    1000000
+
+RP/0/0/CPU0:R7#show running-config interface
+Thu May 29 21:55:50.123 UTC
+
+interface Loopback0
+ ipv4 address 7.7.7.7 255.255.255.255
+ ipv6 address 2001:db8:7::7/128
+!
+interface GigabitEthernet0/0/0/0
+ description WAN_Connection_to_MPLS_Core
+ ipv4 address 172.16.39.107 255.255.255.0
+ ipv6 address 2001:db8:172:16::107/64
+!
+interface GigabitEthernet0/0/0/1
+ description Customer_VPN_Connection
+ ipv4 address 10.7.100.1 255.255.255.0
+ ipv6 address 2001:db8:10:7::1/64
+!
+interface GigabitEthernet0/0/0/2
+ description Backup_Link
+ ipv4 address 10.7.200.1 255.255.255.0
+ shutdown
+!
+interface GigabitEthernet0/0/0/3
+ description Spare_Interface
+ shutdown 

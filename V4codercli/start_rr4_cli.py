@@ -367,7 +367,7 @@ class RR4StartupManager:
         print(f"\n{Colors.CYAN}3. 📊 FULL COLLECTION (Production data collection){Colors.RESET}")
         print(f"   - Enhanced connectivity test first")
         print(f"   - Collect from all reachable devices")
-        print(f"   - All layers (health, interfaces, igp, bgp, mpls, vpn, static)")
+        print(f"   - All layers (health, interfaces, igp, bgp, mpls, vpn, static, console)")
         print(f"   - Generate comprehensive reports")
         
         print(f"\n{Colors.YELLOW}4. 🎛️  CUSTOM COLLECTION (Advanced users){Colors.RESET}")
@@ -546,7 +546,7 @@ class RR4StartupManager:
         
         # Run full collection with extended timeout
         success, stdout, stderr = self._run_command(
-            ["python3", str(self.main_script), "collect-all", "--layers", "health,interfaces,igp,bgp,mpls,vpn,static"],
+            ["python3", str(self.main_script), "collect-all", "--layers", "health,interfaces,igp,bgp,mpls,vpn,static,console"],
             "Full data collection (all layers, all reachable devices)",
             critical=True,
             timeout=600  # 10 minutes for full collection
@@ -664,7 +664,7 @@ class RR4StartupManager:
         
         # Layer selection
         print_info("\nAvailable Layers:")
-        layers = ["health", "interfaces", "igp", "bgp", "mpls", "vpn", "static"]
+        layers = ["health", "interfaces", "igp", "bgp", "mpls", "vpn", "static", "console"]
         for i, layer in enumerate(layers, 1):
             print(f"{i}. {layer}")
         print("8. All layers")

@@ -1,0 +1,9 @@
+hostname,ip,platform,username,password,device_type,groups
+R0,172.16.39.100,ios,cisco,cisco,cisco_ios,all_devices
+R1,172.16.39.101,iosxe,cisco,cisco,cisco_xe,all_devices
+R2,172.16.39.102,ios,cisco,cisco,cisco_ios,all_devices
+R3,172.16.39.103,ios,cisco,cisco,cisco_ios,all_devices
+R4,172.16.39.104,ios,cisco,cisco,cisco_ios,all_devices
+R5,172.16.39.105,ios,cisco,cisco,cisco_ios,all_devices
+R6,172.16.39.106,ios,cisco,cisco,cisco_ios,all_devices
+R7,172.16.39.107,iosxr,cisco,cisco,cisco_xr,all_devices 
