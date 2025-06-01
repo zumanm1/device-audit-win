@@ -3,6 +3,7 @@
 [![Status](https://img.shields.io/badge/Status-✅%20Fully%20Operational-brightgreen)](https://github.com/your-repo/V4codercli)
 [![Cross-Platform](https://img.shields.io/badge/Cross--Platform-✅%20Windows%20|%20Linux%20|%20macOS-blue)](https://github.com/your-repo/V4codercli)
 [![Success Rate](https://img.shields.io/badge/Success%20Rate-100%25%20(8/8%20devices)-brightgreen)](https://github.com/your-repo/V4codercli)
+[![Console Collection](https://img.shields.io/badge/Console%20Lines-✅%20IOS%20|%20IOS%20XR%20NM4%20Cards-orange)](https://github.com/your-repo/V4codercli)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue)](https://python.org)
 [![License](https://img.shields.io/badge/License-MIT-blue)](LICENSE)
 
@@ -11,15 +12,17 @@
 A comprehensive CLI-based network state collection system for IP-MPLS networks using Nornir, Netmiko, and pyATS/Genie for Cisco IOS, IOS XE, and IOS XR devices.
 
 **Now with full cross-platform support for Windows, Linux, and macOS!**
+**Enhanced with NM4 Console Line Collection for IOS and IOS XR platforms!**
 
-### ✅ Current Status (2025-05-31)
+### ✅ Current Status (2025-01-27)
 - **Script Status**: ✅ Fully Operational
-- **Cross-Platform**: ✅ Windows, Linux, macOS Compatible
+- **Cross-Platform**: ✅ Windows, Linux, macOS Compatible  
 - **Device Connectivity**: ✅ 100% Success Rate (8/8 devices)
-- **Data Collection**: ✅ All layers working (Health, Interfaces, IGP, BGP, MPLS, VPN, Static)
+- **Data Collection**: ✅ All layers working (Health, Interfaces, IGP, BGP, MPLS, VPN, Static, **Console**)
+- **Console Line Support**: ✅ IOS/IOS XR NM4 Console Cards (x/y/z format)
 - **Authentication**: ✅ 100% Success Rate
 - **Authorization**: ✅ 100% Success Rate
-- **Version**: 1.0.1-CrossPlatform
+- **Version**: 1.1.0-Console-Enhanced
 
 ## 🌟 **Cross-Platform Features**
 
@@ -32,6 +35,13 @@ A comprehensive CLI-based network state collection system for IP-MPLS networks u
 | **macOS 11+** | ✅ Fully Supported | 3.8+ | Xcode Command Line Tools |
 | **Debian 11+** | ✅ Fully Supported | 3.8+ | Native support |
 
+### **Console Line Collection Support**
+| Device Platform | Console Format | Commands Used | Status |
+|----------------|----------------|---------------|---------|
+| **Cisco IOS** | x/y/z in "Int" column | `show line`, `show run \| section "line x/y/z"` | ✅ Fully Supported |
+| **Cisco IOS XE** | x/y/z in "Int" column | `show line`, `show run \| section "line x/y/z"` | ✅ Fully Supported |
+| **Cisco IOS XR** | x/y/z in "Tty" column | `show line`, `show run line aux x/y/z` | ✅ Fully Supported |
+
 ### **Platform-Specific Security**
 - **Windows**: File hiding + NTFS permissions via `icacls`
 - **Unix/Linux**: Standard file permissions (chmod 600)
@@ -42,6 +52,7 @@ A comprehensive CLI-based network state collection system for IP-MPLS networks u
 - ✅ **UTF-8 Encoding**: Consistent across all platforms
 - ✅ **Secure Credential Storage**: Platform-appropriate security measures
 - ✅ **Universal Launchers**: Batch file for Windows, shell script for Unix/Linux/macOS
+- ✅ **Console Line Discovery**: Automated NM4 console card detection and configuration extraction
 
 ## 🚀 **Quick Start with Interactive Startup Manager**
 
@@ -91,13 +102,20 @@ The startup manager provides guided options for different use cases:
 
 1. **🎯 FIRST-TIME SETUP** - Complete guided setup for new users
 2. **🔍 AUDIT ONLY** - Quick connectivity and health check
-3. **📊 FULL COLLECTION** - Production data collection (all layers)
-4. **🎛️ CUSTOM COLLECTION** - Advanced users with custom parameters
+3. **📊 FULL COLLECTION** - Production data collection (all layers including console)
+4. **🎛️ CUSTOM COLLECTION** - Advanced users with custom parameters (console layer available)
 5. **🔧 PREREQUISITES CHECK** - Verify system requirements
 6. **🌐 ENHANCED CONNECTIVITY TEST** - Comprehensive ping + SSH authentication test
 7. **📚 HELP & OPTIONS** - Display all available commands
 
 ## ✨ **Key Features**
+
+### Enhanced Console Line Collection (NEW!)
+- **NM4 Console Card Support**: Automated detection of console lines in x/y/z format
+- **Platform Intelligence**: Automatically handles IOS vs IOS XR format differences
+- **Complete Configuration Extraction**: Collects both line status and configuration
+- **Range Support**: Supports full x:0-1, y:0-1, z:0-22 range (46 possible lines)
+- **Output Formats**: JSON and human-readable text outputs per device
 
 ### Enhanced Connectivity Testing
 - **Dual-layer connectivity verification**: Ping + SSH authentication
@@ -131,6 +149,7 @@ The startup manager provides guided options for different use cases:
 - SSH access to target Cisco devices
 - Jump host connectivity (if applicable)
 - Network reachability to device management interfaces
+- **Console Collection**: Enable-level access for configuration commands
 
 ## 🛠️ **Installation**
 
@@ -228,13 +247,28 @@ Overall success rate: 75.0%
 python3 rr4-complete-enchanced-v4-cli.py collect-all --layers health
 ```
 
-### **Full Production Collection**
+### **Console Line Collection (NEW!)**
+```bash
+# Console lines only
+python3 rr4-complete-enchanced-v4-cli.py collect-all --layers console
+
+# Console with other essential layers
+python3 rr4-complete-enchanced-v4-cli.py collect-all --layers health,interfaces,console
+
+# Single device console collection
+python3 rr4-complete-enchanced-v4-cli.py collect-devices --device R0 --layers console
+```
+
+### **Full Production Collection (Including Console)**
 ```bash
 # Using interactive startup
 ./start_rr4.sh
 # Select option 3 (Full Collection)
 
-# Or directly
+# Or directly with console
+python3 rr4-complete-enchanced-v4-cli.py collect-all --layers health,interfaces,igp,bgp,mpls,vpn,static,console
+
+# Original full collection (without console)
 python3 rr4-complete-enchanced-v4-cli.py collect-all --layers health,interfaces,igp,bgp,mpls,vpn,static
 ```
 
@@ -250,14 +284,17 @@ python3 rr4-complete-enchanced-v4-cli.py test-connectivity
 
 ### **Custom Collection**
 ```bash
-# Specific devices and layers
-python3 rr4-complete-enchanced-v4-cli.py collect-devices --device R0,R2 --layers health,interfaces
+# Specific devices and layers (including console)
+python3 rr4-complete-enchanced-v4-cli.py collect-devices --device R0,R2 --layers health,interfaces,console
 
 # Single device
 python3 rr4-complete-enchanced-v4-cli.py collect-devices --device R0 --layers health
+
+# Console-focused collection for NM4 troubleshooting
+python3 rr4-complete-enchanced-v4-cli.py collect-devices --device ROUTER1 --layers console,health
 ```
 
-## 📁 **Output Structure**
+## 📁 **Output Structure (Enhanced with Console)**
 ```
 rr4-complete-enchanced-v4-cli-output/
 └── collector-run-YYYYMMDD-HHMMSS/
@@ -268,23 +305,35 @@ rr4-complete-enchanced-v4-cli-output/
     │   ├── bgp/               # BGP configurations
     │   ├── mpls/              # MPLS configurations
     │   ├── vpn/               # VPN configurations
-    │   └── static/            # Static routing
+    │   ├── static/            # Static routing
+    │   └── console/           # Console line configurations (NEW!)
+    │       ├── R0_console_lines.json    # Structured console data
+    │       ├── R0_console_lines.txt     # Human-readable console report
+    │       └── command_outputs/         # Raw command outputs
     ├── collection_report.json  # Detailed JSON report
     ├── collection_report.txt   # Human-readable summary
     └── logs/                   # Collection logs
 ```
 
-## 🔍 **Available Data Layers**
+## 🔍 **Available Data Layers (Enhanced)**
 
-| Layer | Description | Commands Collected |
-|-------|-------------|-------------------|
-| **health** | System health and status | `show version`, `show inventory`, `show environment` |
-| **interfaces** | Interface configurations | `show interfaces`, `show ip interface brief` |
-| **igp** | IGP routing protocols | `show ip route`, `show ip ospf`, `show isis` |
-| **bgp** | BGP configurations | `show ip bgp`, `show bgp summary` |
-| **mpls** | MPLS configurations | `show mpls ldp`, `show mpls forwarding` |
-| **vpn** | VPN configurations | `show vpn`, `show crypto session` |
-| **static** | Static routing | `show ip route static` |
+| Layer | Description | Commands Collected | Platform Support |
+|-------|-------------|-------------------|------------------|
+| **health** | System health and status | `show version`, `show inventory`, `show environment` | IOS, IOS XE, IOS XR |
+| **interfaces** | Interface configurations | `show interfaces`, `show ip interface brief` | IOS, IOS XE, IOS XR |
+| **igp** | IGP routing protocols | `show ip route`, `show ip ospf`, `show isis` | IOS, IOS XE, IOS XR |
+| **bgp** | BGP configurations | `show ip bgp`, `show bgp summary` | IOS, IOS XE, IOS XR |
+| **mpls** | MPLS configurations | `show mpls ldp`, `show mpls forwarding` | IOS, IOS XE, IOS XR |
+| **vpn** | VPN configurations | `show vpn`, `show crypto session` | IOS, IOS XE, IOS XR |
+| **static** | Static routing | `show ip route static` | IOS, IOS XE, IOS XR |
+| **console** ✨ | Console line configurations | `show line`, `show run \| section "line x/y/z"` | IOS, IOS XE, IOS XR |
+
+### **Console Layer Details**
+- **Discovery**: Uses `show line` to identify available console lines
+- **Configuration**: Collects individual line configs via `show running-config | section "line x/y/z"` (IOS/IOS XE) or `show running-config line aux x/y/z` (IOS XR)
+- **Range Support**: Handles x:0-1, y:0-1, z:0-22 (46 possible lines per NM4 card)
+- **Output Formats**: JSON (structured) and TXT (human-readable) per device
+- **Platform Intelligence**: Automatically detects IOS vs IOS XR format differences
 
 ## 🛡️ **Security Features**
 

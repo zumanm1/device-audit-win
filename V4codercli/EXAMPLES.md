@@ -5,13 +5,14 @@ This document provides comprehensive examples of how to use the RR4 Complete Enh
 ## 📋 Table of Contents
 
 1. [Basic Usage Examples](#basic-usage-examples)
-2. [Inventory Management](#inventory-management)
-3. [Collection Scenarios](#collection-scenarios)
-4. [Advanced Usage](#advanced-usage)
-5. [Automation Examples](#automation-examples)
-6. [Integration Examples](#integration-examples)
-7. [Troubleshooting Examples](#troubleshooting-examples)
-8. [Real-World Scenarios](#real-world-scenarios)
+2. [Console Line Collection (NEW!)](#console-line-collection-new)
+3. [Inventory Management](#inventory-management)
+4. [Collection Scenarios](#collection-scenarios)
+5. [Advanced Usage](#advanced-usage)
+6. [Automation Examples](#automation-examples)
+7. [Integration Examples](#integration-examples)
+8. [Troubleshooting Examples](#troubleshooting-examples)
+9. [Real-World Scenarios](#real-world-scenarios)
 
 ## 🚀 Basic Usage Examples
 
@@ -69,6 +70,213 @@ python3 rr4-complete-enchanced-v4-cli.py collect-devices \
     --devices R1 \
     --layers health,interfaces,bgp \
     --inventory my_network.csv
+```
+
+## 🎯 Console Line Collection (NEW!)
+
+### Overview
+The console line collection feature is designed for Cisco routers with NM4 console cards, supporting both IOS and IOS XR platforms. It automatically discovers console lines using `show line` and collects individual line configurations.
+
+### Supported Platforms
+- **Cisco IOS**: Lines appear in "Int" column as x/y/z format
+- **Cisco IOS XE**: Lines appear in "Int" column as x/y/z format  
+- **Cisco IOS XR**: Lines appear in "Tty" column as x/y/z format
+
+### Commands Used
+- **Discovery**: `show line`
+- **IOS/IOS XE Config**: `show running-config | section "line x/y/z"`
+- **IOS XR Config**: `show running-config line aux x/y/z`
+
+### Basic Console Collection
+
+```bash
+# Collect console lines only from all devices
+python3 rr4-complete-enchanced-v4-cli.py collect-all \
+    --inventory my_network.csv \
+    --layers console
+
+# Console collection from specific device
+python3 rr4-complete-enchanced-v4-cli.py collect-devices \
+    --devices R0 \
+    --layers console \
+    --inventory my_network.csv
+
+# Console with essential layers
+python3 rr4-complete-enchanced-v4-cli.py collect-all \
+    --inventory my_network.csv \
+    --layers health,interfaces,console
+```
+
+### Console Line Troubleshooting
+
+```bash
+# Collect console info for NM4 troubleshooting
+python3 rr4-complete-enchanced-v4-cli.py collect-devices \
+    --devices ROUTER1,ROUTER2 \
+    --layers console,health \
+    --inventory routers_with_nm4.csv \
+    --output console_troubleshooting_$(date +%Y%m%d)
+
+# Check for console connectivity issues
+python3 rr4-complete-enchanced-v4-cli.py collect-devices \
+    --devices BRANCH-RTR-01 \
+    --layers console \
+    --debug
+```
+
+### Console Collection for Audit
+
+```bash
+#!/bin/bash
+# console_audit.sh - Audit console line configurations
+
+DATE=$(date +%Y%m%d)
+OUTPUT_DIR="console_audit_${DATE}"
+
+echo "Starting console line audit..."
+
+# Collect console configurations from all routers
+python3 rr4-complete-enchanced-v4-cli.py collect-all \
+    --inventory production_routers.csv \
+    --layers console \
+    --output "${OUTPUT_DIR}" \
+    --workers 4
+
+# Generate summary report
+echo "Console Line Audit - $DATE" > "${OUTPUT_DIR}/audit_summary.txt"
+echo "================================" >> "${OUTPUT_DIR}/audit_summary.txt"
+
+# Find devices with console lines configured
+find "${OUTPUT_DIR}" -name "*_console_lines.json" -exec basename {} \; | \
+    cut -d'_' -f1 | sort > "${OUTPUT_DIR}/devices_with_console.txt"
+
+echo "Devices with console lines:" >> "${OUTPUT_DIR}/audit_summary.txt"
+cat "${OUTPUT_DIR}/devices_with_console.txt" >> "${OUTPUT_DIR}/audit_summary.txt"
+
+echo "Console audit completed: $OUTPUT_DIR"
+```
+
+### Console Output Examples
+
+#### JSON Output Structure
+```json
+{
+  "device": "172.16.39.100",
+  "timestamp": "2025-01-27T01:00:00Z",
+  "platform": "ios",
+  "show_line_output": "Router#show line\n   Tty Line Typ     Tx/Rx...",
+  "console_lines": {
+    "0/0/0": {
+      "line_type": "aux",
+      "status": "available",
+      "configuration": "line 0/0/0\n session-timeout 0\n exec-timeout 0 0\n transport input all\n transport output all\n stopbits 1",
+      "command_used": "show running-config | section \"line 0/0/0\"",
+      "success": true
+    }
+  },
+  "discovered_lines": ["0/0/0", "0/0/1", "0/0/2"],
+  "configured_lines": ["0/0/0", "0/0/1"],
+  "summary": {
+    "total_lines_discovered": 46,
+    "total_lines_configured": 2,
+    "configuration_success_rate": 100.0
+  }
+}
+```
+
+#### Text Output Example
+```
+Console Line Configuration Report
+==================================
+Device: 172.16.39.100
+Platform: ios
+Timestamp: 2025-01-27T01:00:00Z
+Total Lines Discovered: 46
+Total Lines Configured: 2
+Success Rate: 100.0%
+
+Discovered Console Lines:
+--------------------------
+  - 0/0/0
+  - 0/0/1
+  - 0/0/2
+  - 0/0/3
+  ...
+
+Individual Line Configurations:
+-------------------------------
+
+Line 0/0/0:
+Command: show running-config | section "line 0/0/0"
+Success: True
+Configuration:
+line 0/0/0
+ session-timeout 0
+ exec-timeout 0 0
+ transport input all
+ transport output all
+ stopbits 1
+```
+
+### Console Collection Scenarios
+
+#### NM4 Card Validation
+```bash
+# Validate NM4 console cards are properly configured
+python3 rr4-complete-enchanced-v4-cli.py collect-devices \
+    --devices $(cat nm4_routers.txt) \
+    --layers console \
+    --inventory network_inventory.csv \
+    --output nm4_validation_$(date +%Y%m%d_%H%M%S)
+
+# Expected: x/y/z lines where x:0-1, y:0-1, z:0-22 (46 lines per card)
+```
+
+#### Console Security Audit
+```bash
+# Check console line security configurations
+python3 rr4-complete-enchanced-v4-cli.py collect-all \
+    --inventory security_audit_devices.csv \
+    --layers console,health \
+    --output console_security_audit_$(date +%Y%m%d) \
+    --debug
+
+# Review outputs for:
+# - Exec timeouts
+# - Session timeouts  
+# - Transport settings
+# - Access control lists
+```
+
+#### Pre/Post Change Console Verification
+```bash
+#!/bin/bash
+# console_change_verification.sh
+
+CHANGE_ID=$1
+PHASE=$2  # "pre" or "post"
+
+if [ -z "$CHANGE_ID" ] || [ -z "$PHASE" ]; then
+    echo "Usage: $0 <change_id> <pre|post>"
+    exit 1
+fi
+
+OUTPUT_DIR="${PHASE}_change_console_${CHANGE_ID}_$(date +%Y%m%d_%H%M%S)"
+
+echo "Collecting ${PHASE}-change console baseline for Change ID: $CHANGE_ID"
+
+python3 rr4-complete-enchanced-v4-cli.py collect-devices \
+    --devices $(cat affected_nm4_devices.txt) \
+    --layers console \
+    --inventory production_inventory.csv \
+    --output "${OUTPUT_DIR}"
+
+echo "Console ${PHASE}-change collection completed: $OUTPUT_DIR"
+
+# Compare if this is post-change
+if [ "$PHASE" = "post" ]; then
+    echo "Compare with pre-change baseline to identify configuration differences"
+fi
 ```
 
 ## 📊 Inventory Management

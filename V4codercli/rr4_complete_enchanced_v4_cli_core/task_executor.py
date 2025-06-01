@@ -628,7 +628,8 @@ class TaskExecutor:
                                 'mpls': ('mpls_collector', 'MPLSCollector'),
                                 'bgp': ('bgp_collector', 'BGPCollector'),
                                 'vpn': ('vpn_collector', 'VPNCollector'),
-                                'static': ('static_route_collector', 'StaticRouteCollector')
+                                'static': ('static_route_collector', 'StaticRouteCollector'),
+                                'console': ('console_line_collector', 'ConsoleLineCollector')
                             }
                             
                             if layer not in collector_mapping:
