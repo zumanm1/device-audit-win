@@ -1009,7 +1009,7 @@ class CollectionManager:
             self.logger.warning(f"Failed to generate collection report: {e}")
     
     def _display_connectivity_results(self, results: Dict[str, Any]):
-        """Display connectivity test results."""
+        """Display connectivity test results with enhanced error categorization."""
         click.echo("\n" + "=" * 70)
         click.echo("🔗 CONNECTIVITY TEST RESULTS")
         click.echo("=" * 70)
@@ -1017,6 +1017,23 @@ class CollectionManager:
         successful = results.get('successful', [])
         failed = results.get('failed', [])
         total = len(successful) + len(failed)
+        
+        # Categorize failures for better reporting
+        unreachable_devices = []
+        ssh_algorithm_issues = []
+        auth_failures = []
+        other_failures = []
+        
+        for failure in failed:
+            error_msg = str(failure.get('error', '')).lower()
+            if any(keyword in error_msg for keyword in ['connect failed', 'connection refused', 'unreachable', 'timeout']):
+                unreachable_devices.append(failure)
+            elif any(keyword in error_msg for keyword in ['key exchange', 'kex', 'diffie-hellman', 'negotiation', 'algorithm']):
+                ssh_algorithm_issues.append(failure)
+            elif any(keyword in error_msg for keyword in ['authentication', 'auth', 'password', 'credential']):
+                auth_failures.append(failure)
+            else:
+                other_failures.append(failure)
         
         # Overall statistics
         click.echo(f"\n📈 Overall Statistics:")
@@ -1026,36 +1043,80 @@ class CollectionManager:
         success_rate = (len(successful) / total * 100) if total > 0 else 0
         click.echo(f"  Success rate: {success_rate:.1f}%")
         
+        # Failure breakdown
+        if len(failed) > 0:
+            click.echo(f"\n🔍 Failure Analysis:")
+            click.echo(f"  Devices down/unreachable: {len(unreachable_devices)}")
+            click.echo(f"  SSH algorithm issues: {len(ssh_algorithm_issues)}")
+            click.echo(f"  Authentication failures: {len(auth_failures)}")
+            click.echo(f"  Other issues: {len(other_failures)}")
+        
         # Device-by-device breakdown
         if total > 0:
             click.echo(f"\n📋 Device-by-Device Breakdown:")
-            click.echo("-" * 50)
+            click.echo("-" * 65)
             
             # Show successful connections
             for result in successful:
                 hostname = result.get('hostname', 'Unknown')
-                click.echo(f"  ✅ {hostname:8} | Connected  | Auth OK      | Reachable")
+                click.echo(f"  ✅ {hostname:8} | Connected  | Auth OK      | Operational")
             
-            # Show failed connections
-            for result in failed:
+            # Show unreachable devices
+            for result in unreachable_devices:
+                hostname = result.get('hostname', 'Unknown')
+                click.echo(f"  🔴 {hostname:8} | Down       | N/A          | Device unreachable")
+            
+            # Show SSH algorithm issues
+            for result in ssh_algorithm_issues:
+                hostname = result.get('hostname', 'Unknown')
+                click.echo(f"  🟡 {hostname:8} | Reachable  | SSH Legacy   | Needs legacy SSH support")
+            
+            # Show authentication failures
+            for result in auth_failures:
+                hostname = result.get('hostname', 'Unknown')
+                click.echo(f"  🟠 {hostname:8} | Reachable  | Auth Failed  | Check credentials")
+            
+            # Show other failures
+            for result in other_failures:
                 hostname = result.get('hostname', 'Unknown')
                 error = result.get('error', 'Unknown error')
-                error_msg = str(error)[:30] + "..." if len(str(error)) > 30 else str(error)
-                click.echo(f"  ❌ {hostname:8} | Failed     | Auth Failed  | {error_msg}")
+                error_msg = str(error)[:20] + "..." if len(str(error)) > 20 else str(error)
+                click.echo(f"  ❌ {hostname:8} | Failed     | Unknown      | {error_msg}")
+        
+        # Status summary with device states
+        click.echo(f"\n📊 Device Status Summary:")
+        click.echo(f"  🟢 Operational: {len(successful)} devices")
+        click.echo(f"  🔴 Down/Unreachable: {len(unreachable_devices)} devices")
+        click.echo(f"  🟡 SSH Issues (Legacy): {len(ssh_algorithm_issues)} devices")
+        click.echo(f"  🟠 Auth Issues: {len(auth_failures)} devices")
+        click.echo(f"  ❌ Other Issues: {len(other_failures)} devices")
         
         # Authentication summary
         click.echo(f"\n🔐 Authentication & Authorization Status:")
         click.echo(f"  Authentication successful: {len(successful)}")
-        click.echo(f"  Authentication failed: {len(failed)}")
+        click.echo(f"  Authentication failed: {len(auth_failures)}")
         click.echo(f"  Authorization working: {len(successful)}")
         
         click.echo(f"\n📁 Next Steps:")
         if len(successful) > 0:
             click.echo(f"  ✅ {len(successful)} devices ready for data collection")
-            click.echo(f"  Run without --dry-run to collect data from reachable devices")
-        if len(failed) > 0:
-            click.echo(f"  ⚠️  {len(failed)} devices need attention (network/auth issues)")
-            click.echo(f"  Check connectivity and credentials for failed devices")
+            click.echo(f"  Run data collection commands to collect from operational devices")
+        
+        if len(unreachable_devices) > 0:
+            click.echo(f"  🔴 {len(unreachable_devices)} devices are DOWN - check network connectivity")
+            click.echo(f"     These devices will be marked as unreachable in reports")
+        
+        if len(ssh_algorithm_issues) > 0:
+            click.echo(f"  🟡 {len(ssh_algorithm_issues)} devices need legacy SSH support")
+            click.echo(f"     The system will attempt automatic legacy SSH handling")
+        
+        if len(auth_failures) > 0:
+            click.echo(f"  🟠 {len(auth_failures)} devices have authentication issues")
+            click.echo(f"     Check credentials and device configuration")
+        
+        if len(other_failures) > 0:
+            click.echo(f"  ❌ {len(other_failures)} devices have other issues")
+            click.echo(f"     Review detailed error messages for troubleshooting")
         
         click.echo("\n" + "=" * 70)
     

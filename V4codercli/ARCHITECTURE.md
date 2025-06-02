@@ -1,56 +1,70 @@
-# 🏗️ Architecture Documentation - RR4 Complete Enhanced v4 CLI
+# 🏗️ Architecture Documentation - RR4 Complete Enhanced v4 CLI v2.1.0
 
-This document provides a comprehensive overview of the architecture, design patterns, and technical implementation of the RR4 Complete Enhanced v4 CLI network data collection tool.
+This document provides a comprehensive overview of the architecture, design patterns, and technical implementation of the RR4 Complete Enhanced v4 CLI network data collection tool with command-line automation capabilities.
 
 ## 📋 Table of Contents
 
 1. [System Overview](#system-overview)
 2. [Core Architecture](#core-architecture)
-3. [Module Structure](#module-structure)
-4. [Data Flow](#data-flow)
-5. [Design Patterns](#design-patterns)
-6. [Core Components](#core-components)
-7. [Collector Architecture](#collector-architecture)
-8. [Connection Management](#connection-management)
-9. [Error Handling Strategy](#error-handling-strategy)
-10. [Performance Considerations](#performance-considerations)
+3. [Command-Line Automation Architecture](#command-line-automation-architecture)
+4. [Module Structure](#module-structure)
+5. [Data Flow](#data-flow)
+6. [Design Patterns](#design-patterns)
+7. [Core Components](#core-components)
+8. [Collector Architecture](#collector-architecture)
+9. [Connection Management](#connection-management)
+10. [Error Handling Strategy](#error-handling-strategy)
+11. [Performance Considerations](#performance-considerations)
 
 ## 🎯 System Overview
 
-The RR4 Complete Enhanced v4 CLI is a modular, scalable network data collection system designed for enterprise-grade reliability and performance.
+The RR4 Complete Enhanced v4 CLI is a modular, scalable network data collection system designed for enterprise-grade reliability, performance, and automation capabilities.
 
 ### Key Characteristics
 
 - **Modular Design**: Independent, loosely-coupled components
 - **Platform Agnostic**: Support for multiple Cisco platforms
 - **Concurrent Processing**: Multi-threaded data collection
+- **Command-Line Automation**: Direct option execution for CI/CD integration
 - **Extensible**: Easy addition of new collectors and platforms
 - **Fault Tolerant**: Robust error handling and recovery
 - **Jump Host Support**: Secure access through bastion hosts
+- **Enterprise Ready**: Production automation capabilities
 
 ## 🏛️ Core Architecture
 
-### High-Level Architecture
+### High-Level Architecture (v2.1.0)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    RR4 Enhanced v4 CLI                     │
+│                    RR4 Enhanced v4 CLI v2.1.0              │
 ├─────────────────────────────────────────────────────────────┤
-│  CLI Interface Layer (rr4-complete-enchanced-v4-cli.py)    │
+│  🤖 Command-Line Interface Layer                           │
+│  ┌─────────────────┐ ┌─────────────────┐                  │
+│  │ Interactive UI  │ │ Enhanced CLI    │                  │
+│  │ start_rr4_cli.py│ │ start_rr4_cli_  │                  │
+│  │                 │ │ enhanced.py     │                  │
+│  └─────────────────┘ └─────────────────┘                  │
 ├─────────────────────────────────────────────────────────────┤
-│                Core Processing Layer                        │
+│  🎯 Startup Management Layer                              │
+│  ┌─────────────────┐ ┌─────────────────┐                  │
+│  │ RR4StartupManager│ │ Argument Parser │                  │
+│  │ (Interactive)    │ │ (Automation)    │                  │
+│  └─────────────────┘ └─────────────────┘                  │
+├─────────────────────────────────────────────────────────────┤
+│  📊 Core Processing Layer                                  │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
 │  │   Task      │ │ Connection  │ │   Output    │           │
 │  │  Executor   │ │   Manager   │ │   Handler   │           │
 │  └─────────────┘ └─────────────┘ └─────────────┘           │
 ├─────────────────────────────────────────────────────────────┤
-│                Data Collection Layer                        │
+│  🎛️ Data Collection Layer                                 │
 │  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ │
 │  │ IGP │ │ BGP │ │MPLS │ │VPN  │ │Int. │ │Health│ │Cons.│ │
 │  │Coll.│ │Coll.│ │Coll.│ │Coll.│ │Coll.│ │Coll. │ │Coll.│ │
 │  └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ │
 ├─────────────────────────────────────────────────────────────┤
-│                 Network Access Layer                        │
+│  🌐 Network Access Layer                                   │
 │  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
 │  │   Netmiko   │ │   Nornir    │ │  Jump Host  │           │
 │  │ Connection  │ │  Framework  │ │   Support   │           │
@@ -58,48 +72,127 @@ The RR4 Complete Enhanced v4 CLI is a modular, scalable network data collection 
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Component Interaction
+## 🤖 Command-Line Automation Architecture
+
+### Enhanced Startup System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│              Command-Line Automation Layer                  │
+├─────────────────────────────────────────────────────────────┤
+│  start_rr4_cli_enhanced.py                                 │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │   Argument  │ │   Option    │ │   Error     │           │
+│  │   Parser    │ │ Dispatcher  │ │  Handler    │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘           │
+├─────────────────────────────────────────────────────────────┤
+│                  Import & Extension Layer                   │
+│  ┌─────────────────────────────────────────┐               │
+│  │          RR4StartupManager              │               │
+│  │        (from start_rr4_cli.py)          │               │
+│  │                                         │               │
+│  │  ┌─────────────┐ ┌─────────────┐       │               │
+│  │  │Interactive  │ │   Options   │       │               │
+│  │  │    Menu     │ │ 0-12 Logic  │       │               │
+│  │  └─────────────┘ └─────────────┘       │               │
+│  └─────────────────────────────────────────┘               │
+├─────────────────────────────────────────────────────────────┤
+│                   Execution Layer                           │
+│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
+│  │  Quiet Mode │ │Prerequisites│ │ Exit Codes  │           │
+│  │   Handler   │ │   Bypass    │ │  Manager    │           │
+│  └─────────────┘ └─────────────┘ └─────────────┘           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Component Interaction with Automation
 
 ```mermaid
 graph TD
-    A[CLI Interface] --> B[Task Executor]
-    B --> C[Connection Manager]
-    B --> D[Output Handler]
-    B --> E[Inventory Loader]
+    A[Enhanced CLI Script] --> B[Argument Parser]
+    B --> C{Option Provided?}
     
-    F[Data Parser] --> D
+    C -->|Yes| D[Direct Option Execution]
+    C -->|No| E[Interactive Menu Mode]
     
-    G[Health Collector] --> B
-    H[Interface Collector] --> B
-    I[IGP Collector] --> B
-    J[BGP Collector] --> B
-    K[MPLS Collector] --> B
-    L[VPN Collector] --> B
-    M[Static Route Collector] --> B
-    N[Console Line Collector] --> B
+    D --> F[RR4StartupManager Methods]
+    E --> F
     
-    C --> X[Netmiko]
-    C --> Y[Jump Host SSH]
+    F --> G[Task Executor]
+    G --> H[Collection Engine]
     
-    B --> Z[Progress Reporter]
-    D --> W[File System]
+    I[Quiet Mode] --> D
+    J[Prerequisites Bypass] --> D
+    K[Exit Code Handler] --> D
+    
+    L[Help System] --> B
+    M[Version Info] --> B
+    N[List Options] --> B
+```
+
+### Command-Line Arguments Flow
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant CLI as Enhanced CLI
+    participant Parser as Arg Parser
+    participant Manager as RR4StartupManager
+    participant Engine as Collection Engine
+
+    User->>CLI: Command with options
+    CLI->>Parser: Parse arguments
+    Parser-->>CLI: Parsed args
+    
+    alt Direct Execution
+        CLI->>Manager: Execute specific option
+    else Interactive Mode
+        CLI->>Manager: Run interactive menu
+    end
+    
+    Manager->>TE: Start collection
+    TE->>CM: Get device connection
+    CM-->>TE: Connection object
+    
+    loop For each layer
+        TE->>C: Create collector instance
+        C->>CM: Execute commands
+        CM-->>C: Command output
+        C->>OH: Save data
+        C-->>TE: Collection results
+    end
+    
+    TE->>OH: Generate reports
+    TE-->>Manager: Overall results
+    Manager-->>CLI: Success/failure
+    CLI->>User: Exit code & output
 ```
 
 ## 📦 Module Structure
 
-### Directory Layout
+### Enhanced Directory Layout (v2.1.0)
 
 ```
 V4codercli/
-├── rr4_complete_enchanced_v4_cli_core/          # Core framework
+├── 🤖 Enhanced Startup Scripts
+│   ├── start_rr4_cli_enhanced.py               # Command-line automation
+│   ├── start_rr4_cli.py                        # Interactive interface
+│   └── automation_example.sh                   # Automation template
+│
+├── 📚 Automation Documentation
+│   ├── COMMAND_LINE_OPTIONS_GUIDE.md           # Comprehensive CLI guide
+│   ├── automation_example.sh                   # Working automation script
+│   └── README.md                               # Updated with CLI features
+│
+├── rr4_complete_enchanced_v4_cli_core/         # Core framework
 │   ├── __init__.py
-│   ├── task_executor.py                         # Task orchestration
-│   ├── connection_manager.py                    # Connection handling
-│   ├── output_handler.py                        # Data storage
+│   ├── task_executor.py                        # Task orchestration
+│   ├── connection_manager.py                   # Connection handling
+│   ├── output_handler.py                       # Data storage
 │   ├── data_parser.py                          # Output parsing
 │   └── inventory_loader.py                     # Device inventory
 │
-├── rr4_complete_enchanced_v4_cli_tasks/         # Data collectors
+├── rr4_complete_enchanced_v4_cli_tasks/        # Data collectors
 │   ├── __init__.py
 │   ├── health_collector.py                     # System health
 │   ├── interface_collector.py                  # Interface data
@@ -111,78 +204,168 @@ V4codercli/
 │   ├── console_line_collector.py               # Console line configurations (NM4 cards)
 │   └── base_collector.py                       # Base class (deprecated)
 │
-├── tests/                                       # Test suite
-├── config/                                      # Configuration files
-├── inventory/                                   # Device inventories
-└── output/                                      # Collection output
+├── tests/                                      # Test suite
+├── config/                                     # Configuration files
+├── inventory/                                  # Device inventories
+└── output/                                     # Collection output
 ```
 
-### Import Architecture
+### Import Architecture with Automation
 
-The project uses **absolute imports** to avoid circular dependencies:
+The project uses **absolute imports** and modular design for both interactive and automated modes:
 
 ```python
-# Core modules
+# Enhanced startup script imports
+import argparse
+from pathlib import Path
+from datetime import datetime
+from typing import Dict, List, Optional, Tuple
+
+# Import the original startup manager
+from start_rr4_cli import RR4StartupManager, Colors, print_header, print_info, print_success, print_error, print_warning, display_startup_info
+
+# Core modules (unchanged)
 from V4codercli.rr4_complete_enchanced_v4_cli_core.task_executor import TaskExecutor
 from V4codercli.rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
 
-# Collector modules  
+# Collector modules (unchanged)
 from V4codercli.rr4_complete_enchanced_v4_cli_tasks.igp_collector import IGPCollector
+```
+
+### Enhanced Startup Architecture Components
+
+#### 1. Argument Parser Module
+```python
+def parse_command_line_arguments():
+    """Parse command line arguments for direct option execution"""
+    parser = argparse.ArgumentParser(
+        description='RR4 CLI Interactive Startup Script with Direct Option Access',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog='''OPTION DESCRIPTIONS AND EXAMPLES'''
+    )
+    
+    # Command-line options
+    parser.add_argument('--option', '-o', type=int, choices=[0,1,2,3,4,5,6,7,8,9,10,12])
+    parser.add_argument('--list-options', '-l', action='store_true')
+    parser.add_argument('--version', '-v', action='store_true')
+    parser.add_argument('--no-prereq-check', action='store_true')
+    parser.add_argument('--quiet', '-q', action='store_true')
+    
+    return parser.parse_args()
+```
+
+#### 2. Option Dispatcher
+```python
+def execute_option_directly(option_num: int, args) -> bool:
+    """Execute a specific option directly from command line"""
+    manager = RR4StartupManager()
+    
+    # Handle different execution modes
+    if not args.quiet:
+        display_startup_info()
+        print_header(f"DIRECT EXECUTION - OPTION {option_num}", Colors.GREEN)
+    
+    # Option execution logic with error handling
+    try:
+        if option_num == 1:
+            success = manager.first_time_setup()
+        elif option_num == 2:
+            success = manager.audit_only()
+        # ... all other options
+        
+        return success
+    except Exception as e:
+        handle_error(e, args.quiet)
+        return False
 ```
 
 ## 🔄 Data Flow
 
-### Collection Process Flow
+### Enhanced Collection Process Flow (v2.1.0)
 
 ```mermaid
 sequenceDiagram
-    participant CLI
+    participant User
+    participant CLI as Enhanced CLI
+    participant Parser as Arg Parser
+    participant Manager as RR4StartupManager
     participant TE as Task Executor
     participant CM as Connection Manager
     participant C as Collector
     participant OH as Output Handler
-    participant DP as Data Parser
 
-    CLI->>TE: Start collection
+    User->>CLI: Command with options
+    CLI->>Parser: Parse arguments
+    Parser-->>CLI: Parsed args
+    
+    alt Direct Execution
+        CLI->>Manager: Execute specific option
+    else Interactive Mode
+        CLI->>Manager: Run interactive menu
+    end
+    
+    Manager->>TE: Start collection
     TE->>CM: Get device connection
-    CM->>CM: Establish SSH connection
-    CM-->>TE: Return connection object
+    CM-->>TE: Connection object
     
     loop For each layer
         TE->>C: Create collector instance
         C->>CM: Execute commands
-        CM-->>C: Return command output
-        C->>DP: Parse command output
-        DP-->>C: Return parsed data
-        C->>OH: Save command output
-        C-->>TE: Return collection results
+        CM-->>C: Command output
+        C->>OH: Save data
+        C-->>TE: Collection results
     end
     
-    TE->>OH: Generate collection report
-    TE-->>CLI: Return overall results
+    TE->>OH: Generate reports
+    TE-->>Manager: Overall results
+    Manager-->>CLI: Success/failure
+    CLI->>User: Exit code & output
 ```
 
-### Data Processing Pipeline
+### Command-Line Execution Paths
 
-1. **Input Phase**
-   - Load device inventory
-   - Validate configuration
-   - Initialize connections
+1. **Direct Option Path**
+   - Parse command-line arguments
+   - Validate option number
+   - Execute option directly
+   - Return exit code
 
-2. **Collection Phase**
-   - Establish device connections
-   - Execute layer-specific commands
-   - Parse command outputs
-   - Store raw and parsed data
+2. **Interactive Path** (Default)
+   - Start interactive menu
+   - User selects option
+   - Execute selected option
+   - Return to menu or exit
 
-3. **Output Phase**
-   - Generate collection reports
-   - Create file structure
-   - Save metadata
+3. **Help/Info Path**
+   - Display help information
+   - Show version details
+   - List available options
+   - Exit immediately
 
 ## 🎨 Design Patterns
 
-### 1. Strategy Pattern (Collectors)
+### 1. Command Pattern (Enhanced CLI)
+
+The enhanced CLI implements the Command pattern for option execution:
+
+```python
+class OptionCommand:
+    def __init__(self, manager: RR4StartupManager, option_num: int):
+        self.manager = manager
+        self.option_num = option_num
+    
+    def execute(self) -> bool:
+        """Execute the specific option"""
+        method_map = {
+            1: self.manager.first_time_setup,
+            2: self.manager.audit_only,
+            3: self.manager.full_collection,
+            # ... other options
+        }
+        return method_map[self.option_num]()
+```
+
+### 2. Strategy Pattern (Collectors)
 
 Each collector implements the same interface but with platform-specific strategies:
 
@@ -197,7 +380,7 @@ class CollectorInterface:
         pass
 ```
 
-### 2. Factory Pattern (Connection Management)
+### 3. Factory Pattern (Connection Management)
 
 Connection creation is handled by factory methods:
 
@@ -211,7 +394,7 @@ class ConnectionManager:
             return self._create_juniper_connection(hostname, device_type, **kwargs)
 ```
 
-### 3. Observer Pattern (Progress Reporting)
+### 4. Observer Pattern (Progress Reporting)
 
 Progress updates are broadcast to registered observers:
 
@@ -228,7 +411,7 @@ class ProgressReporter:
             observer.update(progress_data)
 ```
 
-### 4. Template Method Pattern (Base Collection)
+### 5. Template Method Pattern (Base Collection)
 
 Common collection workflow with customizable steps:
 

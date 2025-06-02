@@ -159,53 +159,53 @@ class ConsoleLineCollector:
                                 'platform': platform_lower
                             }
                         break
-            else:
-                # IOS/IOS XE format: x/y/z in Int column
-                for pattern_name, pattern in patterns.items():
-                    match = re.match(pattern, line_text)
-                    if match:
-                        if pattern_name == 'line_with_int' and len(match.groups()) >= 4:
-                            # Line with interface column containing x/y/z
-                            line_info = {
-                                'line_number': match.group(1),
-                                'tty_number': match.group(2),
-                                'line_type': match.group(3).lower(),
-                                'line_id': match.group(4),  # x/y/z format
-                                'status': 'available',
-                                'raw_line': line_text,
-                                'platform': platform_lower
-                            }
-                        elif pattern_name == 'line_with_spacing' and len(match.groups()) >= 4:
-                            # Line with more spacing and x/y/z at end
-                            line_info = {
-                                'line_number': match.group(1),
-                                'tty_number': match.group(2),
-                                'line_type': match.group(3).lower(),
-                                'line_id': match.group(4),  # x/y/z format
-                                'status': 'available',
-                                'raw_line': line_text,
-                                'platform': platform_lower
-                            }
-                        elif pattern_name == 'simple_line':
-                            # Check if this line has x/y/z at the end manually
-                            # Split the line and check the last column
-                            parts = line_text.split()
-                            line_id = ''
-                            if len(parts) > 10:  # IOS lines have many columns
-                                last_part = parts[-1]
-                                if '/' in last_part and self.validate_line_format(last_part):
-                                    line_id = last_part
-                            
-                            line_info = {
-                                'line_number': match.group(1),
-                                'tty_number': match.group(2),
-                                'line_type': match.group(3).lower(),
-                                'line_id': line_id,  # x/y/z format if found
-                                'status': 'available',
-                                'raw_line': line_text,
-                                'platform': platform_lower
-                            }
-                        break
+                else:
+                    # IOS/IOS XE format: x/y/z in Int column
+                    for pattern_name, pattern in patterns.items():
+                        match = re.match(pattern, line_text)
+                        if match:
+                            if pattern_name == 'line_with_int' and len(match.groups()) >= 4:
+                                # Line with interface column containing x/y/z
+                                line_info = {
+                                    'line_number': match.group(1),
+                                    'tty_number': match.group(2),
+                                    'line_type': match.group(3).lower(),
+                                    'line_id': match.group(4),  # x/y/z format
+                                    'status': 'available',
+                                    'raw_line': line_text,
+                                    'platform': platform_lower
+                                }
+                            elif pattern_name == 'line_with_spacing' and len(match.groups()) >= 4:
+                                # Line with more spacing and x/y/z at end
+                                line_info = {
+                                    'line_number': match.group(1),
+                                    'tty_number': match.group(2),
+                                    'line_type': match.group(3).lower(),
+                                    'line_id': match.group(4),  # x/y/z format
+                                    'status': 'available',
+                                    'raw_line': line_text,
+                                    'platform': platform_lower
+                                }
+                            elif pattern_name == 'simple_line':
+                                # Check if this line has x/y/z at the end manually
+                                # Split the line and check the last column
+                                parts = line_text.split()
+                                line_id = ''
+                                if len(parts) > 10:  # IOS lines have many columns
+                                    last_part = parts[-1]
+                                    if '/' in last_part and self.validate_line_format(last_part):
+                                        line_id = last_part
+                                
+                                line_info = {
+                                    'line_number': match.group(1),
+                                    'tty_number': match.group(2),
+                                    'line_type': match.group(3).lower(),
+                                    'line_id': line_id,  # x/y/z format if found
+                                    'status': 'available',
+                                    'raw_line': line_text,
+                                    'platform': platform_lower
+                                }
+                            break
             
             if line_info:
                 # Extract additional status information

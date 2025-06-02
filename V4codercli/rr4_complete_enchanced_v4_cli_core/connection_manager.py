@@ -162,7 +162,14 @@ class ConnectionPool:
                 'timeout': config.timeout,
                 'session_timeout': config.session_timeout,
                 'global_delay_factor': config.global_delay_factor,
-                'verbose': False
+                'verbose': False,
+                # Add SSH configuration for legacy Cisco devices
+                'conn_timeout': config.timeout,
+                'auth_timeout': config.timeout,
+                'banner_timeout': 15,
+                'blocking_timeout': 20,
+                'read_timeout_override': config.timeout,
+                'sock': None  # Will be set if using jump host
             }
             
             # Add jump host configuration if provided
@@ -170,10 +177,7 @@ class ConnectionPool:
                 try:
                     self.logger.info(f"Establishing jump host tunnel for {config.hostname}")
                     sock = self._create_jump_host_socket(config)
-                    connection_params.update({
-                        'ssh_config_file': None,
-                        'sock': sock
-                    })
+                    connection_params['sock'] = sock
                     diagnostics.jump_host_status = "connected"
                     self.logger.info(f"Jump host tunnel established for {config.hostname}")
                 except Exception as e:
@@ -183,13 +187,56 @@ class ConnectionPool:
                     return None
             
             self.logger.info(f"Connecting to {config.hostname} via {'jump host' if config.jump_host else 'direct connection'}")
-            connection = ConnectHandler(**connection_params)
-            response_time = time.time() - start_time
-            diagnostics.response_times.append(response_time)
-            diagnostics.authentication_status = "success"
             
-            self.logger.info(f"Successfully created connection to {config.hostname} in {response_time:.2f}s")
-            return connection
+            # Try connection with standard SSH algorithms first
+            try:
+                connection = ConnectHandler(**connection_params)
+                response_time = time.time() - start_time
+                diagnostics.response_times.append(response_time)
+                diagnostics.authentication_status = "success"
+                
+                self.logger.info(f"Successfully created connection to {config.hostname} in {response_time:.2f}s")
+                return connection
+                
+            except Exception as first_attempt_error:
+                # Check if this is an SSH algorithm negotiation issue
+                error_msg = str(first_attempt_error).lower()
+                if any(keyword in error_msg for keyword in ['key exchange', 'kex', 'diffie-hellman', 'negotiation', 'algorithm']):
+                    self.logger.info(f"SSH algorithm negotiation failed for {config.hostname}, trying with legacy algorithms")
+                    
+                    # For very old devices, we need to reconfigure the jump host tunnel with legacy support
+                    if config.jump_host and 'sock' in connection_params:
+                        try:
+                            # Close existing socket
+                            connection_params['sock'].close()
+                        except:
+                            pass
+                        
+                        # Create new socket with enhanced legacy support
+                        try:
+                            sock = self._create_legacy_jump_host_socket(config)
+                            connection_params['sock'] = sock
+                        except Exception as legacy_error:
+                            diagnostics.last_error = f"Legacy SSH connection failed: {str(legacy_error)}"
+                            self.logger.error(f"Legacy SSH connection failed for {config.hostname}: {legacy_error}")
+                            return None
+                    
+                    # Try connection again with the legacy socket
+                    try:
+                        connection = ConnectHandler(**connection_params)
+                        response_time = time.time() - start_time
+                        diagnostics.response_times.append(response_time)
+                        diagnostics.authentication_status = "success (legacy SSH)"
+                        
+                        self.logger.info(f"Successfully created legacy SSH connection to {config.hostname} in {response_time:.2f}s")
+                        return connection
+                        
+                    except Exception as legacy_attempt_error:
+                        self.logger.error(f"Legacy SSH connection also failed for {config.hostname}: {legacy_attempt_error}")
+                        raise legacy_attempt_error
+                else:
+                    # Not an SSH algorithm issue, re-raise the original error
+                    raise first_attempt_error
             
         except NetmikoAuthenticationException as e:
             diagnostics.error_type = "authentication"
@@ -203,9 +250,19 @@ class ConnectionPool:
             self.logger.error(f"Connection timeout for {config.hostname}: {e}")
             return None
         except Exception as e:
-            diagnostics.error_type = "general"
-            diagnostics.last_error = f"Connection failed: {str(e)}"
-            self.logger.error(f"Failed to create connection to {config.hostname}: {e}")
+            error_msg = str(e).lower()
+            if any(keyword in error_msg for keyword in ['key exchange', 'kex', 'diffie-hellman', 'negotiation', 'algorithm']):
+                diagnostics.error_type = "ssh_algorithm"
+                diagnostics.last_error = f"SSH algorithm negotiation failed: {str(e)}"
+                self.logger.error(f"SSH algorithm negotiation failed for {config.hostname}: {e}")
+            elif 'connect failed' in error_msg or 'connection refused' in error_msg:
+                diagnostics.error_type = "unreachable"
+                diagnostics.last_error = f"Device unreachable: {str(e)}"
+                self.logger.error(f"Device {config.hostname} is unreachable: {e}")
+            else:
+                diagnostics.error_type = "general"
+                diagnostics.last_error = f"Connection failed: {str(e)}"
+                self.logger.error(f"Failed to create connection to {config.hostname}: {e}")
             return None
         finally:
             # Log diagnostics for troubleshooting
@@ -325,7 +382,7 @@ class ConnectionPool:
             }
 
     def _create_jump_host_socket(self, config: ConnectionConfig) -> paramiko.Channel:
-        """Create SSH socket through jump host."""
+        """Create SSH socket through jump host with legacy SSH support for older Cisco devices."""
         if not config.jump_host:
             raise ValueError("Jump host configuration required")
         
@@ -346,6 +403,36 @@ class ConnectionPool:
             transport = jump_ssh.get_transport()
             dest_addr = (config.hostname, config.port)
             local_addr = ('127.0.0.1', 0)
+            
+            # Configure legacy SSH algorithms for older Cisco devices
+            # This is needed for devices that only support older SSH implementations
+            try:
+                # Enable legacy key exchange algorithms
+                transport.get_security_options().kex = [
+                    'diffie-hellman-group14-sha256',
+                    'diffie-hellman-group14-sha1', 
+                    'diffie-hellman-group1-sha1',
+                    'diffie-hellman-group-exchange-sha256',
+                    'diffie-hellman-group-exchange-sha1'
+                ]
+                
+                # Enable legacy ciphers
+                transport.get_security_options().ciphers = [
+                    'aes128-ctr', 'aes192-ctr', 'aes256-ctr',
+                    'aes128-cbc', 'aes192-cbc', 'aes256-cbc',
+                    '3des-cbc'
+                ]
+                
+                # Enable legacy MAC algorithms
+                transport.get_security_options().digests = [
+                    'hmac-sha2-256', 'hmac-sha2-512',
+                    'hmac-sha1', 'hmac-sha1-96',
+                    'hmac-md5', 'hmac-md5-96'
+                ]
+                
+                self.logger.debug(f"Configured legacy SSH algorithms for {config.hostname}")
+            except Exception as e:
+                self.logger.warning(f"Could not configure legacy SSH algorithms: {e}")
             
             channel = transport.open_channel("direct-tcpip", dest_addr, local_addr)
             return channel
@@ -416,6 +503,71 @@ class ConnectionPool:
             self.logger.error(f"Failed to handle connection failure: {e}")
         
         return None
+
+    def _create_legacy_jump_host_socket(self, config: ConnectionConfig) -> paramiko.Channel:
+        """Create SSH socket through jump host with maximum legacy SSH support for very old Cisco devices."""
+        if not config.jump_host:
+            raise ValueError("Jump host configuration required")
+        
+        # Create SSH client for jump host
+        jump_ssh = paramiko.SSHClient()
+        jump_ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        
+        try:
+            jump_ssh.connect(
+                hostname=config.jump_host['hostname'],
+                username=config.jump_host['username'],
+                password=config.jump_host['password'],
+                port=config.jump_host.get('port', 22),
+                timeout=config.timeout
+            )
+            
+            # Create tunnel through jump host with maximum legacy support
+            transport = jump_ssh.get_transport()
+            dest_addr = (config.hostname, config.port)
+            local_addr = ('127.0.0.1', 0)
+            
+            # Configure maximum legacy SSH algorithms for ancient Cisco devices
+            # This is needed for devices that only support very old SSH implementations
+            try:
+                # Enable all possible legacy key exchange algorithms (including the oldest ones)
+                transport.get_security_options().kex = [
+                    'diffie-hellman-group1-sha1',  # Ancient algorithm for very old devices
+                    'diffie-hellman-group14-sha1', 
+                    'diffie-hellman-group14-sha256',
+                    'diffie-hellman-group-exchange-sha1',
+                    'diffie-hellman-group-exchange-sha256'
+                ]
+                
+                # Enable all possible legacy ciphers (including 3des and older ones)
+                transport.get_security_options().ciphers = [
+                    '3des-cbc',               # Very old but sometimes required
+                    'aes128-cbc', 'aes192-cbc', 'aes256-cbc',
+                    'aes128-ctr', 'aes192-ctr', 'aes256-ctr',
+                    'blowfish-cbc',           # Ancient cipher
+                    'cast128-cbc'             # Another ancient cipher
+                ]
+                
+                # Enable all possible legacy MAC algorithms
+                transport.get_security_options().digests = [
+                    'hmac-sha1',              # Old but widely supported
+                    'hmac-sha1-96',           # Truncated version
+                    'hmac-md5',               # Very old
+                    'hmac-md5-96',            # Truncated MD5
+                    'hmac-sha2-256', 'hmac-sha2-512'  # Modern ones as fallback
+                ]
+                
+                self.logger.info(f"Configured maximum legacy SSH algorithms for very old device {config.hostname}")
+            except Exception as e:
+                self.logger.warning(f"Could not configure legacy SSH algorithms: {e}")
+            
+            channel = transport.open_channel("direct-tcpip", dest_addr, local_addr)
+            return channel
+            
+        except Exception as e:
+            self.logger.error(f"Failed to create legacy jump host tunnel: {e}")
+            jump_ssh.close()
+            raise
 
 class ConnectionManager:
     """Manage SSH connections with retry logic and enhanced error reporting."""
