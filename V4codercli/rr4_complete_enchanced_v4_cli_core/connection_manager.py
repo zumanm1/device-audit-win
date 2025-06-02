@@ -18,6 +18,7 @@ from dataclasses import dataclass
 from contextlib import contextmanager
 import paramiko
 from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
+import os
 
 @dataclass
 class ConnectionConfig:
@@ -47,6 +48,172 @@ class ConnectionDiagnostics:
     def __post_init__(self):
         if self.response_times is None:
             self.response_times = []
+
+# Enhanced SSH Configuration for Legacy Cisco Devices
+# Updated with PROVEN WORKING parameters from user's successful connection
+LEGACY_SSH_ALGORITHMS = {
+    'kex_algorithms': [
+        'diffie-hellman-group1-sha1',  # PROVEN WORKING - user confirmed
+        'diffie-hellman-group14-sha1',
+        'diffie-hellman-group14-sha256',
+        'diffie-hellman-group16-sha512'
+    ],
+    'ciphers': [
+        'aes128-cbc', '3des-cbc', 'aes192-cbc', 'aes256-cbc',  # PROVEN WORKING - user confirmed
+        'aes128-ctr', 'aes192-ctr', 'aes256-ctr'
+    ],
+    'macs': [
+        'hmac-sha1', 'hmac-sha1-96',  # Legacy MACs
+        'hmac-sha2-256', 'hmac-sha2-512'
+    ],
+    'host_key_algorithms': [
+        'ssh-rsa',  # PROVEN WORKING - user confirmed
+        'ssh-dss',
+        'rsa-sha2-256', 'rsa-sha2-512'
+    ]
+}
+
+# Jump host configuration for EVE-NG environment
+JUMP_HOST_CONFIG = {
+    'hostname': '172.16.39.128',
+    'username': 'root',
+    'device_type': 'linux',
+    'timeout': 30
+}
+
+def create_legacy_ssh_config():
+    """Create SSH config file for legacy device support with jump host."""
+    config_content = f"""# SSH Configuration for Legacy Cisco Devices with Jump Host
+# Based on PROVEN WORKING user connection
+
+# Jump Host Configuration
+Host jumphost eve-ng
+    HostName 172.16.39.128
+    User root
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ConnectTimeout 15
+    ServerAliveInterval 30
+    ServerAliveCountMax 3
+
+# ALL Cisco routers via jump host with PROVEN working algorithms
+Host cisco-legacy cisco-* 172.16.39.* router-* 10.* 192.168.*
+    # Route through jump host
+    ProxyJump jumphost
+    
+    # PROVEN WORKING algorithms from user's successful connection
+    KexAlgorithms +diffie-hellman-group1-sha1
+    HostKeyAlgorithms +ssh-rsa
+    Ciphers +aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc
+    
+    # Connection optimization
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ConnectTimeout 30
+    ServerAliveInterval 60
+    ServerAliveCountMax 5
+    
+    # Authentication settings
+    PreferredAuthentications password,keyboard-interactive
+    PasswordAuthentication yes
+    PubkeyAuthentication no
+    
+    # Protocol and feature settings
+    Protocol 2
+    RequestTTY yes
+    ForwardAgent no
+    ForwardX11 no
+    LogLevel ERROR
+"""
+    
+    from pathlib import Path
+    config_path = Path(__file__).parent / 'cisco_legacy_ssh_config'
+    with open(config_path, 'w') as f:
+        f.write(config_content)
+    
+    return config_path
+
+def get_enhanced_ssh_command(host, username, password, command='show version'):
+    """Get SSH command with PROVEN working algorithms and jump host."""
+    ssh_config = create_legacy_ssh_config()
+    
+    # Load jump host password from environment or use validated default
+    jump_host_password = os.getenv('JUMP_HOST_PASSWORD', 'eve')
+    
+    # Commands prioritized by success probability based on user's testing
+    commands = [
+        # Method 1: Direct SSH with PROVEN working algorithms via jump host with password
+        [
+            'sshpass', '-p', jump_host_password,
+            'ssh',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'ConnectTimeout=30',
+            'root@172.16.39.128',
+            f"sshpass -p {password} ssh "
+            f"-o KexAlgorithms=+diffie-hellman-group1-sha1 "
+            f"-o HostKeyAlgorithms=+ssh-rsa "
+            f"-o Ciphers=+aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc "
+            f"-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null "
+            f"-o ConnectTimeout=20 {username}@{host} '{command}'"
+        ],
+        # Method 2: Using SSH config file with jump host (if passwordless SSH keys available)
+        [
+            'sshpass', '-p', password,
+            'ssh', '-F', str(ssh_config),
+            '-o', 'ConnectTimeout=30',
+            '-o', 'BatchMode=yes',
+            f'{username}@{host}',
+            command
+        ],
+        # Method 3: Fallback without jump host (for local testing)
+        [
+            'sshpass', '-p', password,
+            'ssh',
+            '-o', 'KexAlgorithms=+diffie-hellman-group1-sha1',
+            '-o', 'HostKeyAlgorithms=+ssh-rsa',
+            '-o', 'Ciphers=+aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            '-o', 'ConnectTimeout=15',
+            '-o', 'BatchMode=yes',
+            f'{username}@{host}',
+            command
+        ]
+    ]
+    
+    return commands
+
+def test_enhanced_ssh_connection(host, username='cisco', password='cisco'):
+    """Test SSH connection with enhanced algorithms."""
+    print_info(f"Testing enhanced SSH connection to {host}")
+    
+    commands = get_enhanced_ssh_command(host, username, password, 'show version | include Software')
+    
+    for i, cmd in enumerate(commands):
+        try:
+            print_info(f"Trying SSH method {i+1}/{len(commands)}")
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=20)
+            
+            if result.returncode == 0:
+                print_success(f"SSH connection successful with method {i+1}")
+                return {
+                    'success': True,
+                    'method': i+1,
+                    'output': result.stdout.strip(),
+                    'command': cmd
+                }
+            else:
+                error_msg = result.stderr.strip()
+                print_warning(f"Method {i+1} failed: {error_msg[:100]}")
+                
+        except subprocess.TimeoutExpired:
+            print_warning(f"Method {i+1} timed out")
+        except Exception as e:
+            print_warning(f"Method {i+1} error: {e}")
+    
+    return {'success': False, 'error': 'All SSH methods failed'}
+
 
 class ConnectionPool:
     """Manage a pool of SSH connections with enhanced monitoring."""

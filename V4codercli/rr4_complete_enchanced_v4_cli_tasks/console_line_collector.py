@@ -135,7 +135,7 @@ class ConsoleLineCollector:
                 # IOS XR format: Tty column contains x/y/z
                 for pattern_name, pattern in patterns.items():
                     match = re.match(pattern, line_text)
-                    if match:
+            if match:
                         if pattern_name == 'tty_line':
                             # x/y/z in Tty column
                             line_info = {
@@ -245,15 +245,15 @@ class ConsoleLineCollector:
                 
                 for z in range(z_start, z_end + 1):
                     line_id = f"{x}/{y}/{z}"
-                    lines.append({
+                lines.append({
                         'line_number': f"aux_{x}_{y}_{z}",
                         'line_type': 'aux',
-                        'line_id': line_id,
+                    'line_id': line_id,
                         'status': 'range_specified',
                         'raw_line': f"Range line {line_id}",
                         'platform': 'ios',
                         'from_range': True
-                    })
+                })
         
         return lines
     
@@ -275,7 +275,7 @@ class ConsoleLineCollector:
             
             # Additional checks for console-related lines
             if valid_line and line_type in ['aux', 'con', 'tty']:
-                console_lines.append(line_id)
+                    console_lines.append(line_id)
                 self.logger.debug(f"Found console line: {line_id} (type: {line_type})")
         
         # Remove duplicates and sort

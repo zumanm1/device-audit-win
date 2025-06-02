@@ -1,0 +1,38 @@
+# Validated SSH Configuration for V4codercli
+# Based on WORKING credentials and proven algorithms
+
+# Jump Host Configuration
+Host jumphost eve-ng
+    HostName 172.16.39.128
+    User root
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ConnectTimeout 15
+    ServerAliveInterval 30
+    ServerAliveCountMax 3
+
+# ALL Cisco routers via jump host with VALIDATED algorithms
+Host 172.16.39.1* cisco-* router-* R1*
+    ProxyJump jumphost
+    User cisco
+    
+    # PROVEN WORKING algorithms
+    KexAlgorithms +diffie-hellman-group1-sha1
+    HostKeyAlgorithms +ssh-rsa
+    Ciphers +aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc
+    
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ConnectTimeout 45
+    ServerAliveInterval 60
+    ServerAliveCountMax 5
+    
+    PreferredAuthentications password,keyboard-interactive
+    PasswordAuthentication yes
+    PubkeyAuthentication no
+    
+    Protocol 2
+    RequestTTY yes
+    ForwardAgent no
+    ForwardX11 no
+    LogLevel ERROR
