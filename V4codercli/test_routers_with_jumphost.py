@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Router Test with Jump Host Authentication
-Tests 172.16.39.106 and 172.16.39.120 with proper jump host handling
+Router Testing with Jump Host - Security Enhanced
+Tests router connectivity using jump host with credentials from .env-t
 """
 
 import subprocess
 import time
-import sys
+import csv
+import os
 from pathlib import Path
 
 # ANSI color codes
@@ -37,99 +38,201 @@ def print_warning(message):
 def print_info(message):
     print(f"{Colors.BLUE}ℹ️  {message}{Colors.END}")
 
-def test_jump_host_auth(jump_host='172.16.39.128', jump_user='root'):
-    """Test different authentication methods for jump host."""
-    print_info(f"Testing jump host authentication: {jump_user}@{jump_host}")
+def load_credentials_from_env():
+    """Load credentials from .env-t file."""
+    credentials = {}
+    env_file = Path('.env-t')
     
-    # Common passwords for EVE-NG and lab environments
-    passwords = ['unl', 'eve', 'root', 'admin', 'cisco', '']
+    if env_file.exists():
+        try:
+            with open(env_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        credentials[key.strip()] = value.strip()
+                        os.environ[key.strip()] = value.strip()
+        except Exception as e:
+            print(f"Warning: Could not load .env-t file: {e}")
+    
+    return {
+        'jump_host_ip': credentials.get('JUMP_HOST_IP', '172.16.39.128'),
+        'jump_host_username': credentials.get('JUMP_HOST_USERNAME', 'root'),
+        'jump_host_password': credentials.get('JUMP_HOST_PASSWORD', 'eve'),
+        'router_username': credentials.get('ROUTER_USERNAME', 'cisco'),
+        'router_password': credentials.get('ROUTER_PASSWORD', 'cisco')
+    }
+
+def get_test_passwords():
+    """Get list of test passwords from environment, with fallbacks for testing."""
+    creds = load_credentials_from_env()
+    # For testing purposes, include common passwords but prioritize env credentials
+    test_passwords = [
+        creds['jump_host_password'],  # Primary from .env-t
+        creds['router_password'],     # Secondary from .env-t
+        'eve', 'unl', 'root', 'admin', 'cisco'  # Common test passwords
+    ]
+    # Remove duplicates while preserving order
+    return list(dict.fromkeys(test_passwords))
+
+def test_jump_host_auth(jump_host=None, jump_user=None):
+    """Test jump host authentication using credentials from .env-t."""
+    creds = load_credentials_from_env()
+    
+    if jump_host is None:
+        jump_host = creds['jump_host_ip']
+    if jump_user is None:
+        jump_user = creds['jump_host_username']
+    
+    print(f"Testing jump host authentication: {jump_user}@{jump_host}")
+    
+    passwords = get_test_passwords()
     
     for password in passwords:
         try:
-            if password == '':
-                print_info("Trying passwordless/key-based authentication...")
-                cmd = ['ssh', '-o', 'ConnectTimeout=10', '-o', 'BatchMode=yes', 
-                       '-o', 'StrictHostKeyChecking=no', f'{jump_user}@{jump_host}', 'echo SUCCESS']
-            else:
-                print_info(f"Trying password: '{password}'")
-                cmd = ['sshpass', '-p', password, 'ssh', '-o', 'ConnectTimeout=10', 
-                       '-o', 'BatchMode=yes', '-o', 'StrictHostKeyChecking=no', 
-                       f'{jump_user}@{jump_host}', 'echo SUCCESS']
+            print(f"Trying password: {'*' * len(password)}")
+            cmd = [
+                'sshpass', '-p', password,
+                'ssh', '-o', 'ConnectTimeout=10',
+                '-o', 'StrictHostKeyChecking=no',
+                '-o', 'UserKnownHostsFile=/dev/null',
+                f'{jump_user}@{jump_host}',
+                'echo "Authentication successful"'
+            ]
             
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=15)
             
-            if result.returncode == 0 and 'SUCCESS' in result.stdout:
-                print_success(f"Jump host authentication successful with password: '{password}'")
+            if result.returncode == 0:
+                print(f"✅ Jump host authentication successful with {jump_user}@{jump_host}")
                 return password
             else:
-                print_warning(f"Failed with password: '{password}'")
+                print(f"❌ Authentication failed: {result.stderr.strip()}")
                 
         except subprocess.TimeoutExpired:
-            print_warning(f"Timeout with password: '{password}'")
+            print(f"⏰ Connection timeout for password")
         except Exception as e:
-            print_warning(f"Error with password '{password}': {e}")
+            print(f"❌ Error: {e}")
     
-    print_error("No working authentication method found for jump host")
+    print(f"❌ All authentication attempts failed for {jump_user}@{jump_host}")
     return None
 
-def test_router_via_jumphost(router_ip, router_name, jump_password, 
-                           jump_host='172.16.39.128', jump_user='root',
-                           router_user='cisco', router_password='cisco'):
-    """Test router connection via jump host with working authentication."""
-    print_header(f"Testing {router_name} ({router_ip}) via Jump Host")
+def test_router_via_jumphost(router_ip, router_name,
+                           jump_host=None, jump_user=None,
+                           router_user=None, router_password=None):
+    """Test router connectivity via jump host using .env-t credentials."""
+    creds = load_credentials_from_env()
     
-    if jump_password == '':
-        # Key-based authentication
-        ssh_cmd = [
-            'ssh', '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null',
-            '-o', 'ConnectTimeout=30',
-            f'{jump_user}@{jump_host}',
-            f'sshpass -p {router_password} ssh -o KexAlgorithms=+diffie-hellman-group1-sha1 '
-            f'-o HostKeyAlgorithms=+ssh-rsa -o Ciphers=+aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc '
-            f'-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=20 '
-            f'{router_user}@{router_ip} "show version | include Software"'
-        ]
-    else:
-        # Password-based authentication
-        ssh_cmd = [
-            'sshpass', '-p', jump_password, 'ssh', 
-            '-o', 'StrictHostKeyChecking=no', '-o', 'UserKnownHostsFile=/dev/null',
-            '-o', 'ConnectTimeout=30',
-            f'{jump_user}@{jump_host}',
-            f'sshpass -p {router_password} ssh -o KexAlgorithms=+diffie-hellman-group1-sha1 '
-            f'-o HostKeyAlgorithms=+ssh-rsa -o Ciphers=+aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc '
-            f'-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=20 '
-            f'{router_user}@{router_ip} "show version | include Software"'
-        ]
+    # Use environment credentials if not provided
+    if jump_host is None:
+        jump_host = creds['jump_host_ip']
+    if jump_user is None:
+        jump_user = creds['jump_host_username']
+    if router_user is None:
+        router_user = creds['router_username']
+    if router_password is None:
+        router_password = creds['router_password']
     
+    print(f"\n{'='*60}")
+    print(f"Testing {router_name} ({router_ip}) via jump host")
+    print(f"Jump Host: {jump_user}@{jump_host}")
+    print(f"Router: {router_user}@{router_ip}")
+    print(f"{'='*60}")
+    
+    # First ensure jump host authentication works
+    jump_password = test_jump_host_auth(jump_host, jump_user)
+    if not jump_password:
+        return {
+            'router': router_name,
+            'router_ip': router_ip,
+            'status': 'FAILED',
+            'error': 'Jump host authentication failed',
+            'jump_password': None
+        }
+    
+    # Test router connectivity via jump host
     try:
-        print_info("Executing SSH command via jump host...")
-        result = subprocess.run(ssh_cmd, capture_output=True, text=True, timeout=60)
+        cmd = [
+            'sshpass', '-p', jump_password,
+            'ssh', '-o', 'ConnectTimeout=10',
+            '-o', 'StrictHostKeyChecking=no',
+            '-o', 'UserKnownHostsFile=/dev/null',
+            f'{jump_user}@{jump_host}',
+            f"sshpass -p {router_password} ssh "
+            f"-o ConnectTimeout=10 -o StrictHostKeyChecking=no "
+            f"-o UserKnownHostsFile=/dev/null "
+            f"{router_user}@{router_ip} 'show version | include Software'"
+        ]
+        
+        result = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
         
         if result.returncode == 0:
-            output = result.stdout.strip()
-            if output and 'Software' in output:
-                print_success(f"SUCCESS: {router_name} connected via jump host!")
-                print_info(f"Router output: {output[:150]}...")
-                return {
-                    'success': True,
-                    'router': router_ip,
-                    'name': router_name,
-                    'output': output,
-                    'jump_password': jump_password
-                }
-            else:
-                print_warning(f"Connected but no valid output: {output}")
+            print(f"✅ SUCCESS: {router_name} is accessible!")
+            print(f"Output: {result.stdout.strip()[:100]}...")
+            return {
+                'router': router_name,
+                'router_ip': router_ip,
+                'status': 'SUCCESS',
+                'output': result.stdout.strip(),
+                'jump_password': jump_password
+            }
         else:
-            error_msg = result.stderr.strip()
-            print_error(f"SSH command failed: {error_msg[:200]}")
+            print(f"❌ FAILED: {router_name} connection failed")
+            print(f"Error: {result.stderr.strip()}")
+            return {
+                'router': router_name,
+                'router_ip': router_ip,
+                'status': 'FAILED',
+                'error': result.stderr.strip(),
+                'jump_password': jump_password
+            }
             
     except subprocess.TimeoutExpired:
-        print_error("SSH command timed out")
+        print(f"⏰ TIMEOUT: {router_name} connection timed out")
+        return {
+            'router': router_name,
+            'router_ip': router_ip,
+            'status': 'TIMEOUT',
+            'error': 'Connection timeout',
+            'jump_password': jump_password
+        }
     except Exception as e:
-        print_error(f"SSH command error: {e}")
+        print(f"❌ ERROR: {router_name} - {e}")
+        return {
+            'router': router_name,
+            'router_ip': router_ip,
+            'status': 'ERROR',
+            'error': str(e),
+            'jump_password': jump_password
+        }
+
+def generate_working_inventory(working_routers):
+    """Generate inventory CSV for working routers using .env-t credentials."""
+    creds = load_credentials_from_env()
     
-    return {'success': False, 'router': router_ip, 'name': router_name}
+    filename = 'working_routers_inventory.csv'
+    try:
+        with open(filename, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['hostname', 'ip_address', 'username', 'password', 'device_type', 'protocol', 'jump_host', 'jump_password'])
+            
+            for router in working_routers:
+                if router['status'] == 'SUCCESS':
+                    writer.writerow([
+                        router['name'],
+                        router['router'],
+                        creds['router_username'],
+                        creds['router_password'],
+                        'cisco_ios',
+                        'ssh',
+                        creds['jump_host_ip'],
+                        router['jump_password']
+                    ])
+        
+        print(f"✅ Generated inventory file: {filename}")
+        return filename
+    except Exception as e:
+        print(f"❌ Failed to generate inventory: {e}")
+        return None
 
 def main():
     """Main test function."""
@@ -155,7 +258,7 @@ def main():
     for router_ip, router_name in routers:
         result = test_router_via_jumphost(router_ip, router_name, jump_password)
         
-        if result['success']:
+        if result['status'] == 'SUCCESS':
             working_routers.append(result)
     
     # Summary
@@ -167,16 +270,10 @@ def main():
     if working_routers:
         print_header("SUCCESSFUL CONNECTIONS")
         for router in working_routers:
-            print_success(f"✅ {router['name']} ({router['router']})")
+            print_success(f"✅ {router['router']} ({router['router_ip']})")
         
         # Save results
-        csv_filename = "jumphost_verified_routers.csv"
-        with open(csv_filename, 'w') as f:
-            f.write("device_name,ip_address,username,password,device_type,protocol,jump_host,jump_password\n")
-            for router in working_routers:
-                f.write(f"{router['name']},{router['router']},cisco,cisco,cisco_ios,ssh,172.16.39.128,{router['jump_password']}\n")
-        
-        print_info(f"Results saved to {csv_filename}")
+        csv_filename = generate_working_inventory(working_routers)
         
         print_header("🎉 SUCCESS!")
         print_success("V4codercli full range solution validated with jump host authentication")

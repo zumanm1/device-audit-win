@@ -43,11 +43,11 @@ def load_credentials():
     """Load credentials from .env-t file."""
     env_file = Path(".env-t")
     credentials = {
-        'jump_host': '172.16.39.128',
-        'jump_user': 'root',
-        'jump_pass': 'eve',
-        'router_user': 'cisco',
-        'router_pass': 'cisco'
+        'jump_host': os.getenv('JUMP_HOST_IP', '172.16.39.128'),
+        'jump_user': os.getenv('JUMP_HOST_USERNAME', 'root'),
+        'jump_pass': os.getenv('JUMP_HOST_PASSWORD', 'eve'),
+        'router_user': os.getenv('ROUTER_USERNAME', 'cisco'),
+        'router_pass': os.getenv('ROUTER_PASSWORD', 'cisco')
     }
     
     if env_file.exists():
@@ -56,6 +56,7 @@ def load_credentials():
                 if line.strip() and not line.startswith('#'):
                     if '=' in line:
                         key, value = line.strip().split('=', 1)
+                        os.environ[key] = value  # Set environment variable
                         if key == 'JUMP_HOST_IP':
                             credentials['jump_host'] = value
                         elif key == 'JUMP_HOST_USERNAME':

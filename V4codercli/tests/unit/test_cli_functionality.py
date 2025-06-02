@@ -40,6 +40,43 @@ except ImportError as e:
     print(f"Warning: CLI module not available: {e}")
     CLI_MODULE_AVAILABLE = False
 
+def load_test_credentials():
+    """Load test credentials from .env-t file or use secure defaults."""
+    credentials = {
+        'jump_host_ip': os.getenv('JUMP_HOST_IP', '172.16.39.128'),
+        'jump_host_username': os.getenv('JUMP_HOST_USERNAME', 'root'),
+        'jump_host_password': os.getenv('JUMP_HOST_PASSWORD', 'eve'),
+        'device_username': os.getenv('ROUTER_USERNAME', 'cisco'),
+        'device_password': os.getenv('ROUTER_PASSWORD', 'cisco')
+    }
+    
+    # Try to load from .env-t if available
+    env_file = Path('.env-t')
+    if env_file.exists():
+        try:
+            with open(env_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        os.environ[key.strip()] = value.strip()
+                        
+                        # Update credentials dictionary
+                        if key.strip() == 'JUMP_HOST_IP':
+                            credentials['jump_host_ip'] = value.strip()
+                        elif key.strip() == 'JUMP_HOST_USERNAME':
+                            credentials['jump_host_username'] = value.strip()
+                        elif key.strip() == 'JUMP_HOST_PASSWORD':
+                            credentials['jump_host_password'] = value.strip()
+                        elif key.strip() == 'ROUTER_USERNAME':
+                            credentials['device_username'] = value.strip()
+                        elif key.strip() == 'ROUTER_PASSWORD':
+                            credentials['device_password'] = value.strip()
+        except Exception:
+            pass  # Use defaults if file reading fails
+    
+    return credentials
+
 class TestCLIBasicFunctionality:
     """Test basic CLI functionality."""
     

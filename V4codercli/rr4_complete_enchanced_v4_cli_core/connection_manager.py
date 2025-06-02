@@ -19,6 +19,7 @@ from contextlib import contextmanager
 import paramiko
 from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
 import os
+import subprocess
 
 @dataclass
 class ConnectionConfig:
@@ -74,22 +75,49 @@ LEGACY_SSH_ALGORITHMS = {
 }
 
 # Jump host configuration for EVE-NG environment
-JUMP_HOST_CONFIG = {
-    'hostname': '172.16.39.128',
-    'username': 'root',
-    'device_type': 'linux',
-    'timeout': 30
-}
+def get_jump_host_config():
+    """Get jump host configuration from environment variables."""
+    from pathlib import Path
+    
+    # Try to load from .env-t file if it exists
+    env_file = Path('.env-t')
+    if env_file.exists():
+        try:
+            with open(env_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        os.environ[key.strip()] = value.strip()
+        except Exception:
+            pass  # Continue with environment defaults
+    
+    return {
+        'hostname': os.getenv('JUMP_HOST_IP', '172.16.39.128'),
+        'username': os.getenv('JUMP_HOST_USERNAME', 'root'),
+        'password': os.getenv('JUMP_HOST_PASSWORD', 'eve'),
+        'device_type': 'linux',
+        'timeout': 30
+    }
+
+# Legacy constant for backward compatibility
+JUMP_HOST_CONFIG = get_jump_host_config()
 
 def create_legacy_ssh_config():
     """Create SSH config file for legacy device support with jump host."""
+    from pathlib import Path
+    
+    # Load credentials from environment
+    jump_host_ip = os.getenv('JUMP_HOST_IP', '172.16.39.128')
+    jump_host_user = os.getenv('JUMP_HOST_USERNAME', 'root')
+    
     config_content = f"""# SSH Configuration for Legacy Cisco Devices with Jump Host
 # Based on PROVEN WORKING user connection
 
 # Jump Host Configuration
 Host jumphost eve-ng
-    HostName 172.16.39.128
-    User root
+    HostName {jump_host_ip}
+    User {jump_host_user}
     StrictHostKeyChecking no
     UserKnownHostsFile /dev/null
     ConnectTimeout 15
@@ -137,7 +165,24 @@ def get_enhanced_ssh_command(host, username, password, command='show version'):
     """Get SSH command with PROVEN working algorithms and jump host."""
     ssh_config = create_legacy_ssh_config()
     
-    # Load jump host password from environment or use validated default
+    # Load jump host credentials from environment
+    from pathlib import Path
+    
+    # Load from .env-t if available
+    env_file = Path('.env-t')
+    if env_file.exists():
+        try:
+            with open(env_file, 'r') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        key, value = line.split('=', 1)
+                        os.environ[key.strip()] = value.strip()
+        except Exception:
+            pass
+    
+    jump_host_ip = os.getenv('JUMP_HOST_IP', '172.16.39.128')
+    jump_host_user = os.getenv('JUMP_HOST_USERNAME', 'root')
     jump_host_password = os.getenv('JUMP_HOST_PASSWORD', 'eve')
     
     # Commands prioritized by success probability based on user's testing
@@ -149,7 +194,7 @@ def get_enhanced_ssh_command(host, username, password, command='show version'):
             '-o', 'StrictHostKeyChecking=no',
             '-o', 'UserKnownHostsFile=/dev/null',
             '-o', 'ConnectTimeout=30',
-            'root@172.16.39.128',
+            f'{jump_host_user}@{jump_host_ip}',
             f"sshpass -p {password} ssh "
             f"-o KexAlgorithms=+diffie-hellman-group1-sha1 "
             f"-o HostKeyAlgorithms=+ssh-rsa "
@@ -184,8 +229,30 @@ def get_enhanced_ssh_command(host, username, password, command='show version'):
     
     return commands
 
-def test_enhanced_ssh_connection(host, username='cisco', password='cisco'):
+def test_enhanced_ssh_connection(host, username=None, password=None):
     """Test SSH connection with enhanced algorithms."""
+    from pathlib import Path
+    
+    # Load credentials from environment if not provided
+    if username is None or password is None:
+        # Load from .env-t if available
+        env_file = Path('.env-t')
+        if env_file.exists():
+            try:
+                with open(env_file, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#') and '=' in line:
+                            key, value = line.split('=', 1)
+                            os.environ[key.strip()] = value.strip()
+            except Exception:
+                pass
+        
+        if username is None:
+            username = os.getenv('ROUTER_USERNAME', 'cisco')
+        if password is None:
+            password = os.getenv('ROUTER_PASSWORD', 'cisco')
+    
     print_info(f"Testing enhanced SSH connection to {host}")
     
     commands = get_enhanced_ssh_command(host, username, password, 'show version | include Software')
