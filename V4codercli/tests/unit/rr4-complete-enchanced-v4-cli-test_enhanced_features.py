@@ -96,7 +96,7 @@ def test_credential_security():
             all_present = False
     
     return all_present
-
+            
 def create_test_env_file():
     """Create a test .env-t file for testing."""
     print("\n📄 Creating test .env-t file...")
@@ -140,7 +140,7 @@ def test_file_operations():
                     print(f"✅ File has content: {filename}")
                 else:
                     print(f"⚠️ File is empty: {filename}")
-            except Exception as e:
+        except Exception as e:
                 print(f"❌ Error reading file {filename}: {e}")
         else:
             print(f"⚠️ File missing: {filename}")
@@ -188,7 +188,7 @@ def run_enhanced_features_test():
     total = len(results)
     
     for test_name, result, duration in results:
-        status = "✅ PASS" if result else "❌ FAIL"
+            status = "✅ PASS" if result else "❌ FAIL"
         print(f"{status}: {test_name} ({duration:.2f}s)")
     
     print(f"\n🎯 Overall: {passed}/{total} tests passed")

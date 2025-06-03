@@ -21,71 +21,63 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'rr4-complete-ench
 import logging
 import time
 from typing import Dict, Any, List
-from V4codercli.rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
-from V4codercli.rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
+from rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
+from rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
+from .base_collector import BaseCollector
+from dataclasses import dataclass
 
-class InterfaceCollector:
+@dataclass
+class InterfaceCommands:
+    """Interface layer command definitions by platform."""
+    
+    ios_commands = [
+        "show interfaces",
+        "show interfaces status",
+        "show ip interface brief",
+        "show interfaces description",
+        "show interfaces switchport"
+    ]
+    
+    iosxe_commands = [
+        "show interfaces",
+        "show interfaces status",
+        "show ip interface brief",
+        "show interfaces description",
+        "show interfaces switchport"
+    ]
+    
+    iosxr_commands = [
+        "show interfaces",
+        "show interfaces brief",
+        "show interfaces description",
+        "show ipv4 interface brief"
+    ]
+
+class InterfaceCollector(BaseCollector):
     """Collect interface information from network devices."""
     
-    def __init__(self):
-        self.logger = logging.getLogger('rr4_collector.interface_collector')
+    def __init__(self, device_type: str = 'cisco_ios'):
+        """Initialize the interface collector."""
         self.data_parser = DataParser()
+        self.commands_data = InterfaceCommands()
+        super().__init__(device_type)
     
-    def get_commands_for_platform(self, platform: str) -> List[str]:
-        """Get interface commands for specific platform."""
-        platform_lower = platform.lower()
+    def _get_device_commands(self) -> Dict[str, List[str]]:
+        """Get the list of commands for each device type.
         
-        if platform_lower == 'ios':
-            return self._get_ios_commands()
-        elif platform_lower == 'iosxe':
-            return self._get_iosxe_commands()
-        elif platform_lower == 'iosxr':
-            return self._get_iosxr_commands()
-        else:
-            self.logger.warning(f"Unknown platform {platform}, using IOS commands")
-            return self._get_ios_commands()
-    
-    def _get_ios_commands(self) -> List[str]:
-        """IOS interface commands."""
-        return [
-            "show interfaces",
-            "show interfaces description",
-            "show ip interface brief",
-            "show interfaces status",
-            "show interfaces summary",
-            "show interfaces counters",
-            "show etherchannel summary",
-            "show running-config | section interface"
-        ]
-    
-    def _get_iosxe_commands(self) -> List[str]:
-        """IOS XE interface commands."""
-        return [
-            "show interfaces",
-            "show interfaces description",
-            "show ip interface brief",
-            "show interfaces status",
-            "show interfaces summary",
-            "show interfaces counters",
-            "show etherchannel summary",
-            "show running-config | section interface"
-        ]
-    
-    def _get_iosxr_commands(self) -> List[str]:
-        """IOS XR interface commands."""
-        return [
-            "show interfaces",
-            "show interfaces description",
-            "show ipv4 interface brief",
-            "show interfaces summary",
-            "show bundle",
-            "show running-config interface"
-        ]
+        Returns:
+            Dict mapping device types to lists of commands
+        """
+        return {
+            'cisco_ios': self.commands_data.ios_commands,
+            'cisco_iosxe': self.commands_data.iosxe_commands,
+            'cisco_iosxr': self.commands_data.iosxr_commands
+        }
     
     def collect_layer_data(self, connection: Any, hostname: str, platform: str,
                           output_handler: OutputHandler) -> Dict[str, Any]:
         """Collect interface layer data from device."""
-        commands = self.get_commands_for_platform(platform)
+        commands = self._get_device_commands()[platform]
         
         results = {
             'hostname': hostname,

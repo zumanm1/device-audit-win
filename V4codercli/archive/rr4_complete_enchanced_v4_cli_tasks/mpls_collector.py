@@ -21,60 +21,23 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import logging
 import time
 from typing import Dict, Any, List
-from rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
-from rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler, CollectionMetadata
+from V4codercli.rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
+from V4codercli.rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler, CollectionMetadata
 from datetime import datetime
-from rr4_complete_enchanced_v4_cli_tasks.base_collector import BaseCollector
-from dataclasses import dataclass
+from V4codercli.rr4_complete_enchanced_v4_cli_tasks.base_collector import BaseCollector
 
-@dataclass 
-class MPLSCommands:
-    """MPLS layer command definitions by platform."""
+class MPLSCollector:
+    """Collector for MPLS configuration and state data."""
     
-    ios_commands = [
-        "show mpls ldp discovery",
-        "show mpls ldp neighbor",
-        "show mpls forwarding-table",
-        "show mpls interfaces",
-        "show mpls traffic-eng tunnels"
-    ]
-    
-    iosxe_commands = [
-        "show mpls ldp discovery",
-        "show mpls ldp neighbor", 
-        "show mpls forwarding-table",
-        "show mpls interfaces",
-        "show mpls traffic-eng tunnels"
-    ]
-    
-    iosxr_commands = [
-        "show mpls ldp discovery",
-        "show mpls ldp neighbor",
-        "show mpls forwarding",
-        "show mpls interfaces",
-        "show mpls traffic-eng tunnels"
-    ]
-
-class MPLSCollector(BaseCollector):
-    """Collect MPLS information from network devices."""
-    
-    def __init__(self, device_type: str = 'cisco_ios'):
-        """Initialize the MPLS collector."""
-        self.data_parser = DataParser()
-        self.commands_data = MPLSCommands()
-        super().__init__(device_type)
-    
-    def _get_device_commands(self) -> Dict[str, List[str]]:
-        """Get the list of commands for each device type.
+    def __init__(self, connection: Any = None):
+        """Initialize MPLS collector.
         
-        Returns:
-            Dict mapping device types to lists of commands
+        Args:
+            connection: Network device connection object
         """
-        return {
-            'cisco_ios': self.commands_data.ios_commands,
-            'cisco_iosxe': self.commands_data.iosxe_commands,
-            'cisco_iosxr': self.commands_data.iosxr_commands
-        }
+        self.connection = connection
+        self.logger = logging.getLogger('rr4_collector.mpls_collector')
+        self.data_parser = DataParser()
     
     def collect(self) -> Dict[str, Any]:
         """Collect MPLS data from device."""
@@ -451,6 +414,54 @@ class MPLSCollector(BaseCollector):
             'platforms_supported': ['ios', 'iosxe', 'iosxr'],
             'estimated_time': '2-4 minutes per device'
         }
+
+    def _get_device_commands(self) -> Dict[str, List[str]]:
+        """Get MPLS commands for each platform."""
+        commands = {
+            'cisco_ios': [
+                'show mpls ldp neighbor',
+                'show mpls ldp bindings',
+                'show mpls forwarding-table',
+                'show mpls traffic-eng tunnels',
+                'show mpls traffic-eng topology',
+                'show mpls label range',
+                'show mpls interfaces',
+                'show mpls ldp discovery',
+                'show mpls ldp parameters',
+                'show segment-routing mpls',
+                'show segment-routing traffic-eng policy all',
+                'show running-config | section mpls'
+            ],
+            'cisco_iosxe': [
+                'show mpls ldp neighbor',
+                'show mpls ldp bindings',
+                'show mpls forwarding-table',
+                'show mpls traffic-eng tunnels',
+                'show mpls traffic-eng topology',
+                'show mpls label range',
+                'show mpls interfaces',
+                'show mpls ldp discovery',
+                'show mpls ldp parameters',
+                'show segment-routing mpls',
+                'show segment-routing traffic-eng policy all',
+                'show running-config | section mpls'
+            ],
+            'cisco_iosxr': [
+                'show mpls ldp neighbor',
+                'show mpls ldp bindings',
+                'show mpls forwarding',
+                'show mpls traffic-eng tunnels',
+                'show mpls traffic-eng topology',
+                'show mpls label range',
+                'show mpls interfaces',
+                'show mpls ldp discovery',
+                'show mpls ldp parameters',
+                'show segment-routing mpls',
+                'show segment-routing traffic-eng policy all',
+                'show running-config | include mpls'
+            ]
+        }
+        return commands
 
     def process_output(self, outputs: Dict[str, str]) -> Dict[str, Any]:
         """Process MPLS command outputs."""

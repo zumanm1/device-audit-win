@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 """
-Static Route Layer Collector for RR4 Complete Enhanced v4 CLI
+Interface Layer Collector for RR4 Complete Enhanced v4 CLI
 
-This module collects static routing information from network devices including:
-- Global static routes and default routes
-- VRF-specific static routes
-- Administrative distances and metrics
-- Next-hop reachability
-- Route tracking and BFD integration
-- Static route redistribution
+This module collects interface-related information from network devices including:
+- Interface status and configuration
+- IP addressing and VLANs
+- Interface statistics and counters
+- Interface descriptions and types
+- Port-channel and trunk information
 
 Author: AI Assistant
 Version: 1.0.0
@@ -22,73 +21,86 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'rr4-complete-ench
 import logging
 import time
 from typing import Dict, Any, List
-from rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
-from rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
-from .base_collector import BaseCollector
-from dataclasses import dataclass
+from V4codercli.rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
+from V4codercli.rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
 
-@dataclass
-class StaticRouteCommands:
-    """Static route layer command definitions by platform."""
+class InterfaceCollector:
+    """Collect interface information from network devices."""
     
-    ios_commands = [
-        "show ip route static",
-        "show ipv6 route static",
-        "show running-config | include ip route"
-    ]
-    
-    iosxe_commands = [
-        "show ip route static",
-        "show ipv6 route static", 
-        "show running-config | include ip route"
-    ]
-    
-    iosxr_commands = [
-        "show route static",
-        "show route ipv6 static",
-        "show running-config router static"
-    ]
-
-class StaticRouteCollector(BaseCollector):
-    """Collect static route information from network devices."""
-    
-    def __init__(self, device_type: str = 'cisco_ios'):
-        """Initialize the static route collector."""
+    def __init__(self):
+        self.logger = logging.getLogger('rr4_collector.interface_collector')
         self.data_parser = DataParser()
-        self.commands_data = StaticRouteCommands()
-        super().__init__(device_type)
     
-    def _get_device_commands(self) -> Dict[str, List[str]]:
-        """Get the list of commands for each device type.
+    def get_commands_for_platform(self, platform: str) -> List[str]:
+        """Get interface commands for specific platform."""
+        platform_lower = platform.lower()
         
-        Returns:
-            Dict mapping device types to lists of commands
-        """
-        return {
-            'cisco_ios': self.commands_data.ios_commands,
-            'cisco_iosxe': self.commands_data.iosxe_commands,
-            'cisco_iosxr': self.commands_data.iosxr_commands
-        }
+        if platform_lower == 'ios':
+            return self._get_ios_commands()
+        elif platform_lower == 'iosxe':
+            return self._get_iosxe_commands()
+        elif platform_lower == 'iosxr':
+            return self._get_iosxr_commands()
+        else:
+            self.logger.warning(f"Unknown platform {platform}, using IOS commands")
+            return self._get_ios_commands()
+    
+    def _get_ios_commands(self) -> List[str]:
+        """IOS interface commands."""
+        return [
+            "show interfaces",
+            "show interfaces description",
+            "show ip interface brief",
+            "show interfaces status",
+            "show interfaces summary",
+            "show interfaces counters",
+            "show etherchannel summary",
+            "show running-config | section interface"
+        ]
+    
+    def _get_iosxe_commands(self) -> List[str]:
+        """IOS XE interface commands."""
+        return [
+            "show interfaces",
+            "show interfaces description",
+            "show ip interface brief",
+            "show interfaces status",
+            "show interfaces summary",
+            "show interfaces counters",
+            "show etherchannel summary",
+            "show running-config | section interface"
+        ]
+    
+    def _get_iosxr_commands(self) -> List[str]:
+        """IOS XR interface commands."""
+        return [
+            "show interfaces",
+            "show interfaces description",
+            "show ipv4 interface brief",
+            "show interfaces summary",
+            "show bundle",
+            "show running-config interface"
+        ]
     
     def collect_layer_data(self, connection: Any, hostname: str, platform: str,
                           output_handler: OutputHandler) -> Dict[str, Any]:
-        """Collect static route layer data from device."""
-        commands = self._get_device_commands()[platform]
+        """Collect interface layer data from device."""
+        commands = self.get_commands_for_platform(platform)
         
         results = {
             'hostname': hostname,
             'platform': platform,
-            'layer': 'static',
+            'layer': 'interfaces',
             'timestamp': time.time(),
             'success_count': 0,
             'failure_count': 0,
             'commands_executed': [],
             'commands_failed': [],
             'data': {},
-            'static_routes_count': 0
+            'interface_count': 0
         }
         
-        self.logger.info(f"Starting static route collection for {hostname} ({platform})")
+        self.logger.info(f"Starting interface collection for {hostname} ({platform})")
         
         for command in commands:
             try:
@@ -99,10 +111,10 @@ class StaticRouteCollector(BaseCollector):
                     
                     # Store output using OutputHandler's correct method signature
                     output_handler.save_command_output(
-                        hostname,   # positional: hostname
-                        'static',   # positional: layer
-                        command,    # positional: command
-                        output      # positional: output
+                        hostname,        # positional: hostname
+                        'interfaces',    # positional: layer
+                        command,         # positional: command
+                        output           # positional: output
                     )
                     
                     # Parse output if possible
@@ -139,7 +151,7 @@ class StaticRouteCollector(BaseCollector):
         else:
             results['success_rate'] = 0
         
-        self.logger.info(f"Static route collection completed for {hostname}: "
+        self.logger.info(f"Interface collection completed for {hostname}: "
                         f"{results['success_count']}/{total_commands} commands successful "
                         f"({results['success_rate']:.1f}%)")
         
@@ -154,12 +166,14 @@ class StaticRouteCollector(BaseCollector):
     def get_layer_info(self) -> Dict[str, Any]:
         """Get information about this collector layer."""
         return {
-            'name': 'static',
-            'description': 'Static routing configuration and status data collection',
+            'name': 'interfaces',
+            'description': 'Interface configuration and status data collection',
             'categories': [
-                'Global Static Routes',
-                'VRF Static Routes',
-                'Default Routes'
+                'Interface Status',
+                'IP Configuration',
+                'Interface Statistics',
+                'Port Channels',
+                'Interface Descriptions'
             ],
             'platforms_supported': ['ios', 'iosxe', 'iosxr'],
             'estimated_time': '1-3 minutes per device'

@@ -34,41 +34,37 @@ from datetime import datetime
 
 from rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
 from rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
-from .base_collector import BaseCollector
 
 @dataclass
-class ConsoleCommands:
+class ConsoleLineCommands:
     """Console line command definitions by platform."""
     
-    ios_commands = [
+    # Base commands for line discovery
+    ios_base_commands = [
         "show line",
-        "show line console 0",
-        "show line aux 0",
-        "show line vty 0 4"
+        "show running-config | include line",
+        "show running-config | section line"
     ]
     
-    iosxe_commands = [
+    iosxe_base_commands = [
         "show line",
-        "show line console 0",
-        "show line aux 0",
-        "show line vty 0 4"
+        "show running-config | include line",
+        "show running-config | section line"
     ]
     
-    iosxr_commands = [
+    iosxr_base_commands = [
         "show line",
-        "show line console",
-        "show line aux",
-        "show line default"
+        "show running-config line",
+        "show running-config | include \"line|aux|console\""
     ]
 
-class ConsoleLineCollector(BaseCollector):
-    """Collect console line information from network devices."""
+class ConsoleLineCollector:
+    """Collect console line configuration information from network devices."""
     
-    def __init__(self, device_type: str = 'cisco_ios'):
-        """Initialize the console line collector."""
+    def __init__(self):
+        self.logger = logging.getLogger('rr4_collector.console_line_collector')
         self.data_parser = DataParser()
-        self.commands_data = ConsoleCommands()
-        super().__init__(device_type)
+        self.commands = ConsoleLineCommands()
         
         # Enhanced console line patterns for different platforms
         self.line_patterns = {
@@ -92,31 +88,19 @@ class ConsoleLineCollector(BaseCollector):
             }
         }
     
-    def _get_device_commands(self) -> Dict[str, List[str]]:
-        """Get the list of commands for each device type.
-        
-        Returns:
-            Dict mapping device types to lists of commands
-        """
-        return {
-            'cisco_ios': self.commands_data.ios_commands,
-            'cisco_iosxe': self.commands_data.iosxe_commands,
-            'cisco_iosxr': self.commands_data.iosxr_commands
-        }
-    
     def get_commands_for_platform(self, platform: str) -> List[str]:
         """Get console line commands for specific platform."""
         platform_lower = platform.lower()
         
         if platform_lower == 'ios':
-            return self.commands_data.ios_commands.copy()
+            return self.commands.ios_base_commands.copy()
         elif platform_lower == 'iosxe':
-            return self.commands_data.iosxe_commands.copy()
+            return self.commands.iosxe_base_commands.copy()
         elif platform_lower == 'iosxr':
-            return self.commands_data.iosxr_commands.copy()
+            return self.commands.iosxr_base_commands.copy()
         else:
             self.logger.warning(f"Unknown platform {platform}, using IOS commands")
-            return self.commands_data.ios_commands.copy()
+            return self.commands.ios_base_commands.copy()
     
     def parse_show_line_output(self, output: str, platform: str) -> List[Dict[str, Any]]:
         """Parse 'show line' output to extract console line information with enhanced platform support."""
@@ -151,7 +135,7 @@ class ConsoleLineCollector(BaseCollector):
                 # IOS XR format: Tty column contains x/y/z
                 for pattern_name, pattern in patterns.items():
                     match = re.match(pattern, line_text)
-                    if match:
+            if match:
                         if pattern_name == 'tty_line':
                             # x/y/z in Tty column
                             line_info = {
@@ -175,53 +159,53 @@ class ConsoleLineCollector(BaseCollector):
                                 'platform': platform_lower
                             }
                         break
-            else:
-                # IOS/IOS XE format: x/y/z in Int column
-                for pattern_name, pattern in patterns.items():
-                    match = re.match(pattern, line_text)
-                    if match:
-                        if pattern_name == 'line_with_int' and len(match.groups()) >= 4:
-                            # Line with interface column containing x/y/z
-                            line_info = {
-                                'line_number': match.group(1),
-                                'tty_number': match.group(2),
-                                'line_type': match.group(3).lower(),
-                                'line_id': match.group(4),  # x/y/z format
-                                'status': 'available',
-                                'raw_line': line_text,
-                                'platform': platform_lower
-                            }
-                        elif pattern_name == 'line_with_spacing' and len(match.groups()) >= 4:
-                            # Line with more spacing and x/y/z at end
-                            line_info = {
-                                'line_number': match.group(1),
-                                'tty_number': match.group(2),
-                                'line_type': match.group(3).lower(),
-                                'line_id': match.group(4),  # x/y/z format
-                                'status': 'available',
-                                'raw_line': line_text,
-                                'platform': platform_lower
-                            }
-                        elif pattern_name == 'simple_line':
-                            # Check if this line has x/y/z at the end manually
-                            # Split the line and check the last column
-                            parts = line_text.split()
-                            line_id = ''
-                            if len(parts) > 10:  # IOS lines have many columns
-                                last_part = parts[-1]
-                                if '/' in last_part and self.validate_line_format(last_part):
-                                    line_id = last_part
-                            
-                            line_info = {
-                                'line_number': match.group(1),
-                                'tty_number': match.group(2),
-                                'line_type': match.group(3).lower(),
-                                'line_id': line_id,  # x/y/z format if found
-                                'status': 'available',
-                                'raw_line': line_text,
-                                'platform': platform_lower
-                            }
-                        break
+                else:
+                    # IOS/IOS XE format: x/y/z in Int column
+                    for pattern_name, pattern in patterns.items():
+                        match = re.match(pattern, line_text)
+                        if match:
+                            if pattern_name == 'line_with_int' and len(match.groups()) >= 4:
+                                # Line with interface column containing x/y/z
+                                line_info = {
+                                    'line_number': match.group(1),
+                                    'tty_number': match.group(2),
+                                    'line_type': match.group(3).lower(),
+                                    'line_id': match.group(4),  # x/y/z format
+                                    'status': 'available',
+                                    'raw_line': line_text,
+                                    'platform': platform_lower
+                                }
+                            elif pattern_name == 'line_with_spacing' and len(match.groups()) >= 4:
+                                # Line with more spacing and x/y/z at end
+                                line_info = {
+                                    'line_number': match.group(1),
+                                    'tty_number': match.group(2),
+                                    'line_type': match.group(3).lower(),
+                                    'line_id': match.group(4),  # x/y/z format
+                                    'status': 'available',
+                                    'raw_line': line_text,
+                                    'platform': platform_lower
+                                }
+                            elif pattern_name == 'simple_line':
+                                # Check if this line has x/y/z at the end manually
+                                # Split the line and check the last column
+                                parts = line_text.split()
+                                line_id = ''
+                                if len(parts) > 10:  # IOS lines have many columns
+                                    last_part = parts[-1]
+                                    if '/' in last_part and self.validate_line_format(last_part):
+                                        line_id = last_part
+                                
+                                line_info = {
+                                    'line_number': match.group(1),
+                                    'tty_number': match.group(2),
+                                    'line_type': match.group(3).lower(),
+                                    'line_id': line_id,  # x/y/z format if found
+                                    'status': 'available',
+                                    'raw_line': line_text,
+                                    'platform': platform_lower
+                                }
+                            break
             
             if line_info:
                 # Extract additional status information
@@ -261,15 +245,15 @@ class ConsoleLineCollector(BaseCollector):
                 
                 for z in range(z_start, z_end + 1):
                     line_id = f"{x}/{y}/{z}"
-                    lines.append({
+                lines.append({
                         'line_number': f"aux_{x}_{y}_{z}",
                         'line_type': 'aux',
-                        'line_id': line_id,
+                    'line_id': line_id,
                         'status': 'range_specified',
                         'raw_line': f"Range line {line_id}",
                         'platform': 'ios',
                         'from_range': True
-                    })
+                })
         
         return lines
     
@@ -291,7 +275,7 @@ class ConsoleLineCollector(BaseCollector):
             
             # Additional checks for console-related lines
             if valid_line and line_type in ['aux', 'con', 'tty']:
-                console_lines.append(line_id)
+                    console_lines.append(line_id)
                 self.logger.debug(f"Found console line: {line_id} (type: {line_type})")
         
         # Remove duplicates and sort

@@ -15,14 +15,17 @@ Version: 1.0.0
 Created: 2025-01-27
 """
 
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'rr4-complete-enchanced-v4-cli-core'))
+
 import logging
 import time
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
 
-from rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
-from rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
-from .base_collector import BaseCollector
+from V4codercli.rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
+from V4codercli.rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
 
 @dataclass
 class HealthCommands:
@@ -66,26 +69,27 @@ class HealthCommands:
         "admin show processes memory"
     ]
 
-class HealthCollector(BaseCollector):
+class HealthCollector:
     """Collect system health information from network devices."""
     
-    def __init__(self, device_type: str = 'cisco_ios'):
-        """Initialize the health collector."""
+    def __init__(self):
+        self.logger = logging.getLogger('rr4_collector.health_collector')
         self.data_parser = DataParser()
-        self.commands_data = HealthCommands()
-        super().__init__(device_type)
+        self.commands = HealthCommands()
     
-    def _get_device_commands(self) -> Dict[str, List[str]]:
-        """Get the list of commands for each device type.
+    def get_commands_for_platform(self, platform: str) -> List[str]:
+        """Get health commands for specific platform."""
+        platform_lower = platform.lower()
         
-        Returns:
-            Dict mapping device types to lists of commands
-        """
-        return {
-            'cisco_ios': self.commands_data.ios_commands,
-            'cisco_iosxe': self.commands_data.iosxe_commands,
-            'cisco_iosxr': self.commands_data.iosxr_commands
-        }
+        if platform_lower == 'ios':
+            return self.commands.ios_commands
+        elif platform_lower == 'iosxe':
+            return self.commands.iosxe_commands
+        elif platform_lower == 'iosxr':
+            return self.commands.iosxr_commands
+        else:
+            self.logger.warning(f"Unknown platform {platform}, using IOS commands")
+            return self.commands.ios_commands
     
     def collect_layer_data(self, connection: Any, hostname: str, platform: str,
                           output_handler: OutputHandler) -> Dict[str, Any]:
@@ -93,7 +97,7 @@ class HealthCollector(BaseCollector):
         self.logger.info(f"Starting health collection for {hostname} ({platform})")
         
         # Get platform-specific commands
-        commands = self._get_device_commands()[platform]
+        commands = self.get_commands_for_platform(platform)
         
         # Create device directory structure
         run_dir = output_handler.base_output_dir / output_handler.collection_metadata.collection_id

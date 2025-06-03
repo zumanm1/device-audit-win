@@ -20,6 +20,7 @@ import paramiko
 from netmiko import ConnectHandler, NetmikoTimeoutException, NetmikoAuthenticationException
 import os
 import subprocess
+from pathlib import Path
 
 @dataclass
 class ConnectionConfig:
@@ -76,21 +77,30 @@ LEGACY_SSH_ALGORITHMS = {
 
 # Jump host configuration for EVE-NG environment
 def get_jump_host_config():
-    """Get jump host configuration from environment variables."""
-    from pathlib import Path
+    """Load jump host configuration from environment or defaults."""
+    # Try to load from environment files in multiple locations
+    script_dir = Path(__file__).parent.parent  # Go up to V4codercli directory
+    env_files = [
+        script_dir / '.env-t',
+        script_dir / 'rr4-complete-enchanced-v4-cli.env-t',
+        Path('.env-t'),  # Current directory fallback
+        Path('rr4-complete-enchanced-v4-cli.env-t')  # Current directory fallback
+    ]
     
-    # Try to load from .env-t file if it exists
-    env_file = Path('.env-t')
-    if env_file.exists():
-        try:
-            with open(env_file, 'r') as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith('#') and '=' in line:
-                        key, value = line.split('=', 1)
-                        os.environ[key.strip()] = value.strip()
-        except Exception:
-            pass  # Continue with environment defaults
+    for env_file in env_files:
+        if env_file.exists():
+            try:
+                with open(env_file, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#') and '=' in line:
+                            key, value = line.split('=', 1)
+                            os.environ[key.strip()] = value.strip()
+                print(f"✅ Loaded environment from: {env_file}")
+                break
+            except Exception as e:
+                print(f"⚠️ Failed to load {env_file}: {e}")
+                continue
     
     return {
         'hostname': os.getenv('JUMP_HOST_IP', '172.16.39.128'),
@@ -105,8 +115,6 @@ JUMP_HOST_CONFIG = get_jump_host_config()
 
 def create_legacy_ssh_config():
     """Create SSH config file for legacy device support with jump host."""
-    from pathlib import Path
-    
     # Load credentials from environment
     jump_host_ip = os.getenv('JUMP_HOST_IP', '172.16.39.128')
     jump_host_user = os.getenv('JUMP_HOST_USERNAME', 'root')
@@ -154,7 +162,6 @@ Host cisco-legacy cisco-* 172.16.39.* router-* 10.* 192.168.*
     LogLevel ERROR
 """
     
-    from pathlib import Path
     config_path = Path(__file__).parent / 'cisco_legacy_ssh_config'
     with open(config_path, 'w') as f:
         f.write(config_content)
@@ -165,21 +172,28 @@ def get_enhanced_ssh_command(host, username, password, command='show version'):
     """Get SSH command with PROVEN working algorithms and jump host."""
     ssh_config = create_legacy_ssh_config()
     
-    # Load jump host credentials from environment
-    from pathlib import Path
-    
     # Load from .env-t if available
-    env_file = Path('.env-t')
-    if env_file.exists():
-        try:
-            with open(env_file, 'r') as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith('#') and '=' in line:
-                        key, value = line.split('=', 1)
-                        os.environ[key.strip()] = value.strip()
-        except Exception:
-            pass
+    # Try to load from environment files in multiple locations
+    script_dir = Path(__file__).parent.parent  # Go up to V4codercli directory
+    env_files = [
+        script_dir / '.env-t',
+        script_dir / 'rr4-complete-enchanced-v4-cli.env-t',
+        Path('.env-t'),  # Current directory fallback
+        Path('rr4-complete-enchanced-v4-cli.env-t')  # Current directory fallback
+    ]
+    
+    for env_file in env_files:
+        if env_file.exists():
+            try:
+                with open(env_file, 'r') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#') and '=' in line:
+                            key, value = line.split('=', 1)
+                            os.environ[key.strip()] = value.strip()
+                break
+            except Exception:
+                continue
     
     jump_host_ip = os.getenv('JUMP_HOST_IP', '172.16.39.128')
     jump_host_user = os.getenv('JUMP_HOST_USERNAME', 'root')
@@ -236,17 +250,27 @@ def test_enhanced_ssh_connection(host, username=None, password=None):
     # Load credentials from environment if not provided
     if username is None or password is None:
         # Load from .env-t if available
-        env_file = Path('.env-t')
-        if env_file.exists():
-            try:
-                with open(env_file, 'r') as f:
-                    for line in f:
-                        line = line.strip()
-                        if line and not line.startswith('#') and '=' in line:
-                            key, value = line.split('=', 1)
-                            os.environ[key.strip()] = value.strip()
-            except Exception:
-                pass
+        # Try to load from environment files in multiple locations
+        script_dir = Path(__file__).parent.parent  # Go up to V4codercli directory
+        env_files = [
+            script_dir / '.env-t',
+            script_dir / 'rr4-complete-enchanced-v4-cli.env-t',
+            Path('.env-t'),  # Current directory fallback
+            Path('rr4-complete-enchanced-v4-cli.env-t')  # Current directory fallback
+        ]
+        
+        for env_file in env_files:
+            if env_file.exists():
+                try:
+                    with open(env_file, 'r') as f:
+                        for line in f:
+                            line = line.strip()
+                            if line and not line.startswith('#') and '=' in line:
+                                key, value = line.split('=', 1)
+                                os.environ[key.strip()] = value.strip()
+                    break
+                except Exception:
+                    continue
         
         if username is None:
             username = os.getenv('ROUTER_USERNAME', 'cisco')

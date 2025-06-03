@@ -91,7 +91,7 @@ def test_ip_validation():
     print(f"✅ Testing {len(ips)} IP combinations")
     
     valid_count = 0
-    for ip in ips:
+for ip in ips:
         try:
             # Basic IP validation
             parts = ip.split('.')

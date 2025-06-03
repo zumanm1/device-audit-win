@@ -117,7 +117,7 @@ def main():
             results.append((test_name, result))
             status = "✅ PASSED" if result else "❌ FAILED"
             print(f"{status}: {test_name}")
-        except Exception as e:
+    except Exception as e:
             results.append((test_name, False))
             print(f"❌ ERROR: {test_name} - {e}")
     

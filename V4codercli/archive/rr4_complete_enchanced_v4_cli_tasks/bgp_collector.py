@@ -21,64 +21,69 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'rr4-complete-ench
 import logging
 import time
 from typing import Dict, Any, List
-from dataclasses import dataclass
-from rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
-from rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
-from .base_collector import BaseCollector
+from V4codercli.rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
+from V4codercli.rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
 
-@dataclass
-class BGPCommands:
-    """BGP layer command definitions by platform."""
+class BGPCollector:
+    """Collector for BGP routing protocol."""
     
-    ios_commands = [
-        "show ip bgp summary",
-        "show ip bgp neighbors",
-        "show ip bgp",
-        "show ip bgp vpnv4 all summary",
-        "show ip bgp vpnv4 all neighbors",
-        "show ip route bgp"
-    ]
-    
-    iosxe_commands = [
-        "show ip bgp summary",
-        "show ip bgp neighbors",
-        "show ip bgp",
-        "show ip bgp vpnv4 all summary",
-        "show ip bgp vpnv4 all neighbors",
-        "show ip route bgp",
-        "show bgp ipv4 unicast summary",
-        "show bgp vpnv4 unicast all summary"
-    ]
-    
-    iosxr_commands = [
-        "show bgp summary",
-        "show bgp neighbors",
-        "show bgp",
-        "show bgp vpnv4 unicast summary",
-        "show bgp vpnv4 unicast neighbors",
-        "show route bgp"
-    ]
-
-class BGPCollector(BaseCollector):
-    """Collect BGP routing information from network devices."""
-    
-    def __init__(self, device_type: str = 'cisco_ios'):
-        """Initialize the BGP collector."""
+    def __init__(self):
+        self.logger = logging.getLogger('rr4_collector.bgp_collector')
         self.data_parser = DataParser()
-        self.commands_data = BGPCommands()
-        super().__init__(device_type)
     
     def _get_device_commands(self) -> Dict[str, List[str]]:
-        """Get the list of commands for each device type.
-        
-        Returns:
-            Dict mapping device types to lists of commands
-        """
-        return {
-            'cisco_ios': self.commands_data.ios_commands,
-            'cisco_iosxe': self.commands_data.iosxe_commands,
-            'cisco_iosxr': self.commands_data.iosxr_commands
+        """Get BGP commands for each platform."""
+        commands = {
+            'cisco_ios': [
+                'show ip bgp summary',
+                'show ip bgp neighbors',
+                'show ip bgp neighbors | include BGP neighbor|BGP state',
+                'show ip bgp',
+                'show ip bgp ipv4 unicast summary',
+                'show ip bgp ipv4 unicast neighbors',
+                'show ip bgp ipv4 unicast',
+                'show ip bgp vpnv4 all summary',
+                'show ip bgp vpnv4 all neighbors',
+                'show ip bgp vpnv4 all',
+                'show bgp ipv6 unicast summary',
+                'show bgp ipv6 unicast neighbors',
+                'show bgp ipv6 unicast',
+                'show running-config | section router bgp'
+            ],
+            'cisco_iosxe': [
+                'show ip bgp summary',
+                'show ip bgp neighbors',
+                'show ip bgp neighbors | include BGP neighbor|BGP state',
+                'show ip bgp',
+                'show ip bgp ipv4 unicast summary',
+                'show ip bgp ipv4 unicast neighbors',
+                'show ip bgp ipv4 unicast',
+                'show ip bgp vpnv4 all summary',
+                'show ip bgp vpnv4 all neighbors',
+                'show ip bgp vpnv4 all',
+                'show bgp ipv6 unicast summary',
+                'show bgp ipv6 unicast neighbors',
+                'show bgp ipv6 unicast',
+                'show running-config | section router bgp'
+            ],
+            'cisco_iosxr': [
+                'show bgp summary',
+                'show bgp neighbors',
+                'show bgp neighbors | include BGP neighbor|BGP state',
+                'show bgp',
+                'show bgp ipv4 unicast summary',
+                'show bgp ipv4 unicast neighbors',
+                'show bgp ipv4 unicast',
+                'show bgp vpnv4 unicast summary',
+                'show bgp vpnv4 unicast neighbors',
+                'show bgp vpnv4 unicast',
+                'show bgp ipv6 unicast summary',
+                'show bgp ipv6 unicast neighbors',
+                'show bgp ipv6 unicast',
+                'show running-config router bgp'
+            ]
         }
+        return commands
 
     def _map_platform_to_key(self, platform: str) -> str:
         """Map platform string to device commands key."""

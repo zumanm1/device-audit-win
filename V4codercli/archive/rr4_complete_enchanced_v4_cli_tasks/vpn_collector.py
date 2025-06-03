@@ -22,61 +22,97 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'rr4-complete-ench
 import logging
 import time
 from typing import Dict, Any, List
-from dataclasses import dataclass
-from rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
-from rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
-from .base_collector import BaseCollector
+from V4codercli.rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
+from V4codercli.rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
 
-@dataclass
-class VPNCommands:
-    """VPN layer command definitions by platform."""
-    
-    ios_commands = [
-        "show ip vrf",
-        "show ip vrf detail",
-        "show ip route vrf all",
-        "show mpls l3vpn vrf all"
-    ]
-    
-    iosxe_commands = [
-        "show ip vrf",
-        "show ip vrf detail",
-        "show ip route vrf all",
-        "show mpls l3vpn vrf all"
-    ]
-    
-    iosxr_commands = [
-        "show vrf all",
-        "show vrf all detail",
-        "show route vrf all",
-        "show l3vpn"
-    ]
-
-class VPNCollector(BaseCollector):
+class VPNCollector:
     """Collect VPN information from network devices."""
     
-    def __init__(self, device_type: str = 'cisco_ios'):
-        """Initialize the VPN collector."""
+    def __init__(self):
+        self.logger = logging.getLogger('rr4_collector.vpn_collector')
         self.data_parser = DataParser()
-        self.commands_data = VPNCommands()
-        super().__init__(device_type)
     
-    def _get_device_commands(self) -> Dict[str, List[str]]:
-        """Get the list of commands for each device type.
+    def get_commands_for_platform(self, platform: str) -> List[str]:
+        """Get VPN commands for specific platform."""
+        platform_lower = platform.lower()
         
-        Returns:
-            Dict mapping device types to lists of commands
-        """
-        return {
-            'cisco_ios': self.commands_data.ios_commands,
-            'cisco_iosxe': self.commands_data.iosxe_commands,
-            'cisco_iosxr': self.commands_data.iosxr_commands
-        }
+        if platform_lower == 'ios':
+            return self._get_ios_commands()
+        elif platform_lower == 'iosxe':
+            return self._get_iosxe_commands()
+        elif platform_lower == 'iosxr':
+            return self._get_iosxr_commands()
+        else:
+            self.logger.warning(f"Unknown platform {platform}, using IOS commands")
+            return self._get_ios_commands()
+    
+    def _get_ios_commands(self) -> List[str]:
+        """IOS VPN commands."""
+        return [
+            "show vrf",
+            "show vrf detail",
+            "show ip vrf",
+            "show ip vrf detail",
+            "show ip route vrf all",
+            "show ip route vrf all summary",
+            "show ip bgp vpnv4 unicast all",
+            "show ip bgp vpnv4 unicast all summary",
+            "show ip bgp vpnv4 unicast vrf all",
+            "show ip cef vrf all",
+            "show mpls l2transport vc",
+            "show mpls l2transport vc detail",
+            "show xconnect all",
+            "show bridge-domain",
+            "show running-config | section vrf"
+        ]
+    
+    def _get_iosxe_commands(self) -> List[str]:
+        """IOS XE VPN commands."""
+        return [
+            "show vrf",
+            "show vrf detail", 
+            "show ip vrf",
+            "show ip vrf detail",
+            "show ip route vrf all",
+            "show ip route vrf all summary",
+            "show ip bgp vpnv4 unicast all",
+            "show ip bgp vpnv4 unicast all summary",
+            "show ip bgp vpnv4 unicast vrf all",
+            "show ip cef vrf all",
+            "show mpls l2transport vc",
+            "show mpls l2transport vc detail",
+            "show xconnect all",
+            "show bridge-domain",
+            "show ethernet service instance",
+            "show ethernet service instance detail",
+            "show running-config | section vrf"
+        ]
+    
+    def _get_iosxr_commands(self) -> List[str]:
+        """IOS XR VPN commands."""
+        return [
+            "show vrf all",
+            "show vrf all detail",
+            "show route vrf all",
+            "show route vrf all summary",
+            "show bgp vpnv4 unicast",
+            "show bgp vpnv4 unicast summary",
+            "show bgp vrf all",
+            "show bgp vrf all summary",
+            "show cef vrf all",
+            "show l2vpn xconnect",
+            "show l2vpn xconnect detail",
+            "show l2vpn bridge-domain",
+            "show l2vpn bridge-domain detail",
+            "show evpn evi",
+            "show evpn ethernet-segment",
+            "show running-config vrf"
+        ]
     
     def collect_layer_data(self, connection: Any, hostname: str, platform: str,
                           output_handler: OutputHandler) -> Dict[str, Any]:
         """Collect VPN layer data from device."""
-        commands = self._get_device_commands()[platform]
+        commands = self.get_commands_for_platform(platform)
         
         results = {
             'hostname': hostname,

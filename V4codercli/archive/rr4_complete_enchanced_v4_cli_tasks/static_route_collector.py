@@ -22,58 +22,67 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'rr4-complete-ench
 import logging
 import time
 from typing import Dict, Any, List
-from rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
-from rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
-from .base_collector import BaseCollector
-from dataclasses import dataclass
+from V4codercli.rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
+from V4codercli.rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
 
-@dataclass
-class StaticRouteCommands:
-    """Static route layer command definitions by platform."""
+class StaticRouteCollector:
+    """Collect static routing information from network devices."""
     
-    ios_commands = [
-        "show ip route static",
-        "show ipv6 route static",
-        "show running-config | include ip route"
-    ]
-    
-    iosxe_commands = [
-        "show ip route static",
-        "show ipv6 route static", 
-        "show running-config | include ip route"
-    ]
-    
-    iosxr_commands = [
-        "show route static",
-        "show route ipv6 static",
-        "show running-config router static"
-    ]
-
-class StaticRouteCollector(BaseCollector):
-    """Collect static route information from network devices."""
-    
-    def __init__(self, device_type: str = 'cisco_ios'):
-        """Initialize the static route collector."""
+    def __init__(self):
+        self.logger = logging.getLogger('rr4_collector.static_collector')
         self.data_parser = DataParser()
-        self.commands_data = StaticRouteCommands()
-        super().__init__(device_type)
     
-    def _get_device_commands(self) -> Dict[str, List[str]]:
-        """Get the list of commands for each device type.
+    def get_commands_for_platform(self, platform: str) -> List[str]:
+        """Get static route commands for specific platform."""
+        platform_lower = platform.lower()
         
-        Returns:
-            Dict mapping device types to lists of commands
-        """
-        return {
-            'cisco_ios': self.commands_data.ios_commands,
-            'cisco_iosxe': self.commands_data.iosxe_commands,
-            'cisco_iosxr': self.commands_data.iosxr_commands
-        }
+        if platform_lower == 'ios':
+            return self._get_ios_commands()
+        elif platform_lower == 'iosxe':
+            return self._get_iosxe_commands()
+        elif platform_lower == 'iosxr':
+            return self._get_iosxr_commands()
+        else:
+            self.logger.warning(f"Unknown platform {platform}, using IOS commands")
+            return self._get_ios_commands()
+    
+    def _get_ios_commands(self) -> List[str]:
+        """IOS static route commands."""
+        return [
+            "show ip route static",
+            "show ip route static detail",
+            "show ip route 0.0.0.0",
+            "show ip route summary",
+            "show ip route vrf all static",
+            "show running-config | include ip route"
+        ]
+    
+    def _get_iosxe_commands(self) -> List[str]:
+        """IOS XE static route commands."""
+        return [
+            "show ip route static",
+            "show ip route static detail",
+            "show ip route 0.0.0.0",
+            "show ip route summary",
+            "show ip route vrf all static",
+            "show running-config | include ip route"
+        ]
+    
+    def _get_iosxr_commands(self) -> List[str]:
+        """IOS XR static route commands."""
+        return [
+            "show route static",
+            "show route static detail", 
+            "show route 0.0.0.0/0",
+            "show route summary",
+            "show route vrf all static",
+            "show running-config router static"
+        ]
     
     def collect_layer_data(self, connection: Any, hostname: str, platform: str,
                           output_handler: OutputHandler) -> Dict[str, Any]:
         """Collect static route layer data from device."""
-        commands = self._get_device_commands()[platform]
+        commands = self.get_commands_for_platform(platform)
         
         results = {
             'hostname': hostname,

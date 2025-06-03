@@ -20,62 +20,21 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import logging
 import time
 from typing import Dict, Any, List
-from dataclasses import dataclass
-from rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
-from rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
-from .base_collector import BaseCollector
+from V4codercli.rr4_complete_enchanced_v4_cli_core.data_parser import DataParser
+from V4codercli.rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler
 
-@dataclass
-class IGPCommands:
-    """IGP layer command definitions by platform."""
+class IGPCollector:
+    """Collector for IGP routing protocols (OSPF, ISIS, EIGRP)."""
     
-    ios_commands = [
-        "show ip ospf neighbor",
-        "show ip ospf database",
-        "show ip eigrp neighbors",
-        "show ip eigrp topology",
-        "show ip route ospf",
-        "show ip route eigrp"
-    ]
-    
-    iosxe_commands = [
-        "show ip ospf neighbor",
-        "show ip ospf database",
-        "show ip eigrp neighbors",
-        "show ip eigrp topology",
-        "show ip route ospf",
-        "show ip route eigrp"
-    ]
-    
-    iosxr_commands = [
-        "show ospf neighbor",
-        "show ospf database",
-        "show eigrp neighbors",
-        "show eigrp topology",
-        "show route ospf",
-        "show route eigrp"
-    ]
-
-class IGPCollector(BaseCollector):
-    """Collect IGP routing information from network devices."""
-    
-    def __init__(self, device_type: str = 'cisco_ios'):
-        """Initialize the IGP collector."""
-        self.data_parser = DataParser()
-        self.commands_data = IGPCommands()
-        super().__init__(device_type)
-    
-    def _get_device_commands(self) -> Dict[str, List[str]]:
-        """Get the list of commands for each device type.
+    def __init__(self, connection: Any = None):
+        """Initialize IGP collector.
         
-        Returns:
-            Dict mapping device types to lists of commands
+        Args:
+            connection: Network device connection object
         """
-        return {
-            'cisco_ios': self.commands_data.ios_commands,
-            'cisco_iosxe': self.commands_data.iosxe_commands,
-            'cisco_iosxr': self.commands_data.iosxr_commands
-        }
+        self.connection = connection
+        self.logger = logging.getLogger('rr4_collector.igp_collector')
+        self.data_parser = DataParser()
     
     def collect(self) -> Dict[str, Any]:
         """Collect IGP data from device."""
@@ -422,6 +381,105 @@ class IGPCollector(BaseCollector):
             'platforms_supported': ['ios', 'iosxe', 'iosxr'],
             'estimated_time': '2-4 minutes per device'
         } 
+
+    def _get_device_commands(self) -> Dict[str, List[str]]:
+        """Get IGP commands for each platform."""
+        commands = {
+            'cisco_ios': [
+                # OSPF Commands
+                'show ip ospf',
+                'show ip ospf interface',
+                'show ip ospf neighbor',
+                'show ip ospf neighbor detail',
+                'show ip ospf database',
+                'show ip ospf database router',
+                'show ip ospf database network',
+                'show ip ospf database summary',
+                'show ip ospf database external',
+                'show ip ospf border-routers',
+                'show ip ospf virtual-links',
+                # EIGRP Commands
+                'show ip eigrp neighbors',
+                'show ip eigrp neighbors detail',
+                'show ip eigrp topology',
+                'show ip eigrp topology active',
+                'show ip eigrp interfaces',
+                'show ip eigrp interfaces detail',
+                'show ip eigrp traffic',
+                # ISIS Commands
+                'show isis neighbors',
+                'show isis neighbors detail',
+                'show isis database',
+                'show isis database detail',
+                'show isis topology',
+                'show isis interface',
+                # General
+                'show ip protocols',
+                'show ip route summary',
+                'show running-config | section router'
+            ],
+            'cisco_iosxe': [
+                # OSPF Commands
+                'show ip ospf',
+                'show ip ospf interface',
+                'show ip ospf neighbor',
+                'show ip ospf neighbor detail',
+                'show ip ospf database',
+                'show ip ospf database router',
+                'show ip ospf database network',
+                'show ip ospf database summary',
+                'show ip ospf database external',
+                'show ip ospf border-routers',
+                'show ip ospf virtual-links',
+                'show ip ospf statistics',
+                # EIGRP Commands
+                'show ip eigrp neighbors',
+                'show ip eigrp neighbors detail',
+                'show ip eigrp topology',
+                'show ip eigrp topology active',
+                'show ip eigrp interfaces',
+                'show ip eigrp interfaces detail',
+                'show ip eigrp traffic',
+                # ISIS Commands
+                'show isis neighbors',
+                'show isis neighbors detail',
+                'show isis database',
+                'show isis database detail',
+                'show isis topology',
+                'show isis interface',
+                # General
+                'show ip protocols',
+                'show ip route summary',
+                'show running-config | section router'
+            ],
+            'cisco_iosxr': [
+                # OSPF Commands
+                'show ospf',
+                'show ospf interface',
+                'show ospf neighbor',
+                'show ospf neighbor detail',
+                'show ospf database',
+                'show ospf database router',
+                'show ospf database network',
+                'show ospf database summary',
+                'show ospf database external',
+                'show ospf border-routers',
+                'show ospf virtual-links',
+                'show ospf statistics',
+                # ISIS Commands
+                'show isis neighbors',
+                'show isis neighbors detail',
+                'show isis database',
+                'show isis database detail',
+                'show isis topology',
+                'show isis interface',
+                # General
+                'show route protocol',
+                'show route summary',
+                'show running-config router'
+            ]
+        }
+        return commands
 
     def process_output(self, outputs: Dict[str, str]) -> Dict[str, Any]:
         """Process IGP command outputs."""
