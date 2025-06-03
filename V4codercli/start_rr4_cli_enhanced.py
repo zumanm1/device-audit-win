@@ -1,7 +1,19 @@
 #!/usr/bin/env python3
 """
-RR4 CLI Interactive Startup Script - Enhanced with Command-Line Options
-Comprehensive guided setup and execution for the RR4 Complete Enhanced v4 CLI
+RR4 CLI Interactive Startup Script - Enhanced with Cross-Platform Support
+
+Enhanced startup manager for RR4 CLI with comprehensive cross-platform support.
+Now includes advanced first-time user experience and additional utility options.
+
+Features:
+- First-time startup wizard (Option 11)
+- Installation verification (Option 13)  
+- Platform-specific startup guidance (Option 14)
+- Quick reference guide (Option 15)
+- Cross-platform compatibility
+- Auto-detection of first-time usage
+- Direct command-line option execution
+- Interactive menu with progress tracking
 
 CROSS-PLATFORM STARTUP:
 - Windows 10/11: python start_rr4_cli_enhanced.py
@@ -20,12 +32,12 @@ This script provides:
 - Prerequisites checking
 - Step-by-step testing
 - Menu-driven interface for different use cases
-- Direct command-line access to all options (0-12)
+- Direct command-line access to all options (0-15)
 - Error handling and recovery
 - Best practice recommendations
 
 Author: AI Assistant
-Version: 1.2.0-CrossPlatform-CLI-Enhanced-FirstTime
+Version: 1.3.0-CrossPlatform-CLI-Enhanced-UtilityOptions
 Created: 2025-06-02
 Updated: 2025-06-03
 Platform Support: Windows 10/11, Linux, macOS
@@ -75,7 +87,10 @@ class EnhancedRR4StartupManager(RR4StartupManager):
                 "  9: 🌟 COMPLETE COLLECTION - All layers + Console",
                 " 10: 🔒 CONSOLE SECURITY AUDIT - Transport security",
                 f" 11: {Colors.YELLOW}🚀 FIRST-TIME WIZARD - New user onboarding{Colors.RESET} ⭐",
-                " 12: 📊 STATUS REPORT - Comprehensive analysis"
+                " 12: 📊 STATUS REPORT - Comprehensive analysis",
+                " 13: 🔧 INSTALLATION VERIFICATION - Run comprehensive system validation",
+                " 14: 🌐 PLATFORM STARTUP GUIDE - Platform-specific startup instructions",
+                " 15: 📚 QUICK REFERENCE GUIDE - View QUICK_START.txt content"
             ]
             
             print_info("Available options:")
@@ -89,16 +104,21 @@ class EnhancedRR4StartupManager(RR4StartupManager):
             # Enhanced input validation with Option 11 support
             while True:
                 try:
-                    choice = input(f"\n{Colors.BOLD}Select option (0-12): {Colors.RESET}").strip()
-                    if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']:
+                    choice = input(f"\n{Colors.BOLD}Select option (0-15): {Colors.RESET}").strip()
+                    if choice in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15']:
                         return int(choice)
                     else:
-                        print_error("Invalid choice. Please enter 0-12.")
+                        print_error("Invalid choice. Please enter 0-15.")
                 except KeyboardInterrupt:
                     print(f"\n{Colors.YELLOW}Operation cancelled by user.{Colors.RESET}")
                     return 0
-                except Exception:
-                    print_error("Invalid input. Please enter a number (0-12).")
+                except EOFError:
+                    # Handle EOF (e.g., when input is piped or redirected)
+                    print(f"\n{Colors.YELLOW}End of input reached. Exiting...{Colors.RESET}")
+                    return 0
+                except Exception as e:
+                    print_error(f"Input error: {str(e)}. Exiting...")
+                    return 0
     
     def run(self):
         """Enhanced main execution loop with Option 11 support"""
@@ -139,6 +159,12 @@ class EnhancedRR4StartupManager(RR4StartupManager):
                     first_time_startup_wizard(args)
                 elif choice == 12:
                     self.comprehensive_status_report()
+                elif choice == 13:
+                    self.installation_verification()
+                elif choice == 14:
+                    self.platform_startup_guide()
+                elif choice == 15:
+                    self.quick_reference_guide()
                 else:
                     print_error("Invalid option selected.")
                 
@@ -148,6 +174,254 @@ class EnhancedRR4StartupManager(RR4StartupManager):
             except Exception as e:
                 print_error(f"Unexpected error: {str(e)}")
                 break
+
+    def installation_verification(self) -> bool:
+        """Option 13: Run comprehensive installation verification"""
+        print_header("🔧 INSTALLATION VERIFICATION", Colors.CYAN)
+        print_info("Running comprehensive system validation...")
+        
+        validator_script = Path("install-validator.py")
+        
+        if not validator_script.exists():
+            print_error("install-validator.py not found!")
+            print_info("Expected location: ./install-validator.py")
+            print_info("This script should have been created during the cross-platform analysis.")
+            return False
+        
+        try:
+            print_info("Executing validation script...")
+            print("-" * 60)
+            
+            # Execute the validator script
+            result = subprocess.run([
+                sys.executable, str(validator_script)
+            ], capture_output=False, text=True)
+            
+            print("-" * 60)
+            
+            if result.returncode == 0:
+                print_success("✅ Installation validation completed successfully!")
+                print_info("All system components verified and ready for use.")
+            else:
+                print_warning("⚠️ Validation completed with warnings or errors.")
+                print_info("Review the output above and address any issues found.")
+            
+            return result.returncode == 0
+            
+        except subprocess.CalledProcessError as e:
+            print_error(f"Validation script failed: {e}")
+            return False
+        except Exception as e:
+            print_error(f"Error running validation: {str(e)}")
+            return False
+    
+    def platform_startup_guide(self) -> bool:
+        """Option 14: Show platform-specific startup instructions"""
+        print_header("🌐 PLATFORM-SPECIFIC STARTUP GUIDE", Colors.CYAN)
+        
+        # Detect current platform
+        current_platform = platform.system().lower()
+        is_windows = current_platform == 'windows'
+        is_linux = current_platform == 'linux'
+        is_macos = current_platform == 'darwin'
+        
+        print_info(f"Detected Platform: {platform.system()} {platform.release()}")
+        print_info(f"Python Version: {platform.python_version()}")
+        print()
+        
+        # Platform-specific guidance
+        if is_windows:
+            print_header("🪟 WINDOWS STARTUP GUIDE", Colors.YELLOW)
+            
+            # Check for Windows startup script
+            windows_script = Path("start-v4codercli.bat")
+            if windows_script.exists():
+                print_success("✅ Windows startup script found!")
+                print_info("📄 Recommended startup method:")
+                print(f"   {Colors.GREEN}start-v4codercli.bat{Colors.RESET}")
+                print()
+                print_info("🔧 Alternative methods:")
+                print(f"   {Colors.BLUE}python start_rr4_cli_enhanced.py{Colors.RESET}")
+                print(f"   {Colors.BLUE}python start_rr4_cli_enhanced.py --option 11{Colors.RESET}")
+            else:
+                print_warning("⚠️ Windows startup script not found!")
+                print_info("Expected: start-v4codercli.bat")
+                print_info("🔧 Use manual startup:")
+                print(f"   {Colors.BLUE}python start_rr4_cli_enhanced.py{Colors.RESET}")
+            
+            print()
+            print_info("💡 Windows-specific tips:")
+            print("   • Run Command Prompt as Administrator if needed")
+            print("   • Ensure Python is in your PATH")
+            print("   • Use Windows PowerShell for better color support")
+            
+        elif is_linux or is_macos:
+            platform_name = "macOS" if is_macos else "Linux"
+            print_header(f"🐧 {platform_name.upper()} STARTUP GUIDE", Colors.YELLOW)
+            
+            # Check for Unix startup script
+            unix_script = Path("start-v4codercli.sh")
+            if unix_script.exists():
+                # Check if executable
+                is_executable = os.access(unix_script, os.X_OK)
+                
+                print_success("✅ Unix startup script found!")
+                print_info("📄 Recommended startup method:")
+                
+                if is_executable:
+                    print(f"   {Colors.GREEN}./start-v4codercli.sh{Colors.RESET}")
+                else:
+                    print_warning("⚠️ Script is not executable. Making it executable...")
+                    try:
+                        os.chmod(unix_script, 0o755)
+                        print_success("✅ Made script executable!")
+                        print(f"   {Colors.GREEN}./start-v4codercli.sh{Colors.RESET}")
+                    except Exception:
+                        print_error("❌ Could not make script executable")
+                        print(f"   {Colors.BLUE}bash start-v4codercli.sh{Colors.RESET}")
+                
+                print()
+                print_info("🔧 Alternative methods:")
+                print(f"   {Colors.BLUE}python3 start_rr4_cli_enhanced.py{Colors.RESET}")
+                print(f"   {Colors.BLUE}python3 start_rr4_cli_enhanced.py --option 11{Colors.RESET}")
+            else:
+                print_warning("⚠️ Unix startup script not found!")
+                print_info("Expected: start-v4codercli.sh")
+                print_info("🔧 Use manual startup:")
+                print(f"   {Colors.BLUE}python3 start_rr4_cli_enhanced.py{Colors.RESET}")
+            
+            print()
+            print_info(f"💡 {platform_name}-specific tips:")
+            print("   • Use 'python3' instead of 'python' on most systems")
+            print("   • Ensure scripts have execute permissions: chmod +x *.sh")
+            if is_macos:
+                print("   • Install Python 3 via Homebrew if needed: brew install python3")
+            else:
+                print("   • Install Python 3 via package manager if needed")
+                print("   • Ubuntu/Debian: sudo apt install python3 python3-pip")
+                print("   • CentOS/RHEL: sudo yum install python3 python3-pip")
+        
+        else:
+            print_warning(f"⚠️ Unknown platform: {current_platform}")
+            print_info("🔧 Generic startup method:")
+            print(f"   {Colors.BLUE}python start_rr4_cli_enhanced.py{Colors.RESET}")
+        
+        print()
+        print_header("🚀 NEXT STEPS", Colors.GREEN)
+        print_info("After choosing your startup method:")
+        print("   1. 🎯 Run Option 11 for first-time setup wizard")
+        print("   2. 🔧 Run Option 13 for installation verification")  
+        print("   3. 📚 Run Option 15 for quick reference guide")
+        print("   4. 🔍 Run Option 2 for quick connectivity test")
+        
+        print()
+        print_info("📋 Troubleshooting:")
+        print("   • If imports fail: export PYTHONPATH=\".:$PYTHONPATH\"")
+        print("   • For permission errors: check file ownership and permissions")
+        print("   • For SSH issues: verify .env-t configuration file")
+        
+        return True
+    
+    def quick_reference_guide(self) -> bool:
+        """Option 15: Display QUICK_START.txt content with formatting"""
+        print_header("📚 QUICK REFERENCE GUIDE", Colors.CYAN)
+        
+        quick_start_file = Path("QUICK_START.txt")
+        
+        if not quick_start_file.exists():
+            print_error("QUICK_START.txt not found!")
+            print_info("Expected location: ./QUICK_START.txt")
+            print_info("This file should contain quick start instructions.")
+            
+            # Provide inline quick reference if file missing
+            print_header("📋 INLINE QUICK REFERENCE", Colors.YELLOW)
+            print_info("Essential V4CODERCLI commands:")
+            print()
+            print("🎯 First-time users:")
+            print(f"   {Colors.GREEN}python3 start_rr4_cli_enhanced.py --option 11{Colors.RESET}")
+            print()
+            print("🔧 System validation:")
+            print(f"   {Colors.GREEN}python3 install-validator.py{Colors.RESET}")
+            print(f"   {Colors.GREEN}python3 system_health_monitor.py{Colors.RESET}")
+            print()
+            print("🔍 Quick network audit:")
+            print(f"   {Colors.GREEN}python3 start_rr4_cli_enhanced.py --option 2{Colors.RESET}")
+            print()
+            print("📊 Full data collection:")
+            print(f"   {Colors.GREEN}python3 start_rr4_cli_enhanced.py --option 3{Colors.RESET}")
+            print()
+            print("🌟 Complete collection:")
+            print(f"   {Colors.GREEN}python3 start_rr4_cli_enhanced.py --option 9{Colors.RESET}")
+            
+            return False
+        
+        try:
+            print_info("Reading QUICK_START.txt...")
+            print("-" * 80)
+            
+            with open(quick_start_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            # Split content into lines for pagination
+            lines = content.split('\n')
+            lines_per_page = 30
+            total_pages = (len(lines) + lines_per_page - 1) // lines_per_page
+            
+            current_page = 1
+            start_line = 0
+            
+            while current_page <= total_pages:
+                # Clear previous content (if needed)
+                end_line = min(start_line + lines_per_page, len(lines))
+                
+                # Display current page
+                for line in lines[start_line:end_line]:
+                    print(line)
+                
+                print("-" * 80)
+                print(f"Page {current_page}/{total_pages} | Lines {start_line + 1}-{end_line}")
+                
+                if current_page < total_pages:
+                    try:
+                        user_input = input(f"{Colors.YELLOW}Press Enter for next page, 'q' to quit, or 'j' to jump to page: {Colors.RESET}").strip().lower()
+                        
+                        if user_input == 'q':
+                            break
+                        elif user_input.startswith('j'):
+                            try:
+                                page_num = int(user_input[1:].strip() or input("Jump to page: "))
+                                if 1 <= page_num <= total_pages:
+                                    current_page = page_num
+                                    start_line = (current_page - 1) * lines_per_page
+                                    continue
+                                else:
+                                    print_warning(f"Invalid page number. Enter 1-{total_pages}")
+                                    continue
+                            except ValueError:
+                                print_warning("Invalid page number")
+                                continue
+                        
+                        current_page += 1
+                        start_line = (current_page - 1) * lines_per_page
+                        
+                    except KeyboardInterrupt:
+                        print_warning("\nReading interrupted by user.")
+                        break
+                else:
+                    print_success("✅ End of Quick Reference Guide")
+                    input(f"{Colors.YELLOW}Press Enter to continue...{Colors.RESET}")
+                    break
+            
+            print_info("💡 For more detailed information:")
+            print("   • Full guide: STARTUP_COMMANDS_GUIDE.txt")
+            print("   • System validation: python3 install-validator.py")
+            print("   • Platform guide: Option 14")
+            
+            return True
+            
+        except Exception as e:
+            print_error(f"Error reading QUICK_START.txt: {str(e)}")
+            return False
 
 def detect_first_time_usage():
     """Detect if this is likely a first-time usage"""
@@ -181,11 +455,19 @@ OPTION DESCRIPTIONS:
   10  🔒 CONSOLE SECURITY AUDIT       - Transport security analysis
   11  🚀 FIRST-TIME STARTUP WIZARD    - Comprehensive new user onboarding
   12  📊 COMPREHENSIVE STATUS REPORT  - All options analysis with device filtering
+  13  🔧 INSTALLATION VERIFICATION    - Run comprehensive system validation
+  14  🌐 PLATFORM STARTUP GUIDE       - Platform-specific startup instructions
+  15  📚 QUICK REFERENCE GUIDE         - View QUICK_START.txt content
 
 FIRST-TIME USER RECOMMENDATIONS:
   python3 start_rr4_cli_enhanced.py --option 11        # ⭐ RECOMMENDED for new users
   python3 start_rr4_cli_enhanced.py --first-time       # Alternative first-time flag
   python3 start_rr4_cli_enhanced.py                    # Interactive menu with auto-detection
+
+UTILITY OPTIONS:
+  python3 start_rr4_cli_enhanced.py --option 13        # Verify installation
+  python3 start_rr4_cli_enhanced.py --option 14        # Platform startup guide
+  python3 start_rr4_cli_enhanced.py --option 15        # Quick reference
 
 EXAMPLES:
   python3 start_rr4_cli_enhanced.py                    # Interactive menu mode (default)
@@ -193,7 +475,7 @@ EXAMPLES:
   python3 start_rr4_cli_enhanced.py --option 1         # Run first-time setup directly
   python3 start_rr4_cli_enhanced.py --option 2         # Run audit only directly
   python3 start_rr4_cli_enhanced.py --option 3         # Run full collection directly
-  python3 start_rr4_cli_enhanced.py --option 12        # Run comprehensive status report
+  python3 start_rr4_cli_enhanced.py --option 12        # Run comprehensive report
   python3 start_rr4_cli_enhanced.py --list-options     # List all available options
         '''
     )
@@ -201,8 +483,8 @@ EXAMPLES:
     parser.add_argument(
         '--option', '-o',
         type=int,
-        choices=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-        help='Execute specific option directly (0-12, including new Option 11)'
+        choices=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        help='Execute specific option directly (0-15, including new Options 13-15)'
     )
     
     parser.add_argument(
@@ -247,7 +529,7 @@ def show_version_info():
     """Show version information"""
     print(f"{Colors.CYAN}{'=' * 60}")
     print(f"RR4 CLI Interactive Startup Script - Enhanced")
-    print(f"Version: 1.2.0-CrossPlatform-CLI-Enhanced-FirstTime")
+    print(f"Version: 1.3.0-CrossPlatform-CLI-Enhanced-UtilityOptions")
     print(f"Created: 2025-06-02")
     print(f"Updated: 2025-06-03")
     print(f"Platform: {platform.system()} {platform.release()}")
@@ -269,7 +551,10 @@ def list_all_options():
         9: "🌟 COMPLETE COLLECTION - All layers + Console in systematic order",
         10: "🔒 CONSOLE SECURITY AUDIT - Transport security analysis",
         11: "🚀 FIRST-TIME STARTUP WIZARD - Comprehensive new user onboarding",
-        12: "📊 COMPREHENSIVE STATUS REPORT - All options analysis with device filtering"
+        12: "📊 COMPREHENSIVE STATUS REPORT - All options analysis with device filtering",
+        13: "🔧 INSTALLATION VERIFICATION - Run comprehensive system validation",
+        14: "🌐 PLATFORM STARTUP GUIDE - Platform-specific startup instructions", 
+        15: "📚 QUICK REFERENCE GUIDE - View QUICK_START.txt content"
     }
     
     print_header("AVAILABLE OPTIONS", Colors.CYAN)
@@ -279,6 +564,8 @@ def list_all_options():
     for option_num, description in options.items():
         if option_num == 11:
             print_info(f"  {option_num:2d}: {Colors.YELLOW}{description}{Colors.RESET} ⭐ RECOMMENDED FOR NEW USERS")
+        elif option_num in [13, 14, 15]:
+            print_info(f"  {option_num:2d}: {Colors.CYAN}{description}{Colors.RESET} 🆕 NEW UTILITY OPTION")
         else:
             print_info(f"  {option_num:2d}: {description}")
     
@@ -287,6 +574,9 @@ def list_all_options():
     print_info("  python3 start_rr4_cli_enhanced.py --option 11   # ⭐ First-time startup wizard")
     print_info("  python3 start_rr4_cli_enhanced.py --first-time  # Alternative first-time flag")  
     print_info("  python3 start_rr4_cli_enhanced.py --option 1    # Run first-time setup")
+    print_info("  python3 start_rr4_cli_enhanced.py --option 13   # 🆕 Installation verification")
+    print_info("  python3 start_rr4_cli_enhanced.py --option 14   # 🆕 Platform startup guide")
+    print_info("  python3 start_rr4_cli_enhanced.py --option 15   # 🆕 Quick reference guide")
     print_info("  python3 start_rr4_cli_enhanced.py --option 12   # Run comprehensive report")
     print_info("  python3 start_rr4_cli_enhanced.py               # Interactive menu mode")
 
@@ -475,14 +765,15 @@ def execute_option_directly(option_num: int, args) -> bool:
         display_startup_info()
         print_header(f"DIRECT EXECUTION - OPTION {option_num}", Colors.GREEN)
     
-    # Skip prerequisites check if requested (for automation)
-    if not args.no_prereq_check:
+    # Skip prerequisites check if requested (for automation) or for utility options
+    utility_options = [13, 14, 15]  # These don't need prerequisites check
+    if not args.no_prereq_check and option_num not in utility_options:
         if not args.quiet:
             print_info("Performing prerequisites check...")
         if not manager.check_prerequisites():
             print_error("Prerequisites check failed. Use --no-prereq-check to skip.")
             return False
-    elif not args.quiet:
+    elif not args.quiet and option_num not in utility_options:
         print_warning("Skipping prerequisites check as requested.")
     
     # Execute the selected option
@@ -516,6 +807,12 @@ def execute_option_directly(option_num: int, args) -> bool:
             success = first_time_startup_wizard(args)
         elif option_num == 12:
             success = manager.comprehensive_status_report()
+        elif option_num == 13:
+            success = manager.installation_verification()
+        elif option_num == 14:
+            success = manager.platform_startup_guide()
+        elif option_num == 15:
+            success = manager.quick_reference_guide()
         else:
             print_error(f"Invalid option: {option_num}")
             return False
@@ -536,6 +833,11 @@ def execute_option_directly(option_num: int, args) -> bool:
     except Exception as e:
         print_error(f"Error executing option {option_num}: {str(e)}")
         return False
+
+def detect_non_interactive():
+    """Detect if we're running in a non-interactive environment"""
+    import os
+    return not sys.stdin.isatty() or os.getenv('CI') or os.getenv('AUTOMATED')
 
 def main():
     """Main entry point with command-line argument support"""
@@ -576,6 +878,14 @@ def main():
                 print_info("🎯 Recommended: python3 start_rr4_cli_enhanced.py --option 2")
                 return
         
+        # Check if running non-interactively
+        if detect_non_interactive():
+            print_info("🤖 Non-interactive environment detected.")
+            print_info("For interactive mode, run: python3 start_rr4_cli_enhanced.py")
+            print_info("For direct option execution, use: python3 start_rr4_cli_enhanced.py --option <number>")
+            print_info("For help: python3 start_rr4_cli_enhanced.py --help")
+            return
+        
         # Default: Run interactive menu mode with first-time detection
         is_first_time, indicators = detect_first_time_usage()
         if is_first_time and not args.quiet:
@@ -588,8 +898,10 @@ def main():
                 if use_wizard in ['y', 'yes']:
                     success = first_time_startup_wizard(args)
                     sys.exit(0 if success else 1)
-            except:
-                pass
+            except (KeyboardInterrupt, EOFError):
+                print_info("\nSkipping first-time wizard, launching interactive menu...")
+            except Exception:
+                print_info("\nSkipping first-time wizard, launching interactive menu...")
         
         # Run normal interactive menu
         manager = EnhancedRR4StartupManager()
