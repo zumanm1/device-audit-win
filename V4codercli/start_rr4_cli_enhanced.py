@@ -767,13 +767,16 @@ def execute_option_directly(option_num: int, args) -> bool:
     
     # Skip prerequisites check if requested (for automation) or for utility options
     utility_options = [13, 14, 15]  # These don't need prerequisites check
-    if not args.no_prereq_check and option_num not in utility_options:
+    # Also skip for Option 5 since it IS the prerequisites check
+    skip_prereq_options = utility_options + [5]
+    
+    if not args.no_prereq_check and option_num not in skip_prereq_options:
         if not args.quiet:
             print_info("Performing prerequisites check...")
         if not manager.check_prerequisites():
             print_error("Prerequisites check failed. Use --no-prereq-check to skip.")
             return False
-    elif not args.quiet and option_num not in utility_options:
+    elif not args.quiet and option_num not in skip_prereq_options:
         print_warning("Skipping prerequisites check as requested.")
     
     # Execute the selected option
