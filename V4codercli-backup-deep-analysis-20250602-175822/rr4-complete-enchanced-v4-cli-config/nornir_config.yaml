@@ -1,0 +1,18 @@
+inventory:
+  plugin: SimpleInventory # Using SimpleInventory, assuming InventoryLoader adapts or you use hosts.yaml/groups.yaml
+  options:
+    host_file: "../rr4-complete-enchanced-v4-cli-routers01.csv" # Path relative to nornir_config.yaml for CSV, or use hosts.yaml
+    # If using SimpleInventory with YAML:
+    # host_file: "inventory/hosts.yaml"
+    # group_file: "inventory/groups.yaml"
+    # defaults_file: "inventory/defaults.yaml"
+
+runner:
+  plugin: threaded
+  options:
+    num_workers: 20 # Default from script's CONFIG
+
+logging:
+  enabled: True
+  log_file: "../rr4-complete-enchanced-v4-cli-logs/nornir.log" # Path relative to nornir_config.yaml
+  level: INFO

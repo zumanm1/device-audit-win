@@ -1,0 +1,55 @@
+# RR4 Complete Enhanced v4 CLI - Cross-Platform Requirements
+# Compatible with Windows, Linux, and macOS
+# Python 3.8+ required
+
+# Core CLI framework
+click>=8.0.0
+python-dotenv>=0.19.0
+
+# Network automation libraries
+paramiko>=2.9.0
+netmiko>=4.0.0
+scrapli>=2022.7.30
+nornir>=3.3.0
+nornir-netmiko>=0.2.0
+nornir-scrapli>=2022.7.30
+
+# Data processing and parsing
+textfsm>=1.1.0
+ttp>=0.9.0
+jinja2>=3.0.0
+pyyaml>=6.0
+
+# Security and encryption
+cryptography>=3.4.8
+
+# Output formatting and reporting
+rich>=12.0.0
+tabulate>=0.9.0
+
+# Network utilities
+requests>=2.27.0
+ipaddress>=1.0.23; python_version < "3.3"
+
+# Data storage and serialization
+json5>=0.9.6
+
+# Development and testing (optional)
+pytest>=7.0.0
+pytest-cov>=3.0.0
+black>=22.0.0
+flake8>=4.0.0
+
+# Platform-specific dependencies
+pywin32>=227; sys_platform == "win32"
+
+# Optional - Enhanced parsing capabilities
+# Uncomment the following lines if you want enhanced command output parsing
+# pyats>=21.0.0
+# genie>=21.0.0
+
+# Development and testing dependencies (optional)
+# pytest>=6.0.0
+# pytest-cov>=2.0.0
+# black>=21.0.0
+# flake8>=3.9.0 

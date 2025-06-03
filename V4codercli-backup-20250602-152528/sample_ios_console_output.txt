@@ -1,0 +1,28 @@
+Console Line Collection Report - IOS Device
+Device: 192.168.1.100
+Platform: ios
+Timestamp: 2025-01-27T01:00:00Z
+
+Console Lines Discovered: 5
+Console Lines Configured: 2
+Success Rate: 100.0%
+
+Console Line Configurations:
+----------------------------
+Line 0/0/0 (AUX):
+line 0/0/0
+ session-timeout 0
+ exec-timeout 0 0
+ transport input all
+ transport output all
+ stopbits 1
+
+Line 0/0/1 (AUX):
+line 0/0/1
+ session-timeout 0
+ exec-timeout 0 0
+ transport input all
+ transport output all
+ stopbits 1
+
+All discovered lines: 0/0/0, 0/0/1, 0/0/2, 0/0/3, 0/0/4

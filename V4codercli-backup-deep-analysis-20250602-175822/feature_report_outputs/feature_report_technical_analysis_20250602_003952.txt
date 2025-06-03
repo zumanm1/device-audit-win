@@ -1,0 +1,72 @@
+====================================================================================================
+COMPREHENSIVE COLLECTION STATUS REPORT - TECHNICAL ANALYSIS
+====================================================================================================
+Generated: 2025-06-02 00:39:52
+Report Type: Technical Analysis
+====================================================================================================
+
+COLLECTION ANALYSIS
+------------------------------------------------------------
+Total Collections Discovered: 6
+Collections by Option Type:
+  full_collection: 1 collections
+  custom_or_partial: 2 collections
+  audit_only: 3 collections
+
+DEVICE ANALYSIS
+------------------------------------------------------------
+Total Unique Devices: 8
+Accessible Devices: 8
+Consistent Devices: 8
+Inconsistent Devices: 0
+
+Device Success Rates:
+  172.16.39.104: 100.0%
+  172.16.39.103: 100.0%
+  172.16.39.100: 100.0%
+  172.16.39.101: 100.0%
+  172.16.39.107: 100.0%
+  172.16.39.105: 100.0%
+  172.16.39.106: 100.0%
+  172.16.39.102: 100.0%
+
+LAYER ANALYSIS
+------------------------------------------------------------
+Expected Layers: 8
+Critical Layer Gaps: interfaces
+
+OPTION EFFECTIVENESS ANALYSIS
+------------------------------------------------------------
+full_collection:
+  Collection Count: 1
+  Total Devices: 8
+  Avg Device Success Rate: 100.0%
+  Avg Layer Completeness: 0.625
+  Avg Data Quality: 0.950
+  Effectiveness Score: 0.840
+
+custom_or_partial:
+  Collection Count: 2
+  Total Devices: 12
+  Avg Device Success Rate: 100.0%
+  Avg Layer Completeness: 0.438
+  Avg Data Quality: 0.875
+  Effectiveness Score: 0.750
+
+audit_only:
+  Collection Count: 3
+  Total Devices: 18
+  Avg Device Success Rate: 100.0%
+  Avg Layer Completeness: 0.208
+  Avg Data Quality: 0.783
+  Effectiveness Score: 0.640
+
+IDENTIFIED BEST PRACTICES
+------------------------------------------------------------
+1. Use full_collection approach for optimal results
+2. Focus on full_collection, custom_or_partial for best collection results
+3. Maintain device connectivity standards seen in full_collection, custom_or_partial, audit_only
+
+IMPROVEMENT OPPORTUNITIES
+------------------------------------------------------------
+1. Enhance layer collection completeness for custom_or_partial, audit_only
