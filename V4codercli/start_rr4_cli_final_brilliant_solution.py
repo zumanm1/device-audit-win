@@ -47,6 +47,26 @@ def display_startup_info():
     print("="*80)
     print()
 
+def compare_version(version1: str, version2: str) -> int:
+    """Compare two version strings. Returns: 1 if version1 > version2, 0 if equal, -1 if version1 < version2"""
+    def normalize_version(v):
+        return [int(x) for x in v.split('.')]
+    
+    v1_parts = normalize_version(version1)
+    v2_parts = normalize_version(version2)
+    
+    # Pad shorter version with zeros
+    max_len = max(len(v1_parts), len(v2_parts))
+    v1_parts.extend([0] * (max_len - len(v1_parts)))
+    v2_parts.extend([0] * (max_len - len(v2_parts)))
+    
+    for i in range(max_len):
+        if v1_parts[i] > v2_parts[i]:
+            return 1
+        elif v1_parts[i] < v2_parts[i]:
+            return -1
+    return 0
+
 class Colors:
     RESET = '\033[0m'
     BOLD = '\033[1m'
@@ -119,11 +139,13 @@ class BrilliantV4Manager:
         """Safe prerequisites check with no hanging"""
         print_header("PREREQUISITES CHECK", Colors.CYAN)
         
-        # Python version check
+        # Python version check - FIXED VERSION COMPARISON
         print_section("Python Version Check")
         python_version = platform.python_version()
-        if python_version >= "3.8":
-            print_success(f"Python {python_version} - Compatible")
+        
+        # Use proper version comparison instead of string comparison
+        if compare_version(python_version, "3.8.0") >= 0:
+            print_success(f"Python {python_version} - Compatible (3.8+ required)")
         else:
             print_error(f"Python {python_version} - Requires Python 3.8+")
             return False
