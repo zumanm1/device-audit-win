@@ -1,0 +1,257 @@
+{
+  "metadata": {
+    "name": "MPLS L3VPN Lab",
+    "description": "Complete MPLS L3VPN topology with CE-4, CE-5, PE1, PE2, P, RR1 using Cisco 3725 routers",
+    "author": "V5evscriptcli",
+    "version": "1.0",
+    "topology_type": "mpls_l3vpn",
+    "created": "2025-06-04",
+    "router_count": 6,
+    "connection_count": 5
+  },
+  "settings": {
+    "default_router_type": "dynamips",
+    "default_router_template": "c3725",
+    "default_router_image": "c3725-adventerprisek9-mz.124-15.T14.image",
+    "default_ram": "256",
+    "default_nvram": "256",
+    "default_idle_pc": "0x60606040",
+    "use_management_network": true,
+    "management_network_name": "Management",
+    "management_network_type": "bridge"
+  },
+  "routers": {
+    "CE-4": {
+      "type": "dynamips",
+      "template": "c3725",
+      "image": "c3725-adventerprisek9-mz.124-15.T14.image",
+      "ram": "256",
+      "nvram": "256",
+      "idlepc": "0x60606040",
+      "icon": "Router.png",
+      "position": { "left": 100, "top": 150 },
+      "console": "telnet",
+      "slots": {
+        "slot1": "NM-1FE-TX",
+        "slot2": ""
+      },
+      "interfaces": ["f0/0", "f0/1", "f1/0"],
+      "management_interface": "f0/1",
+      "role": "customer_edge",
+      "description": "Customer Edge Router 4 - AS 400"
+    },
+    "CE-5": {
+      "type": "dynamips",
+      "template": "c3725",
+      "image": "c3725-adventerprisek9-mz.124-15.T14.image",
+      "ram": "256",
+      "nvram": "256",
+      "idlepc": "0x60606040",
+      "icon": "Router.png",
+      "position": { "left": 100, "top": 350 },
+      "console": "telnet",
+      "slots": {
+        "slot1": "NM-1FE-TX",
+        "slot2": ""
+      },
+      "interfaces": ["f0/0", "f0/1", "f1/0"],
+      "management_interface": "f0/1",
+      "role": "customer_edge",
+      "description": "Customer Edge Router 5 - AS 500"
+    },
+    "PE1": {
+      "type": "dynamips",
+      "template": "c3725",
+      "image": "c3725-adventerprisek9-mz.124-15.T14.image",
+      "ram": "256",
+      "nvram": "256",
+      "idlepc": "0x60606040",
+      "icon": "Router.png",
+      "position": { "left": 300, "top": 150 },
+      "console": "telnet",
+      "slots": {
+        "slot1": "NM-1FE-TX",
+        "slot2": "NM-1FE-TX"
+      },
+      "interfaces": ["f0/0", "f0/1", "f1/0", "f2/0"],
+      "management_interface": "f2/0",
+      "role": "provider_edge",
+      "description": "Provider Edge Router 1 - VRF_D"
+    },
+    "PE2": {
+      "type": "dynamips",
+      "template": "c3725",
+      "image": "c3725-adventerprisek9-mz.124-15.T14.image",
+      "ram": "256",
+      "nvram": "256",
+      "idlepc": "0x60606040",
+      "icon": "Router.png",
+      "position": { "left": 300, "top": 350 },
+      "console": "telnet",
+      "slots": {
+        "slot1": "NM-1FE-TX",
+        "slot2": "NM-1FE-TX"
+      },
+      "interfaces": ["f0/0", "f0/1", "f1/0", "f2/0"],
+      "management_interface": "f2/0",
+      "role": "provider_edge",
+      "description": "Provider Edge Router 2 - VRF_E"
+    },
+    "P": {
+      "type": "dynamips",
+      "template": "c3725",
+      "image": "c3725-adventerprisek9-mz.124-15.T14.image",
+      "ram": "256",
+      "nvram": "256",
+      "idlepc": "0x60606040",
+      "icon": "Router.png",
+      "position": { "left": 500, "top": 250 },
+      "console": "telnet",
+      "slots": {
+        "slot1": "NM-1FE-TX",
+        "slot2": "NM-1FE-TX"
+      },
+      "interfaces": ["f0/0", "f0/1", "f1/0", "f2/0"],
+      "management_interface": "f2/0",
+      "role": "provider_core",
+      "description": "Provider Core Router - MPLS LSR"
+    },
+    "RR1": {
+      "type": "dynamips",
+      "template": "c3725",
+      "image": "c3725-adventerprisek9-mz.124-15.T14.image",
+      "ram": "256",
+      "nvram": "256",
+      "idlepc": "0x60606040",
+      "icon": "Router.png",
+      "position": { "left": 700, "top": 250 },
+      "console": "telnet",
+      "slots": {
+        "slot1": "NM-1FE-TX",
+        "slot2": "NM-1FE-TX"
+      },
+      "interfaces": ["f0/0", "f0/1", "f1/0", "f2/0"],
+      "management_interface": "f2/0",
+      "role": "route_reflector",
+      "description": "BGP Route Reflector - iBGP Scalability"
+    }
+  },
+  "connections": [
+    {
+      "source_router": "CE-4",
+      "source_interface": "f1/0",
+      "target_router": "PE1",
+      "target_interface": "f1/0",
+      "link_name": "Link_CE4_PE1",
+      "position": { "left": 200, "top": 150 },
+      "description": "Customer 4 to PE1 connection"
+    },
+    {
+      "source_router": "PE1",
+      "source_interface": "f0/0",
+      "target_router": "P",
+      "target_interface": "f0/0",
+      "link_name": "Link_PE1_P",
+      "position": { "left": 400, "top": 200 },
+      "description": "PE1 to P core connection"
+    },
+    {
+      "source_router": "P",
+      "source_interface": "f0/1",
+      "target_router": "PE2",
+      "target_interface": "f0/1",
+      "link_name": "Link_P_PE2",
+      "position": { "left": 400, "top": 300 },
+      "description": "P to PE2 core connection"
+    },
+    {
+      "source_router": "P",
+      "source_interface": "f1/0",
+      "target_router": "RR1",
+      "target_interface": "f1/0",
+      "link_name": "Link_P_RR1",
+      "position": { "left": 600, "top": 250 },
+      "description": "P to Route Reflector connection"
+    },
+    {
+      "source_router": "PE2",
+      "source_interface": "f0/0",
+      "target_router": "CE-5",
+      "target_interface": "f0/0",
+      "link_name": "Link_PE2_CE5",
+      "position": { "left": 200, "top": 350 },
+      "description": "PE2 to Customer 5 connection"
+    }
+  ],
+  "interface_mappings": {
+    "f0/0": 0,
+    "f0/1": 1,
+    "f1/0": 16,
+    "f2/0": 32
+  },
+  "ip_addressing": {
+    "loopbacks": {
+      "PE1": "1.1.1.1/32",
+      "P": "2.2.2.2/32",
+      "PE2": "3.3.3.3/32",
+      "RR1": "4.4.4.4/32",
+      "CE-4": "40.40.40.40/32",
+      "CE-5": "50.50.50.50/32"
+    },
+    "core_links": {
+      "PE1-P": {
+        "PE1": "10.1.1.1/24",
+        "P": "10.1.1.2/24"
+      },
+      "P-PE2": {
+        "P": "10.1.2.1/24",
+        "PE2": "10.1.2.2/24"
+      },
+      "P-RR1": {
+        "P": "10.1.3.1/24",
+        "RR1": "10.1.3.2/24"
+      }
+    },
+    "customer_links": {
+      "PE1-CE4": {
+        "PE1": "192.168.14.1/24",
+        "CE-4": "192.168.14.2/24"
+      },
+      "PE2-CE5": {
+        "PE2": "192.168.25.1/24",
+        "CE-5": "192.168.25.2/24"
+      }
+    },
+    "management": {
+      "network": "192.168.100.0/24",
+      "CE-4": "192.168.100.4/24",
+      "CE-5": "192.168.100.5/24",
+      "PE1": "192.168.100.11/24",
+      "PE2": "192.168.100.12/24",
+      "P": "192.168.100.20/24",
+      "RR1": "192.168.100.30/24"
+    }
+  },
+  "configuration_guide": {
+    "deployment_order": [
+      "1. Configure P router first (OSPF, MPLS LDP)",
+      "2. Configure PE routers (OSPF, MPLS, BGP, VRFs)",
+      "3. Configure RR1 (OSPF, MPLS, BGP Route Reflector)",
+      "4. Configure CE routers (BGP to PEs)",
+      "5. Configure management interfaces if using management network",
+      "6. Verify MPLS LSPs and BGP VPNv4 routes",
+      "7. Test end-to-end connectivity"
+    ],
+    "key_services": [
+      "VRF_D on PE1 (AS 400 route policy, RT manipulation)",
+      "VRF_E on PE2 (AS 500 route policy, RT manipulation)",
+      "Inter-VRF communication via route policies",
+      "BGP Route Reflector for iBGP scalability"
+    ],
+    "interface_types": {
+      "f0/0, f0/1": "Onboard FastEthernet interfaces",
+      "f1/0": "NM-1FE-TX in slot 1",
+      "f2/0": "NM-1FE-TX in slot 2"
+    }
+  }
+} 

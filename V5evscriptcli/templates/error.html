@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Error {{ error_code }} - V5evscriptcli{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="text-center py-5">
+                <div class="error-icon mb-4">
+                    {% if error_code == 404 %}
+                        <i class="fas fa-search fa-5x text-warning"></i>
+                    {% elif error_code == 500 %}
+                        <i class="fas fa-exclamation-triangle fa-5x text-danger"></i>
+                    {% elif error_code == 403 %}
+                        <i class="fas fa-lock fa-5x text-warning"></i>
+                    {% else %}
+                        <i class="fas fa-bug fa-5x text-danger"></i>
+                    {% endif %}
+                </div>
+                
+                <h1 class="display-4 mb-3">
+                    {% if error_code == 404 %}
+                        Page Not Found
+                    {% elif error_code == 500 %}
+                        Internal Server Error
+                    {% elif error_code == 403 %}
+                        Access Forbidden
+                    {% else %}
+                        Error {{ error_code }}
+                    {% endif %}
+                </h1>
+                
+                <p class="lead mb-4">
+                    {% if error_message %}
+                        {{ error_message }}
+                    {% elif error_code == 404 %}
+                        The page you're looking for doesn't exist or has been moved.
+                    {% elif error_code == 500 %}
+                        Something went wrong on our end. We're working to fix it.
+                    {% elif error_code == 403 %}
+                        You don't have permission to access this resource.
+                    {% else %}
+                        An unexpected error occurred. Please try again later.
+                    {% endif %}
+                </p>
+                
+                <div class="error-actions">
+                    <a href="/dashboard" class="btn btn-primary btn-lg mr-3">
+                        <i class="fas fa-home"></i> Go to Dashboard
+                    </a>
+                    <button onclick="history.back()" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Go Back
+                    </button>
+                </div>
+                
+                {% if error_code == 500 %}
+                <div class="mt-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-info-circle"></i> What can you do?</h5>
+                        </div>
+                        <div class="card-body">
+                            <ul class="list-unstyled">
+                                <li><i class="fas fa-check text-success"></i> Try refreshing the page</li>
+                                <li><i class="fas fa-check text-success"></i> Check your network connection</li>
+                                <li><i class="fas fa-check text-success"></i> Contact support if the problem persists</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if error_code == 404 %}
+                <div class="mt-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-compass"></i> Quick Navigation</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <a href="/dashboard" class="btn btn-outline-primary btn-block mb-2">
+                                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                                    </a>
+                                    <a href="/topology" class="btn btn-outline-primary btn-block mb-2">
+                                        <i class="fas fa-project-diagram"></i> Topology Designer
+                                    </a>
+                                </div>
+                                <div class="col-md-6">
+                                    <a href="/labs" class="btn btn-outline-primary btn-block mb-2">
+                                        <i class="fas fa-flask"></i> Lab Management
+                                    </a>
+                                    <a href="/monitoring" class="btn btn-outline-primary btn-block mb-2">
+                                        <i class="fas fa-chart-line"></i> Monitoring
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-refresh for 500 errors after 30 seconds
+    {% if error_code == 500 %}
+    setTimeout(function() {
+        if (confirm('Would you like to try reloading the page?')) {
+            location.reload();
+        }
+    }, 30000);
+    {% endif %}
+</script>
+{% endblock %} 

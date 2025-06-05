@@ -1,0 +1,68 @@
+{
+  "platform": {
+    "system": "Linux",
+    "release": "6.7.5-eveng-6-ksm+",
+    "version": "#1 SMP PREEMPT_DYNAMIC Mon Feb 26 16:15:30 UTC 2024",
+    "machine": "x86_64",
+    "python_version": "3.10.12"
+  },
+  "tests": {
+    "Python Environment": {
+      "status": "PASSED",
+      "details": "\u2705 Python 3.10.12\n\u2705 pip available\n\u2139\ufe0f  Virtual environment: No",
+      "timestamp": "2025-06-03T16:39:56.209939"
+    },
+    "Core Dependencies": {
+      "status": "PASSED",
+      "details": "\u2705 click - CLI framework\n\u2705 paramiko - SSH library\n\u2705 netmiko - Network device library\n\u2705 nornir - Automation framework\n\u2705 yaml - YAML processing\n\u2705 textfsm - Template parsing\n\u2705 cryptography - Security/encryption\n\u2705 jinja2 - Template engine\n\u2705 dotenv - Environment management (optional)\n\u2705 tabulate - Table formatting (optional)\n\u2705 requests - HTTP client (optional)",
+      "timestamp": "2025-06-03T16:39:59.210178"
+    },
+    "File Structure": {
+      "status": "PASSED",
+      "details": "\u2705 start_rr4_cli_enhanced.py (25393 bytes)\n\u2705 start_rr4_cli.py (405066 bytes)\n\u2705 rr4-complete-enchanced-v4-cli.py (69923 bytes)\n\u2705 system_health_monitor.py (12899 bytes)\n\u2705 requirements.txt (4073 bytes)\n\u2705 requirements-minimal.txt (506 bytes)\n\u2705 setup.py (5794 bytes)\n\u2705 .env-t (363 bytes)\n\u2705 rr4_complete_enchanced_v4_cli_core/ (6 Python files)\n\u2705 rr4_complete_enchanced_v4_cli_tasks/ (10 Python files)",
+      "timestamp": "2025-06-03T16:39:59.211262"
+    },
+    "Import System": {
+      "status": "PASSED",
+      "details": "\u2705 rr4_complete_enchanced_v4_cli_core\n\u2705 rr4_complete_enchanced_v4_cli_tasks\n\u2705 rr4_complete_enchanced_v4_cli_core.connection_manager\n\u2705 rr4_complete_enchanced_v4_cli_tasks.base_collector",
+      "timestamp": "2025-06-03T16:39:59.294492"
+    },
+    "Configuration Files": {
+      "status": "PASSED",
+      "details": "\u2705 .env-t (363 chars)\n\u2705 rr4-complete-enchanced-v4-cli.env-t (363 chars)\n\u2705 rr4-complete-enchanced-v4-cli-routers01.csv (1098 chars)",
+      "timestamp": "2025-06-03T16:39:59.294979"
+    },
+    "Network Modules": {
+      "status": "PASSED",
+      "details": "\u2705 ConnectionManager class\n\u2705 Available layers: mpls, igp, bgp, vpn, interfaces, health, static, console",
+      "timestamp": "2025-06-03T16:39:59.295045"
+    },
+    "Cross-Platform Features": {
+      "status": "PASSED",
+      "details": "\u2705 pathlib.Path functionality\n\u2705 Platform: linux\n\u2705 Windows: False\n\u2705 Linux: True\n\u2705 macOS: False\n\u2705 Unix file permissions",
+      "timestamp": "2025-06-03T16:39:59.295127"
+    },
+    "Startup Scripts": {
+      "status": "PASSED",
+      "details": "\u2705 start-v4codercli.sh\n\u2705 start-v4codercli.sh is executable",
+      "timestamp": "2025-06-03T16:39:59.295214"
+    },
+    "Documentation": {
+      "status": "PASSED",
+      "details": "\u2705 README.md (9577 bytes)\n\u2705 QUICK_START.txt (3181 bytes)\n\u2705 STARTUP_COMMANDS_GUIDE.txt (13883 bytes)\n\u2705 tracking-changes.txt (12046 bytes)",
+      "timestamp": "2025-06-03T16:39:59.295422"
+    },
+    "Permissions & Security": {
+      "status": "PASSED",
+      "details": "\u2705 Write permissions in current directory\n\u2705 .env-t permissions: 644\n\u2705 rr4-complete-enchanced-v4-cli.env-t permissions: 644",
+      "timestamp": "2025-06-03T16:39:59.295923"
+    }
+  },
+  "summary": {
+    "total_tests": 10,
+    "passed_tests": 10,
+    "failed_tests": 0,
+    "warnings": 0
+  },
+  "timestamp": "2025-06-03T16:39:56.209088"
+}

@@ -1,0 +1,102 @@
+{
+  "dashboard_summary": {
+    "total_collections": 6,
+    "total_devices": 8,
+    "device_reliability": 8,
+    "total_gaps": 6,
+    "critical_gaps": 1,
+    "immediate_actions": 1,
+    "generated_timestamp": "2025-06-02T00:39:52.194213"
+  },
+  "collection_health": [
+    {
+      "name": "collector-run-20250530-230452",
+      "option_type": "full_collection",
+      "device_count": 8,
+      "completeness_score": 0.738,
+      "status": "healthy"
+    },
+    {
+      "name": "collector-run-20250530-222933",
+      "option_type": "custom_or_partial",
+      "device_count": 6,
+      "completeness_score": 0.562,
+      "status": "needs_attention"
+    },
+    {
+      "name": "collector-run-20250530-222803",
+      "option_type": "audit_only",
+      "device_count": 6,
+      "completeness_score": 0.475,
+      "status": "needs_attention"
+    },
+    {
+      "name": "collector-run-20250530-222422",
+      "option_type": "audit_only",
+      "device_count": 6,
+      "completeness_score": 0.475,
+      "status": "needs_attention"
+    },
+    {
+      "name": "collector-run-20250530-222125",
+      "option_type": "custom_or_partial",
+      "device_count": 6,
+      "completeness_score": 0.65,
+      "status": "healthy"
+    },
+    {
+      "name": "collector-run-20250530-212818",
+      "option_type": "audit_only",
+      "device_count": 6,
+      "completeness_score": 0.387,
+      "status": "needs_attention"
+    }
+  ],
+  "device_statistics": {
+    "total_devices": 8,
+    "accessible_devices": 8,
+    "consistent_devices": 8,
+    "device_success_rates": {
+      "172.16.39.104": 100.0,
+      "172.16.39.103": 100.0,
+      "172.16.39.100": 100.0,
+      "172.16.39.101": 100.0,
+      "172.16.39.107": 100.0,
+      "172.16.39.105": 100.0,
+      "172.16.39.106": 100.0,
+      "172.16.39.102": 100.0
+    }
+  },
+  "recommendations_summary": {
+    "immediate_actions": [
+      {
+        "action": "Execute Console Audit",
+        "description": "Run Option 8 (Console Audit) to collect console line configurations",
+        "command": "Select Option 8 from main menu",
+        "priority": "high",
+        "effort": "low",
+        "impact": "high",
+        "timeline": "1 hour"
+      }
+    ],
+    "quick_wins": [
+      {
+        "action": "Execute Console Audit",
+        "description": "Run Option 8 (Console Audit) to collect console line configurations",
+        "command": "Select Option 8 from main menu",
+        "priority": "high",
+        "effort": "low",
+        "impact": "high",
+        "timeline": "1 hour"
+      }
+    ],
+    "resource_requirements": {
+      "immediate_effort_hours": 2,
+      "short_term_effort_days": 12,
+      "long_term_effort_weeks": 0,
+      "total_estimated_effort": "2h + 12d + 0w",
+      "recommended_team_size": "Network engineer + 1 technician",
+      "budget_estimate": "Low (primarily operational effort)"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "device": "192.168.1.100",
+  "timestamp": "2025-01-27T01:00:00Z",
+  "platform": "ios",
+  "show_line_output": "Router#show line\n   Tty Line Typ     Tx/Rx    A Roty AccO AccI   Uses   Noise  Overruns   Int\n   33   33 AUX   9600/9600  -    -    -    -      0       0     0/0    0/0/0\n   34   34 AUX   9600/9600  -    -    -    -      1       0     0/0    0/0/1",
+  "console_lines": {
+    "0/0/0": {
+      "line_type": "aux",
+      "status": "available",
+      "configuration": "line 0/0/0\n session-timeout 0\n exec-timeout 0 0\n transport input all\n transport output all\n stopbits 1",
+      "command_used": "show running-config | section \"line 0/0/0\"",
+      "success": true
+    },
+    "0/0/1": {
+      "line_type": "aux",
+      "status": "available",
+      "configuration": "line 0/0/1\n session-timeout 0\n exec-timeout 0 0\n transport input all\n transport output all\n stopbits 1",
+      "command_used": "show running-config | section \"line 0/0/1\"",
+      "success": true
+    }
+  },
+  "discovered_lines": [
+    "0/0/0",
+    "0/0/1",
+    "0/0/2",
+    "0/0/3",
+    "0/0/4"
+  ],
+  "configured_lines": [
+    "0/0/0",
+    "0/0/1"
+  ],
+  "summary": {
+    "total_lines_discovered": 46,
+    "total_lines_configured": 2,
+    "configuration_success_rate": 100.0,
+    "overall_success_rate": 100.0
+  }
+}

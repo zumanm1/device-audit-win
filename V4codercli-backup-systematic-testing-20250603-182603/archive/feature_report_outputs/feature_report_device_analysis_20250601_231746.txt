@@ -1,0 +1,344 @@
+====================================================================================================
+COMPREHENSIVE COLLECTION STATUS REPORT - DEVICE ANALYSIS
+====================================================================================================
+Generated: 2025-06-01 23:17:46
+Report Type: Device Analysis
+====================================================================================================
+
+DEVICE OVERVIEW
+------------------------------------------------------------
+Total Unique Devices: 8
+Accessible Devices: 8
+Failed Devices: 0
+Consistent Devices: 8
+Inconsistent Devices: 0
+
+DEVICE SUCCESS RATES
+------------------------------------------------------------
+172.16.39.100: 100.0% (EXCELLENT)
+172.16.39.101: 100.0% (EXCELLENT)
+172.16.39.102: 100.0% (EXCELLENT)
+172.16.39.103: 100.0% (EXCELLENT)
+172.16.39.104: 100.0% (EXCELLENT)
+172.16.39.105: 100.0% (EXCELLENT)
+172.16.39.106: 100.0% (EXCELLENT)
+172.16.39.107: 100.0% (EXCELLENT)
+
+DEVICE COLLECTION PARTICIPATION
+------------------------------------------------------------
+172.16.39.100: 7 collections
+172.16.39.101: 1 collections
+172.16.39.102: 6 collections
+172.16.39.103: 6 collections
+172.16.39.104: 6 collections
+172.16.39.105: 6 collections
+172.16.39.106: 6 collections
+172.16.39.107: 1 collections
+
+DEVICE LAYER COVERAGE
+------------------------------------------------------------
+172.16.39.100: bgp, health, igp, interfaces, mpls, static, vpn
+172.16.39.101: bgp, health, igp, interfaces, mpls
+172.16.39.102: bgp, health, igp, interfaces, mpls, static, vpn
+172.16.39.103: bgp, health, igp, interfaces, mpls, static, vpn
+172.16.39.104: bgp, health, igp, interfaces, mpls, static, vpn
+172.16.39.105: bgp, health, igp, interfaces, mpls, static, vpn
+172.16.39.106: bgp, health, igp, interfaces, mpls, static, vpn
+172.16.39.107: bgp, health, igp, interfaces, mpls
+
+DETAILED DEVICE ANALYSIS
+------------------------------------------------------------
+Collection: collector-run-20250530-230452
+Collection Success Rate: 100.0%
+  Device: 172.16.39.100
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.104
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.105
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.102
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.107
+    Status: accessible
+    Total Files: 87
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.103
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.101
+    Status: accessible
+    Total Files: 94
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.106
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+
+Collection: collector-run-20250530-230404
+Collection Success Rate: 100.0%
+  Device: 172.16.39.100
+    Status: accessible
+    Total Files: 27
+    Layers Count: 1
+    Data Quality Score: 0.750
+    Layers: igp
+    Has Errors: False
+
+Collection: collector-run-20250530-222933
+Collection Success Rate: 100.0%
+  Device: 172.16.39.100
+    Status: accessible
+    Total Files: 40
+    Layers Count: 3
+    Data Quality Score: 0.850
+    Layers: bgp, interfaces, health
+    Has Errors: False
+  Device: 172.16.39.104
+    Status: accessible
+    Total Files: 40
+    Layers Count: 3
+    Data Quality Score: 0.850
+    Layers: bgp, interfaces, health
+    Has Errors: False
+  Device: 172.16.39.105
+    Status: accessible
+    Total Files: 40
+    Layers Count: 3
+    Data Quality Score: 0.850
+    Layers: bgp, interfaces, health
+    Has Errors: False
+  Device: 172.16.39.102
+    Status: accessible
+    Total Files: 40
+    Layers Count: 3
+    Data Quality Score: 0.850
+    Layers: bgp, interfaces, health
+    Has Errors: False
+  Device: 172.16.39.103
+    Status: accessible
+    Total Files: 40
+    Layers Count: 3
+    Data Quality Score: 0.850
+    Layers: bgp, interfaces, health
+    Has Errors: False
+  Device: 172.16.39.106
+    Status: accessible
+    Total Files: 39
+    Layers Count: 3
+    Data Quality Score: 0.850
+    Layers: bgp, interfaces, health
+    Has Errors: False
+
+Collection: collector-run-20250530-222803
+Collection Success Rate: 100.0%
+  Device: 172.16.39.100
+    Status: accessible
+    Total Files: 26
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+  Device: 172.16.39.104
+    Status: accessible
+    Total Files: 25
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+  Device: 172.16.39.105
+    Status: accessible
+    Total Files: 26
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+  Device: 172.16.39.102
+    Status: accessible
+    Total Files: 26
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+  Device: 172.16.39.103
+    Status: accessible
+    Total Files: 26
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+  Device: 172.16.39.106
+    Status: accessible
+    Total Files: 25
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+
+Collection: collector-run-20250530-222422
+Collection Success Rate: 100.0%
+  Device: 172.16.39.100
+    Status: accessible
+    Total Files: 26
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+  Device: 172.16.39.104
+    Status: accessible
+    Total Files: 25
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+  Device: 172.16.39.105
+    Status: accessible
+    Total Files: 26
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+  Device: 172.16.39.102
+    Status: accessible
+    Total Files: 26
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+  Device: 172.16.39.103
+    Status: accessible
+    Total Files: 26
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+  Device: 172.16.39.106
+    Status: accessible
+    Total Files: 26
+    Layers Count: 2
+    Data Quality Score: 0.800
+    Layers: interfaces, health
+    Has Errors: False
+
+Collection: collector-run-20250530-222125
+Collection Success Rate: 100.0%
+  Device: 172.16.39.100
+    Status: accessible
+    Total Files: 46
+    Layers Count: 4
+    Data Quality Score: 0.900
+    Layers: interfaces, vpn, health, static
+    Has Errors: False
+  Device: 172.16.39.104
+    Status: accessible
+    Total Files: 46
+    Layers Count: 4
+    Data Quality Score: 0.900
+    Layers: interfaces, vpn, health, static
+    Has Errors: False
+  Device: 172.16.39.105
+    Status: accessible
+    Total Files: 46
+    Layers Count: 4
+    Data Quality Score: 0.900
+    Layers: interfaces, vpn, health, static
+    Has Errors: False
+  Device: 172.16.39.102
+    Status: accessible
+    Total Files: 47
+    Layers Count: 4
+    Data Quality Score: 0.900
+    Layers: interfaces, vpn, health, static
+    Has Errors: False
+  Device: 172.16.39.103
+    Status: accessible
+    Total Files: 47
+    Layers Count: 4
+    Data Quality Score: 0.900
+    Layers: interfaces, vpn, health, static
+    Has Errors: False
+  Device: 172.16.39.106
+    Status: accessible
+    Total Files: 46
+    Layers Count: 4
+    Data Quality Score: 0.900
+    Layers: interfaces, vpn, health, static
+    Has Errors: False
+
+Collection: collector-run-20250530-212818
+Collection Success Rate: 100.0%
+  Device: 172.16.39.100
+    Status: accessible
+    Total Files: 18
+    Layers Count: 1
+    Data Quality Score: 0.750
+    Layers: health
+    Has Errors: False
+  Device: 172.16.39.104
+    Status: accessible
+    Total Files: 18
+    Layers Count: 1
+    Data Quality Score: 0.750
+    Layers: health
+    Has Errors: False
+  Device: 172.16.39.105
+    Status: accessible
+    Total Files: 18
+    Layers Count: 1
+    Data Quality Score: 0.750
+    Layers: health
+    Has Errors: False
+  Device: 172.16.39.102
+    Status: accessible
+    Total Files: 18
+    Layers Count: 1
+    Data Quality Score: 0.750
+    Layers: health
+    Has Errors: False
+  Device: 172.16.39.103
+    Status: accessible
+    Total Files: 18
+    Layers Count: 1
+    Data Quality Score: 0.750
+    Layers: health
+    Has Errors: False
+  Device: 172.16.39.106
+    Status: accessible
+    Total Files: 18
+    Layers Count: 1
+    Data Quality Score: 0.750
+    Layers: health
+    Has Errors: False
+

@@ -1,0 +1,28 @@
+{
+  "connections": [],
+  "interfaceMappings": {
+    "router-1": {
+      "f0/0": 0,
+      "f0/1": 1,
+      "f1/0": 16,
+      "f2/0": 32
+    }
+  },
+  "nodes": {
+    "router-1": {
+      "id": "router-1",
+      "interfaces": [
+        "f0/0",
+        "f0/1",
+        "f1/0",
+        "f2/0"
+      ],
+      "name": "R1",
+      "position": {
+        "x": 100,
+        "y": 100
+      },
+      "type": "c3725"
+    }
+  }
+}

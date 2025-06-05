@@ -1,0 +1,32 @@
+Console Line Collection Report - IOS XR Device
+Device: 192.168.1.200
+Platform: iosxr
+Timestamp: 2025-01-27T01:00:00Z
+
+Console Lines Discovered: 5
+Console Lines Configured: 2
+Success Rate: 100.0%
+
+Console Line Configurations:
+----------------------------
+Line 0/0/0 (AUX):
+line aux 0/0/0
+ exec-timeout 0 0
+ absolute-timeout 0
+ session-timeout 0
+ transport input all
+ transport output all
+ width 0
+ length 0
+
+Line 0/0/1 (AUX):
+line aux 0/0/1
+ exec-timeout 0 0
+ absolute-timeout 0
+ session-timeout 0
+ transport input all
+ transport output all
+ width 0
+ length 0
+
+All discovered lines: 0/0/0, 0/0/1, 0/0/2, 0/0/3, 0/0/4
