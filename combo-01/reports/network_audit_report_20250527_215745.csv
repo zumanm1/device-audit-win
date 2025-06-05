@@ -1,0 +1,7 @@
+audit_id,device_hostname,device_ip,audit_type,timestamp,phase,status,details,recommendations
+ff3b9436-7193-492d-84fe-230fe436472f,RTR-BRANCH-04.xrnet.net,172.16.39.103,telnet,2025-05-27T21:57:35.689971,connection,Failed,{'method': 'SSH'},
+7726be83-1891-4bd8-9cab-f4b27242b003,RTR-BRANCH-05.xrnet.net,172.16.39.104,telnet,2025-05-27T21:57:35.689722,connection,Failed,{'method': 'SSH'},
+1999411b-df28-4459-aa4d-4e25934aea37,RTR-BRANCH-06.xrnet.net,172.16.39.105,telnet,2025-05-27T21:57:38.745327,connection,Failed,{'method': 'SSH'},
+0a797604-5872-43de-8a8b-8c0edf1eb348,RTR-CORE-01.xrnet.net,172.16.39.100,telnet,2025-05-27T21:57:35.674834,connection,Failed,{'method': 'SSH'},
+ba7512a1-8978-4960-afb5-32b98dc50a5b,RTR-EDGE-02.xrnet.net,172.16.39.101,telnet,2025-05-27T21:57:35.681240,connection,Failed,{'method': 'SSH'},
+41dc7325-1d65-496e-a915-9adb8f36db60,RTR-BRANCH-03.xrnet.net,172.16.39.102,telnet,2025-05-27T21:57:35.682579,connection,Failed,{'method': 'SSH'},

@@ -1,0 +1,14 @@
+
+            OSPF Router with ID (192.168.200.5) (Process ID 1)
+
+		Router Link States (Area 0)
+
+Link ID         ADV Router      Age         Seq#       Checksum Link count
+192.168.100.101 192.168.100.101 907         0x8000000C 0x00EC43 1
+192.168.100.104 192.168.100.104 907         0x8000000B 0x00CC5D 1
+192.168.200.5   192.168.200.5   906         0x8000000B 0x00EBF5 2
+
+		Net Link States (Area 0)
+
+Link ID         ADV Router      Age         Seq#       Checksum
+172.16.39.100   192.168.200.5   901         0x80000009 0x0048C5

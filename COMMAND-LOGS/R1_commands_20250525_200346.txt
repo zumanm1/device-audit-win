@@ -1,0 +1,63 @@
+Device Audit Results
+====================
+
+Device: R1
+Timestamp: 2025-05-25T20:03:46.034403
+Status: failed
+Error Count: 5
+
+Command: version
+==================================================
+Executed: show version
+Status: error
+Timestamp: 2025-05-25T20:03:46.035241
+
+Output:
+------------------------------
+ERROR: BaseConnection.send_command() got an unexpected keyword argument 'timeout'
+------------------------------
+
+Command: interfaces
+==================================================
+Executed: show interfaces status
+Status: error
+Timestamp: 2025-05-25T20:03:46.035888
+
+Output:
+------------------------------
+ERROR: BaseConnection.send_command() got an unexpected keyword argument 'timeout'
+------------------------------
+
+Command: ip_brief
+==================================================
+Executed: show ip interface brief
+Status: error
+Timestamp: 2025-05-25T20:03:46.036419
+
+Output:
+------------------------------
+ERROR: BaseConnection.send_command() got an unexpected keyword argument 'timeout'
+------------------------------
+
+Command: line_config
+==================================================
+Executed: show running-config | include line
+Status: error
+Timestamp: 2025-05-25T20:03:46.036982
+
+Output:
+------------------------------
+ERROR: BaseConnection.send_command() got an unexpected keyword argument 'timeout'
+------------------------------
+
+Command: line_status
+==================================================
+Executed: show line
+Status: error
+Timestamp: 2025-05-25T20:03:46.038799
+
+Output:
+------------------------------
+ERROR: BaseConnection.send_command() got an unexpected keyword argument 'timeout'
+------------------------------
+

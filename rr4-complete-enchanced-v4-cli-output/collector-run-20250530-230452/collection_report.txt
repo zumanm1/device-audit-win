@@ -1,0 +1,52 @@
+======================================================================
+RR4 COLLECTION REPORT
+======================================================================
+
+Run Directory: rr4-complete-enchanced-v4-cli-output/collector-run-20250530-230452
+Run ID: collector-run-20250530-230452
+Timestamp: 2025-05-30 23:14:59
+Total Devices: 8
+Summary: {'total_devices': 8, 'completed_devices': 8, 'failed_devices': 0, 'device_completion_rate': 100.0, 'task_completion_rate': 0.0, 'elapsed_time': 606.3086566925049, 'is_running': False}
+
+DEVICE BREAKDOWN:
+--------------------------------------------------
+  R0:
+    Success Count: 1
+    Failure Count: 0
+    Tasks: 1
+
+  R1:
+    Success Count: 1
+    Failure Count: 0
+    Tasks: 1
+
+  R2:
+    Success Count: 1
+    Failure Count: 0
+    Tasks: 1
+
+  R3:
+    Success Count: 1
+    Failure Count: 0
+    Tasks: 1
+
+  R4:
+    Success Count: 1
+    Failure Count: 0
+    Tasks: 1
+
+  R5:
+    Success Count: 1
+    Failure Count: 0
+    Tasks: 1
+
+  R6:
+    Success Count: 1
+    Failure Count: 0
+    Tasks: 1
+
+  R7:
+    Success Count: 1
+    Failure Count: 0
+    Tasks: 1
+

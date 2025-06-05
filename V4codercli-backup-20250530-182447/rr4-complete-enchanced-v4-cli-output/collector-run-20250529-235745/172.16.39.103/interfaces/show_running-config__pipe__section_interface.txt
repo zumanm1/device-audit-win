@@ -1,0 +1,10 @@
+interface FastEthernet0/0
+ description Management Interface
+ ip address 172.16.39.103 255.255.255.0
+ duplex auto
+ speed auto
+interface FastEthernet0/1
+ no ip address
+ shutdown
+ duplex auto
+ speed auto

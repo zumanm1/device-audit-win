@@ -1,0 +1,274 @@
+Device: Cisco 2911
+Command: show running-config
+Timestamp: 2025-05-27T18:26:19.319384
+==================================================
+Building configuration...
+
+Current configuration : 5585 bytes
+!
+! Last configuration change at 10:00:38 UTC Mon May 26 2025
+!
+version 16.9
+service timestamps debug datetime msec
+service timestamps log datetime msec
+platform qfp utilization monitor load 80
+platform punt-keepalive disable-kernel-core
+platform console serial
+!
+hostname R1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+aaa new-model
+!
+!
+aaa authentication login default local
+aaa authentication login LOCAL_LOGIN_LOCAL local
+aaa authorization exec default local 
+!
+!
+!
+!
+!
+aaa session-id common
+!
+!
+!
+!
+!
+!
+!
+ip domain name lab.local
+!
+!
+!
+login on-success log
+!
+!
+!
+!
+!
+!
+!
+subscriber templating
+! 
+! 
+! 
+! 
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+crypto pki trustpoint TP-self-signed-3340554171
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-3340554171
+ revocation-check none
+ rsakeypair TP-self-signed-3340554171
+!
+!
+crypto pki certificate chain TP-self-signed-3340554171
+ certificate self-signed 01
+  30820330 30820218 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 33333430 35353431 3731301E 170D3235 30343139 32303339 
+  30385A17 0D333030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 33343035 
+  35343137 31308201 22300D06 092A8648 86F70D01 01010500 0382010F 00308201 
+  0A028201 01009DE7 8BE634D6 4C65C669 F1054106 18F2A4FF C12356DC AF108220 
+  6DC1D9F8 A81D06BD 7A208BD0 BF9B4CF4 0B0E502E B8BD1160 8FA56508 6744CFAB 
+  E032453D 0DA3E951 14B13A85 74F2F610 EE21FC02 D9B8AD3C 468CFEE2 B1C22A9D 
+  6744CE2B 83D85856 5B80419F B5B0E3F8 07B1784D 9856D429 D52341CF 8BE77D9E 
+  9A79A855 48B2B09B A3C28092 00877988 1C8F37E9 AF1B7001 DA5642BF 758C03E5 
+  F8154F27 186AEDE1 64A0B514 9D8D2B0A F16404B3 A614502F D7AFB8F4 C48DDC30 
+  6A48B02C 76CAB8D0 601208CC D770821A F07243AA 013BF09E 86D9F771 DD4B4204 
+  13459885 ED2DA42E 865274E7 C25E9C33 CC522CD2 998E7B74 87A0C5D6 0ABB7C3C 
+  99667856 5DEB0203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 
+  301F0603 551D2304 18301680 14D09BED 2E2AD266 A79804DA 01440EDF 8D94DCC0 
+  93301D06 03551D0E 04160414 D09BED2E 2AD266A7 9804DA01 440EDF8D 94DCC093 
+  300D0609 2A864886 F70D0101 05050003 82010100 0FFF2764 5B5B9D82 DA25E2C9 
+  27AA9310 F868FE7E F6C02F66 B46DF5DF 2EC2486E 241A0FF6 FCF73A0E 6DA6F957 
+  398BB6B5 9E3A3516 30C3541D 1138A99C E273685B 892F861A 8A6458DD F87882B9 
+  54D859B8 0EFEF5C2 3834A88B 92BF8E1A A541E264 B8C6172B 405EFA1E 0B777C48 
+  FACC15A4 80505E08 E39F4BD0 342138CA 597910A4 27BF45B5 E912F94F B00A8B2E 
+  7FC1B263 069075FD 77C484AC E9582C04 479F842B 946112AA 35B00829 A35C0511 
+  F35CC1D6 231AF3DF 01D23F4B 7B88C536 C2ECF78D 85353BC3 A23331B5 B436B03A 
+  BA33C386 C86CC13A B970BBD1 3F583342 6F09EE92 8751FB2B 775848D8 5A10C9EB 
+  62FB4AE5 7C408ACC D6DC3484 7EB446A7 02E5F41E
+  	quit
+!
+!
+!
+!
+!
+!
+!
+!
+license udi pid CSR1000V sn 95BN3FGP81O
+no license smart enable
+diagnostic bootup level minimal
+!
+spanning-tree extend system-id
+!
+!
+!
+username cisco privilege 15 secret 5 $1$gsWY$8JF/B73109rxc8nGr8nrr0
+username cisco:2 privilege 15 secret 5 $1$WF/c$B.fB6/iWywUcfVrelU2AO/
+username cisco:3 privilege 15 secret 5 $1$LDGG$Tbjh.jsnXdlMg6uU514/a0
+username cisco:4 privilege 15 secret 5 $1$Zpld$IU4V1Lo47oYlsOft7Kq5w/
+username cisco:5 privilege 15 secret 5 $1$rWDx$6lRhPU3HQwkxHe51WVPVJ.
+username cisco:5 autocommand tclsh flash:connect_to_rX.tcl 5
+!
+redundancy
+!
+!
+!
+!
+!
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+! 
+! 
+!
+!
+interface Loopback0
+ ip address 192.168.200.1 255.255.255.255
+!
+interface GigabitEthernet1
+ ip address 172.16.39.101 255.255.255.0
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet2
+ no ip address
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet3
+ no ip address
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet4
+ no ip address
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet5
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet6
+ ip address 192.168.100.1 255.255.255.252
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet7
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+interface GigabitEthernet8
+ no ip address
+ shutdown
+ negotiation auto
+ no mop enabled
+ no mop sysid
+!
+router ospf 1
+ passive-interface default
+ no passive-interface GigabitEthernet1
+ no passive-interface GigabitEthernet2
+ no passive-interface GigabitEthernet3
+ no passive-interface GigabitEthernet4
+ network 172.16.39.0 0.0.0.255 area 0
+ network 192.168.100.0 0.0.0.3 area 0
+ network 192.168.200.0 0.0.0.255 area 0
+!
+ip forward-protocol nd
+no ip http server
+ip http secure-server
+ip route 172.16.39.129 255.255.255.255 172.16.39.128
+!
+ip ssh time-out 60
+ip ssh port 2001 rotary 1 5
+ip ssh version 2
+ip ssh pubkey-chain
+  username cisco
+  username cisco\:5
+  username cisco:5
+ip ssh server algorithm mac hmac-sha2-256 hmac-sha2-512
+!
+!
+!
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+alias exec R2 sshB b
+alias exec R3 sshB b
+alias exec R4 sshB b
+alias exec R5 ssh -l cisco 172.16.39.105
+!
+line con 0
+ privilege level 15
+ stopbits 1
+line vty 0 2
+ privilege level 15
+ transport input ssh
+ transport output ssh
+line vty 3
+ exec-timeout 0 0
+ privilege level 15
+ transport input ssh
+ transport output ssh
+line vty 4
+ privilege level 15
+ transport input ssh
+ transport output ssh
+line vty 5
+ login authentication LOCAL_LOGIN_LOCAL
+ rotary 5
+ autocommand  ssh -l cisco 172.16.39.105
+ transport input ssh
+ transport output ssh
+!
+!
+!
+!
+!
+!
+end

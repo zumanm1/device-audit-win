@@ -1,0 +1,10 @@
+Interface                      Status         Protocol Description
+Gi1                            up             up       
+Gi2                            up             up       
+Gi3                            up             up       
+Gi4                            up             up       
+Gi5                            admin down     down     
+Gi6                            up             up       
+Gi7                            admin down     down     
+Gi8                            admin down     down     
+Lo0                            up             up       

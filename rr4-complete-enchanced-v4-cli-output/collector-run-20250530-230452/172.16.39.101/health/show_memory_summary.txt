@@ -1,0 +1,109 @@
+Tracekey : 1#e4f7cd59be53a6bbc77acae1943e609a   
+
+                Head    Total(b)     Used(b)     Free(b)   Lowest(b)  Largest(b)
+Processor  7FCE1D2BF010   2449412632   326187752   2123224880   2123222736   1479336988
+ lsmpi_io  7FCE1CA731A8     3149400     3148576         824         824         412
+
+
+
+
+          Processor memory
+
+   Size       Blocks      Bytes                   What                  Alloc PC
+
+ 1479336988 0000000001 1479336988     (fragment)      (Free Blocks)   :55B2CE43A000+2E5CDD0
+ 0000052100 0000000001 0000052100     Process Stack                   :55B2CE43A000+2E5CDD0
+ 0000002116 0000000001 0000002116     (coalesced)     (Free Blocks)   :55B2CE43A000+B17FACE
+ 0000100100 0000000001 0000100100     Process Stack                   :55B2CE43A000+2E5CDD0
+ 0000000180 0000000001 0000000180     Crypto CA                       :55B2CE43A000+747654F
+ 0000000268 0000000001 0000000268     Crypto CA                       :55B2CE43A000+7476505
+ 0000000228 0000000001 0000000228     Crypto CA                       :55B2CE43A000+71CD93D
+ 0000000116 0000000001 0000000116     (fragment)      (Free Blocks)   :55B2CE43A000+72CAA49
+ 0000000300 0000000001 0000000300     Crypto CA                       :55B2CE43A000+72C84AE
+ 0000000204 0000000001 0000000204     Crypto CA                       :55B2CE43A000+747654F
+ 0000000268 0000000001 0000000268     Crypto CA                       :55B2CE43A000+7476505
+ 0000100100 0000000001 0000100100     Process Stack                   :55B2CE43A000+2E5CDD0
+ 0000000092 0000000001 0000000092     (fragment)      (Free Blocks)   :55B2CE43A000+58DD230
+ 0000000108 0000000001 0000000108     HTTP                            :55B2CE43A000+58DD230
+ 0000065540 0000000001 0000065540     OSPF lsdb                       iosd_shr_m_uk9_ROUTING_crb:7FCED9153000+B3FA7B
+ 0000001524 0000000001 0000001524     OSPF sw subbloc                 iosd_shr_m_uk9_ROUTING_crb:7FCED9153000+B57140
+ 0000000276 0000000001 0000000276     crypto_handle_t                 iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+556F7
+ 0000000164 0000000001 0000000164     SSH Process     (Free Blocks)   iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+D863E
+ 0000032772 0000000001 0000032772     OSPF redist RI                  iosd_shr_m_uk9_ROUTING_crb:7FCED9153000+BA5ED0
+ 0000032772 0000000001 0000032772     OSPF rtp                        iosd_shr_m_uk9_ROUTING_crb:7FCED9153000+B66919
+ 0000065484 0000000001 0000065484     OSPF rt                         iosd_shr_m_uk9_ROUTING_crb:7FCED9153000+C04A17
+ 0000065484 0000000001 0000065484     OSPF rth                        iosd_shr_m_uk9_ROUTING_crb:7FCED9153000+B6676F
+ 0000339348 0000000001 0000339348     Crypto Engine O                 iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+3FD01
+ 0000678084 0000000001 0000678084     Crypto Engine O                 iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+3FD01
+ 0000676428 0000000001 0000676428     Crypto Engine O                 iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+3BBC4
+ 0000056004 0000000001 0000056004     Init                            iosd_shr_m_uk9_ROUTING_crb:7FCED9153000+C0CD95
+ 0000008212 0000000001 0000008212     SSH memory                      iosd_crb_shr_ssh:7FCEDC240000+3AD55
+ 0000001284 0000000001 0000001284     Init                            iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+82E0C
+ 0000000228 0000000001 0000000228     Init                            iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+83B4D
+ 0000000164 0000000001 0000000164     OSPF flood info                 iosd_shr_m_uk9_ROUTING_crb:7FCED9153000+BFC0AB
+ 0000000276 0000000001 0000000276     crypto_handle_t                 iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+556F7
+ 0000000164 0000000001 0000000164     SSH Process     (Free Blocks)   iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+D863E
+ 0000065484 0000000001 0000065484     OSPF rt                         iosd_shr_m_uk9_ROUTING_crb:7FCED9153000+C04A17
+ 0000339348 0000000001 0000339348     Crypto Engine O                 iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+3FD01
+ 0000678084 0000000001 0000678084     Crypto Engine O                 iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+3FD01
+ 0000676428 0000000001 0000676428     Crypto Engine O                 iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+3BBC4
+ 0000056004 0000000001 0000056004     Init                            iosd_shr_m_uk9_ROUTING_crb:7FCED9153000+C0CD95
+ 0000008212 0000000001 0000008212     SSH memory                      iosd_crb_shr_ssh:7FCEDC240000+3AD55
+ 0000001284 0000000001 0000001284     Init                            iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+82E0C
+ 0000000228 0000000001 0000000228     Init                            iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+83B4D
+ 0000032612 0000000001 0000032612     (coalesced)     (Free Blocks)   iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+D863E
+ 0000000076 0000000001 0000000076     SSH2 String                     iosd_crb_shr_ssh:7FCEDC240000+4BA38
+ 0000000076 0000000001 0000000076     SSH2 Session-id                 iosd_crb_shr_ssh:7FCEDC240000+4DC12
+ 0000000164 0000000001 0000000164     SSH Process                     iosd_crb_shr_ssh:7FCEDC240000+4CC3B
+ 0000000212 0000000001 0000000212     Crypto CA                       iosd_shr_m_uk9_CRYPTO_Engine_crb:7FCEDB7C4000+8A66A
+ 0000000164 0000000001 0000000164     SSH Process     (Free Blocks)   iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+D863E
+ 0000008212 0000000001 0000008212     SSH memory                      iosd_crb_shr_ssh:7FCEDC240000+3AD55
+ 0000032612 0000000001 0000032612     (coalesced)     (Free Blocks)   iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+D863E
+ 0000000076 0000000001 0000000076     SSH2 String                     iosd_crb_shr_ssh:7FCEDC240000+4BA38
+ 0000000076 0000000001 0000000076     SSH2 Session-id                 iosd_crb_shr_ssh:7FCEDC240000+4DC12
+ 0000000164 0000000001 0000000164     SSH Process                     iosd_crb_shr_ssh:7FCEDC240000+4CC3B
+ 0000000388 0000000001 0000000388     Crypto CA                       iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+63228
+ 0000000404 0000000001 0000000404     Crypto CA                       iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+632E7
+ 0000000308 0000000001 0000000308     SSH Process     (Free Blocks)   iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+50B04
+ 0000000324 0000000001 0000000324     SSH Process     (Free Blocks)   iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+D863E
+ 0000000092 0000000001 0000000092     (fragment)      (Free Blocks)   iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+72150
+ 0000000244 0000000001 0000000244     Crypto CA                       iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+72150
+ 0000000060 0000000001 0000000060     NIST rng proc                   iosd_crb_shr_crypto_ic2m_k9:7FCEDBD00000+E4A34
+ 0000000052 0000000001 0000000052     Init                            iosd_crb_shr_ssh:7FCEDC240000+54E18
+ 0000000076 0000000001 0000000076     SSH2 String     (Free Blocks)   iosd_crb_shr_ssh:7FCEDC240000+4BA38
+ 0000000076 0000000001 0000000076     SSH2 Session-id                 iosd_crb_shr_ssh:7FCEDC240000+4DC12
+ 0000000164 0000000001 0000000164     SSH Process                     iosd_crb_shr_ssh:7FCEDC240000+4CC3B
+ 0000000052 0000000001 0000000052     Init                            iosd_crb_shr_ssh:7FCEDC240000+54E18
+ 0000000052 0000000001 0000000052     SSH auth user                   iosd_crb_shr_ssh:7FCEDC240000+54E01
+ 0000000116 0000000001 0000000116     SSH2 String     (Free Blocks)   iosd_crb_shr_ssh:7FCEDC240000+4BA38
+ 0000000260 0000000001 0000000260     SSH Process     (Free Blocks)   iosd_crb_shr_ssh:7FCEDC240000+4DA5C
+ 0000000612 0000000001 0000000612     SSH Process                     iosd_crb_shr_ssh:7FCEDC240000+5EAB2
+ 0000000652 0000000001 0000000652     SSH Process                     iosd_crb_shr_ssh:7FCEDC240000+5EAB2
+ 0000008212 0000000001 0000008212     SSH memory                      iosd_crb_shr_ssh:7FCEDC240000+6CF03
+ 0000000148 0000000001 0000000148     SSH2 Channel                    iosd_crb_shr_ssh:7FCEDC240000+64058
+ 0000000068 0000000001 0000000068     SSH auth user                   iosd_crb_shr_ssh:7FCEDC240000+54E01
+ 0000000052 0000000001 0000000052     Init                            iosd_crb_shr_ssh:7FCEDC240000+54E18
+ 0000000052 0000000001 0000000052     SSH auth user                   iosd_crb_shr_ssh:7FCEDC240000+54E01
+ 0000000052 0000000001 0000000052     Init                            iosd_crb_shr_ssh:7FCEDC240000+54E18
+ 0000000068 0000000001 0000000068     SSH memory                      iosd_crb_shr_ssh:7FCEDC240000+6CF5E
+ 0000000000 0000000060 0004123272     Pool Summary                    
+ 0000000000 0000000015 1479406204     Pool Summary    (Free Blocks)   
+ 0000000092 0000000075 0000006900     Pool Summary   (All Block Head  
+
+          lsmpi_io memory
+
+   Size       Blocks      Bytes                   What                  Alloc PC
+
+ 0000000412 0000000001 0000000412     (fragment)      (Free Blocks)   :55B2CE43A000+6E51E40
+ 0001049604 0000000001 0001049604     lsmpi_tx                        :55B2CE43A000+44AD14E
+ 0000000412 0000000001 0000000412     (fragment)      (Free Blocks)   :55B2CE43A000+2E47291
+ 0000000332 0000000001 0000000332     Init                            :55B2CE43A000+2E47291
+ 0002098180 0000000001 0002098180     lsmpi_rx                        :55B2CE43A000+44AD14E
+ 0000000412 0000000001 0000000412     (fragment)      (Free Blocks)   :55B2CE43A000+6E51E40
+ 0000000000 0000000003 0003148116     Pool Summary                    
+ 0000000000 0000000003 0000001236     Pool Summary    (Free Blocks)   
+ 0000000092 0000000006 0000000552     Pool Summary   (All Block Head  
+
+ 0000000000 0000000063 0007271388     Memory Summary                  
+
+ 0000000000 0000000018 1479407440     Memory Summary  (Free Blocks)   

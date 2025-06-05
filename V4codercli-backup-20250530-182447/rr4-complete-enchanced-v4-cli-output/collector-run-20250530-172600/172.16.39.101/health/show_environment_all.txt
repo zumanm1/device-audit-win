@@ -1,0 +1,3 @@
+show environment all
+       ^
+% Invalid input detected at '^' marker.

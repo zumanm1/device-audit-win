@@ -1,0 +1,24 @@
+R5#show version
+Cisco IOS Software, C3900 Software (C3900-UNIVERSALK9-M), Version 15.7(3)M3, RELEASE SOFTWARE (fc2)
+System uptime is 15 weeks, 3 days, 4 hours, 23 minutes
+Processor board ID FGL1234567A
+cisco C3945 (revision 1.0) with 2097152K/262144K bytes of memory.
+4 Gigabit Ethernet interfaces
+1 terminal line
+DRAM configuration is 64 bits wide with parity disabled.
+512K bytes of NVRAM.
+250880K bytes of ATA System CompactFlash 0 (Read/Write)
+
+Configuration register is 0x2102
+
+R5#show processes cpu sorted | head -5
+CPU utilization for five seconds: 2%/0%; one minute: 3%; five minutes: 4%
+ PID Runtime(ms)     Invoked      uSecs   5Sec   1Min   5Min TTY Process 
+ 456      892045     8734123        102   0.00%  0.01%  0.02%   0 OSPF-1 Hello
+ 123      654321     2345678        279   0.01%  0.02%  0.03%   0 BGP Router  
+  89      234567     1234567        190   0.00%  0.01%  0.01%   0 IP Input    
+
+R5#show memory summary
+Head    Total(b)     Used(b)     Free(b)   Lowest(b)  Largest(b)
+Processor  2146516K  1987234K    159282K   145623K    143852K
+      I/O    2048K     1234K       814K       756K       756K 

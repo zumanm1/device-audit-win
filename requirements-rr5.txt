@@ -1,0 +1,31 @@
+# RR5 Router Auditing Framework - Dependencies
+# Version: 1.0.0
+
+# Core networking and automation libraries
+netmiko>=4.2.0
+paramiko>=3.4.0
+
+# Web interface libraries
+Flask>=2.3.0
+Flask-SocketIO>=5.3.0
+
+# Data processing and analysis
+PyYAML>=6.0.1
+pandas>=2.0.0
+
+# Environment management
+python-dotenv>=1.0.0
+
+# Additional utilities
+requests>=2.31.0
+typing-extensions>=4.7.0
+
+# Optional: Enhanced CLI
+click>=8.1.0
+colorama>=0.4.6
+
+# Development and testing (optional)
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Note: Install with: pip install -r requirements-rr5.txt 

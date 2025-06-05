@@ -1,0 +1,9 @@
+Signalling Summary:
+    LSP Tunnels Process:            not running, disabled
+    RSVP Process:                   not running
+    Forwarding:                     enabled
+    Head: 0 interfaces, 0 active signalling attempts, 0 established
+          0 activations, 0 deactivations
+    Midpoints: 0, Tails: 0
+    Periodic reoptimization:        every 3600 seconds, next in 0 seconds
+    Periodic auto-bw collection:    disabled

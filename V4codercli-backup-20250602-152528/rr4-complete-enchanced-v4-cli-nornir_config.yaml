@@ -1,0 +1,205 @@
+---
+# Nornir Configuration for RR4 Complete Enhanced v4 CLI
+# This configuration file defines the Nornir ecosystem settings
+
+# Core Nornir settings
+core:
+  num_workers: 10
+  raise_on_error: false
+
+# Inventory configuration
+inventory:
+  plugin: SimpleInventory
+  options:
+    host_file: "inventory/hosts.yaml"
+    group_file: "inventory/groups.yaml"
+    defaults_file: "inventory/defaults.yaml"
+
+# Logging configuration
+logging:
+  enabled: true
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  to_console: true
+  to_file: true
+  logdir: "logs"
+
+# SSH connection settings
+ssh:
+  config_file: "~/.ssh/config"
+
+# Connection plugins configuration
+connection_options:
+  netmiko:
+    platform: auto
+    extras:
+      timeout: 60
+      session_timeout: 60
+      auth_timeout: 60
+      banner_timeout: 15
+      conn_timeout: 10
+      fast_cli: true
+      global_delay_factor: 1
+      session_log: "logs/netmiko_session.log"
+      session_log_record_writes: true
+      session_log_file_mode: "append"
+      keepalive: 30
+      default_enter: "\r\n"
+      response_return: "\n"
+      serial_settings:
+        dsrdtr: false
+        rtscts: false
+      disabled_algorithms:
+        pubkeys: []
+        kex: []
+        ciphers: []
+        macs: []
+      
+  napalm:
+    platform: auto
+    extras:
+      timeout: 60
+      optional_args:
+        transport: ssh
+        ssh_config_file: "~/.ssh/config"
+        keepalive: 30
+        look_for_keys: false
+        allow_agent: false
+        
+  scrapli:
+    platform: auto
+    extras:
+      auth_timeout: 60
+      timeout_socket: 60
+      timeout_transport: 60
+      timeout_ops: 60
+      comms_prompt_pattern: "^[a-zA-Z0-9.\\-_@()/:]{1,63}[#>$]\\s*$"
+      comms_return_char: "\n"
+      ssh_config_file: "~/.ssh/config"
+      auth_strict_key: false
+      transport_options:
+        keepalive: 30
+        keepalive_interval: 30
+        keepalive_count: 3
+
+# Runner configuration
+runner:
+  plugin: threaded
+  options:
+    num_workers: 10
+
+# User-defined data
+user_defined:
+  # Global settings for the RR4 CLI
+  rr4_settings:
+    collection_timeout: 300
+    retry_attempts: 3
+    retry_delay: 5
+    output_format: "json"
+    compression: true
+    backup_configs: true
+    
+  # Jump host configuration
+  jump_host:
+    enabled: true
+    hostname: ""  # Will be loaded from environment
+    username: ""  # Will be loaded from environment
+    password: ""  # Will be loaded from environment
+    port: 22
+    
+  # Device credentials
+  device_credentials:
+    username: ""  # Will be loaded from environment
+    password: ""  # Will be loaded from environment
+    enable_password: ""  # Will be loaded from environment
+    
+  # Collection settings
+  collection:
+    parallel_execution: true
+    max_concurrent_devices: 5
+    command_timeout: 30
+    session_timeout: 60
+    
+  # Output settings
+  output:
+    base_directory: "output"
+    timestamp_format: "%Y%m%d_%H%M%S"
+    file_formats: ["json", "yaml", "csv"]
+    compression_format: "gzip"
+    
+  # Health check settings
+  health_checks:
+    enabled: true
+    basic_connectivity: true
+    cpu_memory_check: true
+    interface_status: true
+    routing_table: true
+    
+  # Layer-specific settings
+  layers:
+    health:
+      enabled: true
+      commands:
+        - "show version"
+        - "show inventory"
+        - "show processes cpu"
+        - "show memory statistics"
+        - "show environment"
+    interface:
+      enabled: true
+      commands:
+        - "show interfaces"
+        - "show ip interface brief"
+        - "show interfaces status"
+    igp:
+      enabled: true
+      commands:
+        - "show ip route"
+        - "show ip ospf neighbor"
+        - "show ip eigrp neighbor"
+    mpls:
+      enabled: true
+      commands:
+        - "show mpls ldp neighbor"
+        - "show mpls forwarding-table"
+        - "show mpls interfaces"
+    bgp:
+      enabled: true
+      commands:
+        - "show ip bgp summary"
+        - "show ip bgp neighbors"
+        - "show ip bgp"
+    vpn:
+      enabled: true
+      commands:
+        - "show ip vrf"
+        - "show vpn id"
+        - "show l2vpn atom vc"
+    static_route:
+      enabled: true
+      commands:
+        - "show ip route static"
+        - "show running-config | section ip route"
+
+# Plugin-specific configurations
+plugins:
+  nornir_netmiko:
+    use_keys: false
+    allow_agent: false
+    look_for_keys: false
+    
+  nornir_napalm:
+    use_keys: false
+    
+  nornir_scrapli:
+    use_keys: false
+    
+  nornir_utils:
+    print_result: true
+    
+  nornir_rich:
+    print_result: true
+    console_width: 120
+    
+  nornir_jinja2:
+    searchpath: "templates" 

@@ -1,0 +1,14 @@
+Device: Cisco 2911
+Command: show running-config | include ^line vty|^ transport input|^ login|^ exec-timeout
+Timestamp: 2025-05-27T18:56:24.898862
+==================================================
+line vty 0 2
+ transport input ssh
+line vty 3
+ exec-timeout 0 0
+ transport input ssh
+line vty 4
+ transport input ssh
+line vty 5
+ login authentication LOCAL_LOGIN_LOCAL
+ transport input ssh

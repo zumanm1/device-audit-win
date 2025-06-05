@@ -1,0 +1,111 @@
+==== NETWORK AUDIT REPORT ====
+Generated: 2025-05-27 20:30:53
+Tool Version: 3.11.0
+
+Total Devices Audited: 5
+
+
+==================================================
+Device: router1.example.com (192.168.1.1)
+Audit Type: connectivity
+Audit ID: 5b42df4e-b860-41ca-9458-2ec1a49310d1
+Timestamp: 2025-05-27 20:30:53
+
+✓ Phase: icmp_ping - Status: Success
+   - packets_sent: 4
+   - packets_received: 4
+   - packet_loss_percent: 0
+   - rtt_min_ms: 10.2
+   - rtt_avg_ms: 15.7
+   - rtt_max_ms: 22.3
+   - ttl: 64
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+
+
+==================================================
+Device: router2.example.com (192.168.1.2)
+Audit Type: connectivity
+Audit ID: 82b69f50-bfc6-464c-94b1-829d5671f601
+Timestamp: 2025-05-27 20:30:53
+
+✓ Phase: icmp_ping - Status: Success
+   - packets_sent: 4
+   - packets_received: 4
+   - packet_loss_percent: 0
+   - rtt_min_ms: 10.2
+   - rtt_avg_ms: 15.7
+   - rtt_max_ms: 22.3
+   - ttl: 64
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+
+
+==================================================
+Device: switch1.example.com (192.168.1.10)
+Audit Type: connectivity
+Audit ID: 036db908-5f67-4841-a8ab-70b9c69622cf
+Timestamp: 2025-05-27 20:30:53
+
+✗ Phase: icmp_ping - Status: Failed
+   - packets_sent: 4
+   - packets_received: 0
+   - packet_loss_percent: 100
+   - error: Unknown error
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+
+Recommendations:
+   !! Device is not responding to ICMP ping. Check firewall settings or device status.
+
+
+==================================================
+Device: firewall.example.com (192.168.1.254)
+Audit Type: connectivity
+Audit ID: 859df199-6a6a-4676-b9d1-121ed3970951
+Timestamp: 2025-05-27 20:30:53
+
+✓ Phase: icmp_ping - Status: Success
+   - packets_sent: 4
+   - packets_received: 4
+   - packet_loss_percent: 0
+   - rtt_min_ms: 10.2
+   - rtt_avg_ms: 15.7
+   - rtt_max_ms: 22.3
+   - ttl: 64
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+
+
+==================================================
+Device: switch2.example.com (192.168.1.11)
+Audit Type: connectivity
+Audit ID: caae3d47-b26f-4700-9109-187bdb1c1b33
+Timestamp: 2025-05-27 20:30:53
+
+✓ Phase: icmp_ping - Status: Success
+   - packets_sent: 4
+   - packets_received: 4
+   - packet_loss_percent: 0
+   - rtt_min_ms: 10.2
+   - rtt_avg_ms: 15.7
+   - rtt_max_ms: 22.3
+   - ttl: 64
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+

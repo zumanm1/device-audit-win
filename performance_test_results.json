@@ -1,0 +1,95 @@
+{
+  "summary": {
+    "total_requests": 300,
+    "successful_requests": 300,
+    "overall_avg_response_time": 0.07156887054443359,
+    "performance_grade": "A+ (Excellent)"
+  },
+  "test_results": [
+    {
+      "endpoint": "/",
+      "total_requests": 25,
+      "successful_requests": 25,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.05657399177551269,
+      "min_response_time": 0.015468120574951172,
+      "max_response_time": 0.09810209274291992,
+      "p95_response_time": 0.0970000982284546
+    },
+    {
+      "endpoint": "/api/progress",
+      "total_requests": 25,
+      "successful_requests": 25,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.018749914169311523,
+      "min_response_time": 0.009406805038452148,
+      "max_response_time": 0.03138327598571777,
+      "p95_response_time": 0.03101184368133545
+    },
+    {
+      "endpoint": "/api/live-logs",
+      "total_requests": 25,
+      "successful_requests": 25,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.02426626205444336,
+      "min_response_time": 0.008954286575317383,
+      "max_response_time": 0.03905081748962402,
+      "p95_response_time": 0.03863017559051514
+    },
+    {
+      "endpoint": "/api/raw-logs",
+      "total_requests": 25,
+      "successful_requests": 25,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.024746179580688477,
+      "min_response_time": 0.011300325393676758,
+      "max_response_time": 0.0405573844909668,
+      "p95_response_time": 0.04027292728424072
+    },
+    {
+      "endpoint": "/",
+      "total_requests": 50,
+      "successful_requests": 50,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.1039853572845459,
+      "min_response_time": 0.018503665924072266,
+      "max_response_time": 0.19276928901672363,
+      "p95_response_time": 0.1881217360496521
+    },
+    {
+      "endpoint": "/api/progress",
+      "total_requests": 50,
+      "successful_requests": 50,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.05173903465270996,
+      "min_response_time": 0.012735605239868164,
+      "max_response_time": 0.10079097747802734,
+      "p95_response_time": 0.09931503534317017
+    },
+    {
+      "endpoint": "/",
+      "total_requests": 100,
+      "successful_requests": 100,
+      "failed_requests": 0,
+      "success_rate": 100.0,
+      "avg_response_time": 0.22092135429382323,
+      "min_response_time": 0.02937602996826172,
+      "max_response_time": 0.40613245964050293,
+      "p95_response_time": 0.3942448139190674
+    }
+  ],
+  "memory_result": {
+    "test": "memory_stress",
+    "total_requests": 200,
+    "successful": 200,
+    "total_time": 0.30929040908813477,
+    "requests_per_second": 646.6414545140597
+  },
+  "issues_found": []
+}

@@ -1,0 +1,17 @@
+{
+  "lines": [
+    "NAME: \"Chassis\", DESCR: \"Cisco CSR1000V Chassis\"",
+    "PID: CSR1000V          , VID: V00  , SN: 95BN3FGP81O",
+    "NAME: \"module R0\", DESCR: \"Cisco CSR1000V Route Processor\"",
+    "PID: CSR1000V          , VID: V00  , SN: JAB1303001C",
+    "NAME: \"module F0\", DESCR: \"Cisco CSR1000V Embedded Services Processor\"",
+    "PID: CSR1000V          , VID:      , SN:"
+  ],
+  "line_count": 6,
+  "potential_headers": [
+    [
+      3,
+      "NAME: \"module R0\", DESCR: \"Cisco CSR1000V Route Processor\""
+    ]
+  ]
+}

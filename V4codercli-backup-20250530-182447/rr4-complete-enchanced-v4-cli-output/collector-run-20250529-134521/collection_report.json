@@ -1,0 +1,112 @@
+{
+  "run_id": "collector-run-20250529-134521",
+  "timestamp": "2025-05-29 13:46:20",
+  "summary": {
+    "total_devices": 8,
+    "completed_devices": 5,
+    "failed_devices": 3,
+    "device_completion_rate": 62.5,
+    "task_completion_rate": 0.0,
+    "elapsed_time": 58.23802351951599,
+    "is_running": false
+  },
+  "device_results": {
+    "R0": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R1": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R2": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R3": {
+      "success_count": 0,
+      "failure_count": 1,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": false,
+          "duration": 0.0,
+          "error": "Unknown error"
+        }
+      ]
+    },
+    "R4": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R5": {
+      "success_count": 1,
+      "failure_count": 0,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": true,
+          "duration": 0.0,
+          "error": null
+        }
+      ]
+    },
+    "R6": {
+      "success_count": 0,
+      "failure_count": 1,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": false,
+          "duration": 0.0,
+          "error": "Unknown error"
+        }
+      ]
+    },
+    "R7": {
+      "success_count": 0,
+      "failure_count": 1,
+      "tasks": [
+        {
+          "task": "layer_collection",
+          "success": false,
+          "duration": 0.0,
+          "error": "Unknown error"
+        }
+      ]
+    }
+  },
+  "layer_summary": {}
+}

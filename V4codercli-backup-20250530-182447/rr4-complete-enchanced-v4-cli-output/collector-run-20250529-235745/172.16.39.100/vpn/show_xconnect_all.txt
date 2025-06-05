@@ -1,0 +1,4 @@
+Legend: XC ST=Xconnect State, S1=Segment1 State, S2=Segment2 State
+UP=Up, DN=Down, AD=Admin Down, IA=Inactive, NH=No Hardware
+XC ST  Segment 1                         S1 Segment 2                         S2
+------+---------------------------------+--+---------------------------------+--

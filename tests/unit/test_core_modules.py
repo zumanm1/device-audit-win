@@ -1,0 +1,6 @@
+# Import modules under test
+from rr4_complete_enchanced_v4_cli_core.inventory_loader import InventoryLoader, DeviceInfo
+from rr4_complete_enchanced_v4_cli_core.connection_manager import ConnectionManager, ConnectionConfig, ConnectionPool
+from rr4_complete_enchanced_v4_cli_core.task_executor import TaskExecutor, CollectionProgress, TaskResult
+from rr4_complete_enchanced_v4_cli_core.output_handler import OutputHandler, FileMetadata, CollectionMetadata
+from rr4_complete_enchanced_v4_cli_core.data_parser import DataParser, ParseResult 

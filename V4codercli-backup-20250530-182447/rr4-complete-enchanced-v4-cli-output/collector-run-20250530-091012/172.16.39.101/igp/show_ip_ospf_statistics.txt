@@ -1,0 +1,16 @@
+
+            OSPF Router with ID (192.168.100.101) (Process ID 1)
+
+  Area 0: SPF algorithm executed 7 times
+
+  Summary OSPF SPF statistic
+
+  SPF calculation time
+Delta T   Intra	D-Intra	Summ	D-Summ	Ext	D-Ext	Total	Reason
+13:33:56   0	0	0	0	0	0	0	R, 
+13:32:40   0	0	0	0	0	0	0	R, N, 
+13:32:30   0	0	0	0	0	0	0	R, 
+09:38:59   0	0	0	0	0	0	0	R, 
+09:38:49   0	0	0	0	0	0	0	R, 
+09:16:14   0	0	0	0	0	0	0	R, N, 
+09:16:04   0	4	0	0	0	0	4	N, 

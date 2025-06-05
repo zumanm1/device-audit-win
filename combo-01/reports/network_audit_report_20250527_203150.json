@@ -1,0 +1,249 @@
+{
+  "meta": {
+    "generated_at": "2025-05-27T20:31:50.878690",
+    "version": "3.11.0",
+    "report_id": "079bf591-3f03-4cab-84a8-f1be4f651ced"
+  },
+  "results": [
+    {
+      "audit_id": "d0b12258-a7a6-418d-9e89-9b1278cf63b8",
+      "device_info": {
+        "hostname": "router1.example.com",
+        "ip": "192.168.1.1",
+        "model": "Cisco 2901",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-27T20:31:50.858235",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Vulnerable",
+          "details": {
+            "telnet_enabled": true,
+            "vty_lines": 2,
+            "aux_lines": 1,
+            "con_lines": 1,
+            "telnet_lines": 2
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Vulnerable",
+          "details": {
+            "port_23_accessible": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH for secure remote access",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Apply access control lists to restrict telnet access",
+          "severity": "high",
+          "reference": "NIST SP 800-53: AC-3"
+        },
+        {
+          "text": "Disable telnet on AUX ports to prevent unauthorized access",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17"
+        },
+        {
+          "text": "Block telnet port (23) at the network level with firewall rules",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: SC-7"
+        }
+      ]
+    },
+    {
+      "audit_id": "425bc0fe-4f99-46cf-8e17-307ce4f9e69f",
+      "device_info": {
+        "hostname": "firewall.example.com",
+        "ip": "192.168.1.254",
+        "model": "Cisco ASA 5505",
+        "device_type": "cisco_asa"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-27T20:31:50.864664",
+      "phases": {
+        "connection": {
+          "status": "Failed",
+          "details": {
+            "method": "SSH"
+          },
+          "error": "Connection refused"
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "a1819ff6-c34e-41dc-981e-bac7bdf78a06",
+      "device_info": {
+        "hostname": "switch2.example.com",
+        "ip": "192.168.1.11",
+        "model": "Cisco 2960",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-27T20:31:50.864324",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Secure",
+          "details": {
+            "telnet_enabled": false,
+            "vty_lines": 1,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 0
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Secure",
+          "details": {
+            "port_23_accessible": false
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": []
+    },
+    {
+      "audit_id": "c8dbbe95-ebde-4691-9a7a-ba0a763062ad",
+      "device_info": {
+        "hostname": "switch1.example.com",
+        "ip": "192.168.1.10",
+        "model": "Cisco 3560",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-27T20:31:50.865036",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Vulnerable",
+          "details": {
+            "telnet_enabled": true,
+            "vty_lines": 2,
+            "aux_lines": 0,
+            "con_lines": 1,
+            "telnet_lines": 1
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Vulnerable",
+          "details": {
+            "port_23_accessible": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH for secure remote access",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Apply access control lists to restrict telnet access",
+          "severity": "high",
+          "reference": "NIST SP 800-53: AC-3"
+        },
+        {
+          "text": "Block telnet port (23) at the network level with firewall rules",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: SC-7"
+        }
+      ]
+    },
+    {
+      "audit_id": "aa1825f2-ac8f-4881-aee6-a7681b13ef1a",
+      "device_info": {
+        "hostname": "router2.example.com",
+        "ip": "192.168.1.2",
+        "model": "Cisco 2911",
+        "device_type": "cisco_ios"
+      },
+      "audit_type": "telnet",
+      "timestamp": "2025-05-27T20:31:50.865418",
+      "phases": {
+        "connection": {
+          "status": "Success",
+          "details": {
+            "method": "SSH"
+          },
+          "error": null
+        },
+        "telnet_config": {
+          "status": "Vulnerable",
+          "details": {
+            "telnet_enabled": true,
+            "vty_lines": 2,
+            "aux_lines": 1,
+            "con_lines": 1,
+            "telnet_lines": 2
+          },
+          "error": null
+        },
+        "telnet_port": {
+          "status": "Vulnerable",
+          "details": {
+            "port_23_accessible": true
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Disable Telnet and use SSH for secure remote access",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17, IA-2"
+        },
+        {
+          "text": "Apply access control lists to restrict telnet access",
+          "severity": "high",
+          "reference": "NIST SP 800-53: AC-3"
+        },
+        {
+          "text": "Disable telnet on AUX ports to prevent unauthorized access",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: AC-17"
+        },
+        {
+          "text": "Block telnet port (23) at the network level with firewall rules",
+          "severity": "critical",
+          "reference": "NIST SP 800-53: SC-7"
+        }
+      ]
+    }
+  ]
+}

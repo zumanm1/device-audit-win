@@ -1,0 +1,162 @@
+==== NETWORK AUDIT REPORT ====
+Generated: 2025-05-27 21:43:58
+Tool Version: 3.11.0
+
+Total Devices Audited: 6
+
+
+==================================================
+Device: RTR-CORE-01.xrnet.net (172.16.39.100)
+Audit Type: connectivity
+Audit ID: 146fbc9e-16d7-4f5e-ac70-889de40f25bf
+Timestamp: 2025-05-27 21:43:58
+
+✗ Phase: icmp_ping - Status: Failed
+   - packets_sent: 4
+   - packets_received: 0
+   - packet_loss_percent: 100
+   - error: Unknown error
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+
+✓ Phase: dns_resolution - Status: Success
+   - hostname: RTR-CORE-01.xrnet.net
+   - resolved_ip: 172.16.39.100
+   - matches_expected: True
+
+Recommendations:
+   !! Device is not responding to ICMP ping. Check firewall settings or device status.
+
+
+==================================================
+Device: RTR-EDGE-02.xrnet.net (172.16.39.101)
+Audit Type: connectivity
+Audit ID: cafa768d-396b-4a97-9687-4ad8b6f2478d
+Timestamp: 2025-05-27 21:43:58
+
+✓ Phase: icmp_ping - Status: Success
+   - packets_sent: 4
+   - packets_received: 4
+   - packet_loss_percent: 0
+   - rtt_min_ms: 10.2
+   - rtt_avg_ms: 15.7
+   - rtt_max_ms: 22.3
+   - ttl: 64
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+
+✓ Phase: dns_resolution - Status: Success
+   - hostname: RTR-EDGE-02.xrnet.net
+   - resolved_ip: 172.16.39.101
+   - matches_expected: True
+
+
+==================================================
+Device: RTR-BRANCH-06.xrnet.net (172.16.39.105)
+Audit Type: connectivity
+Audit ID: d1d17563-8f6e-4620-b308-3d5610b7fac1
+Timestamp: 2025-05-27 21:43:58
+
+✓ Phase: icmp_ping - Status: Success
+   - packets_sent: 4
+   - packets_received: 4
+   - packet_loss_percent: 0
+   - rtt_min_ms: 10.2
+   - rtt_avg_ms: 15.7
+   - rtt_max_ms: 22.3
+   - ttl: 64
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+
+✓ Phase: dns_resolution - Status: Success
+   - hostname: RTR-BRANCH-06.xrnet.net
+   - resolved_ip: 172.16.39.105
+   - matches_expected: True
+
+
+==================================================
+Device: RTR-BRANCH-03.xrnet.net (172.16.39.102)
+Audit Type: connectivity
+Audit ID: 21cb65d1-77f8-40ec-bd82-a5f0bfebff31
+Timestamp: 2025-05-27 21:43:58
+
+✓ Phase: icmp_ping - Status: Success
+   - packets_sent: 4
+   - packets_received: 4
+   - packet_loss_percent: 0
+   - rtt_min_ms: 10.2
+   - rtt_avg_ms: 15.7
+   - rtt_max_ms: 22.3
+   - ttl: 64
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+
+✓ Phase: dns_resolution - Status: Success
+   - hostname: RTR-BRANCH-03.xrnet.net
+   - resolved_ip: 172.16.39.102
+   - matches_expected: True
+
+
+==================================================
+Device: RTR-BRANCH-04.xrnet.net (172.16.39.103)
+Audit Type: connectivity
+Audit ID: b484d375-9f36-4ea0-8eb3-a21f96c0f2b3
+Timestamp: 2025-05-27 21:43:58
+
+✓ Phase: icmp_ping - Status: Success
+   - packets_sent: 4
+   - packets_received: 4
+   - packet_loss_percent: 0
+   - rtt_min_ms: 10.2
+   - rtt_avg_ms: 15.7
+   - rtt_max_ms: 22.3
+   - ttl: 64
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+
+✓ Phase: dns_resolution - Status: Success
+   - hostname: RTR-BRANCH-04.xrnet.net
+   - resolved_ip: 172.16.39.103
+   - matches_expected: True
+
+
+==================================================
+Device: RTR-BRANCH-05.xrnet.net (172.16.39.104)
+Audit Type: connectivity
+Audit ID: 5374df36-5756-4db7-81d1-7e53a0c88e62
+Timestamp: 2025-05-27 21:43:58
+
+✓ Phase: icmp_ping - Status: Success
+   - packets_sent: 4
+   - packets_received: 4
+   - packet_loss_percent: 0
+   - rtt_min_ms: 10.2
+   - rtt_avg_ms: 15.7
+   - rtt_max_ms: 22.3
+   - ttl: 64
+
+✓ Phase: tcp_ports - Status: Success
+   - ports_checked: 4
+   - ports_open: 3
+   - open_ports: [22, 80, 443]
+
+✓ Phase: dns_resolution - Status: Success
+   - hostname: RTR-BRANCH-05.xrnet.net
+   - resolved_ip: 172.16.39.104
+   - matches_expected: True
+

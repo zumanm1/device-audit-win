@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}Login - V5evscriptcli Web Dashboard{% endblock %}
+
+{% block auth_content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-4">
+            <div class="card mt-5">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-network-wired fa-3x text-primary mb-3"></i>
+                        <h3 class="card-title">V5evscriptcli Dashboard</h3>
+                        <p class="text-muted">Multi-Vendor EVE-NG Automation Platform</p>
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="username" class="form-label">
+                                <i class="fas fa-user me-1"></i>Username
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="username" 
+                                   name="username" 
+                                   required 
+                                   autocomplete="username"
+                                   placeholder="Enter your username">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="fas fa-lock me-1"></i>Password
+                            </label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   id="password" 
+                                   name="password" 
+                                   required 
+                                   autocomplete="current-password"
+                                   placeholder="Enter your password">
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <!-- Demo Credentials -->
+                    <div class="text-center">
+                        <h6 class="text-muted mb-3">Demo Credentials</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body p-2">
+                                        <small class="text-muted">Admin</small><br>
+                                        <code class="small">admin / admin</code>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="card bg-light">
+                                    <div class="card-body p-2">
+                                        <small class="text-muted">User</small><br>
+                                        <code class="small">user / user</code>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer text-center text-muted">
+                    <small>
+                        <i class="fas fa-shield-alt me-1"></i>
+                        Secure EVE-NG Lab Management
+                    </small>
+                </div>
+            </div>
+            
+            <!-- Feature Highlights -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-star me-2"></i>Platform Features
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <i class="fas fa-network-wired fa-2x text-primary mb-2"></i>
+                            <div>
+                                <strong>Multi-Vendor</strong><br>
+                                <small class="text-muted">5 Router Types</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-project-diagram fa-2x text-success mb-2"></i>
+                            <div>
+                                <strong>Visual Designer</strong><br>
+                                <small class="text-muted">Drag & Drop</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                            <div>
+                                <strong>Real-time</strong><br>
+                                <small class="text-muted">Monitoring</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-3">
+                    
+                    <div class="row text-center">
+                        <div class="col-12">
+                            <h6 class="text-muted mb-2">Supported Router Types</h6>
+                            <span class="badge badge-router-c3725 me-1">c3725</span>
+                            <span class="badge badge-router-c7200 me-1">c7200</span>
+                            <span class="badge badge-router-c3640 me-1">c3640</span>
+                            <span class="badge badge-router-c2691 me-1">c2691</span>
+                            <span class="badge badge-router-c1700">c1700</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Version Info Footer -->
+<footer class="text-center mt-5 mb-3">
+    <div class="container">
+        <small class="text-muted">
+            V5evscriptcli Web Dashboard v2.0 | 
+            <i class="fas fa-bug me-1"></i>Phase 1: 8/8 Bugs Resolved | 
+            <i class="fas fa-plus-circle me-1"></i>Phase 2: NEW-002 Web Dashboard Active
+        </small>
+    </div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus username field
+    document.getElementById('username').focus();
+    
+    // Demo credential quick-fill functionality
+    const demoCards = document.querySelectorAll('.card.bg-light');
+    
+    demoCards.forEach(card => {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function() {
+            const isAdmin = this.textContent.includes('admin');
+            
+            document.getElementById('username').value = isAdmin ? 'admin' : 'user';
+            document.getElementById('password').value = isAdmin ? 'admin' : 'user';
+            
+            // Visual feedback
+            this.classList.add('border-primary');
+            setTimeout(() => {
+                this.classList.remove('border-primary');
+            }, 1000);
+        });
+    });
+    
+    // Add hover effect to demo cards
+    demoCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.classList.add('border-primary');
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.classList.remove('border-primary');
+        });
+    });
+});
+</script>
+{% endblock %} 

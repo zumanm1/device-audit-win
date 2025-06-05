@@ -1,0 +1,7 @@
+hostname,ip_address,model,connectivity_status,auth_status,privilege_level,telnet_allowed,aux_telnet_allowed,login_method,risk_level,findings,recommendations
+RTR-CORE-01.xrnet.net,Unknown,Cisco 4431 Integrated Services Router,SUCCESS,SUCCESS,PRIVILEGED,NO,NO,SSH_ONLY,SECURE,['No telnet allowed on any lines'],['Maintain current security posture']
+RTR-BRANCH-03.xrnet.net,Unknown,Cisco 3945 Integrated Services Router,SUCCESS,SUCCESS,PRIVILEGED,YES,YES,MULTIPLE,CRITICAL,['Both VTY and AUX lines allow telnet'],['Disable telnet on all lines and enforce SSH only']
+RTR-EDGE-02.xrnet.net,Unknown,Cisco 4451-X Integrated Services Router,SUCCESS,SUCCESS,PRIVILEGED,YES,NO,MULTIPLE,HIGH,['VTY lines allow telnet'],['Disable telnet on VTY lines and enforce SSH only']
+RTR-BRANCH-05.xrnet.net,Unknown,Cisco 2911 Integrated Services Router,FAILED,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,[],[]
+RTR-BRANCH-04.xrnet.net,Unknown,Cisco 4321 Integrated Services Router,SUCCESS,SUCCESS,PRIVILEGED,YES,YES,MULTIPLE,CRITICAL,['Both VTY and AUX lines allow telnet'],['Disable telnet on all lines and enforce SSH only']
+RTR-BRANCH-06.xrnet.net,Unknown,Cisco 2911 Integrated Services Router,SUCCESS,FAILED,NONE,UNKNOWN,UNKNOWN,UNKNOWN,UNKNOWN,[],[]

@@ -1,0 +1,333 @@
+{
+  "meta": {
+    "generated_at": "2025-05-28T06:46:14.431934",
+    "version": "3.11.0",
+    "report_id": "25750b09-4ee0-4129-a775-08758b91eb18"
+  },
+  "results": [
+    {
+      "audit_id": "c7b3fefe-bd33-451c-9abb-9efaaf5c8737",
+      "device_info": {
+        "hostname": "RTR-BRANCH-05.xrnet.net",
+        "ip": "172.16.39.104",
+        "description": "WAN IP: 203.0.113.5"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T06:46:00.783690",
+      "phases": {
+        "icmp_ping": {
+          "status": "Failed",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 0,
+            "packet_loss_percent": 100.0,
+            "error": "Unknown error"
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Failed",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 0,
+            "open_ports": []
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Failed",
+          "details": {
+            "hostname": "RTR-BRANCH-05.xrnet.net",
+            "resolved_ip": null,
+            "matches_expected": false,
+            "error": "[Errno -5] No address associated with hostname"
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Device is not responding to ICMP ping. Check firewall settings or device status.",
+          "severity": "high",
+          "reference": null
+        },
+        {
+          "text": "No open TCP ports found. Verify device is operational and accessible.",
+          "severity": "high",
+          "reference": null
+        }
+      ]
+    },
+    {
+      "audit_id": "a3512312-f911-4125-98f5-3ac56f7a37e3",
+      "device_info": {
+        "hostname": "RTR-BRANCH-04.xrnet.net",
+        "ip": "172.16.39.103",
+        "description": "WAN IP: 203.0.113.4"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T06:46:00.789870",
+      "phases": {
+        "icmp_ping": {
+          "status": "Failed",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 0,
+            "packet_loss_percent": 100.0,
+            "error": "Unknown error"
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Failed",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 0,
+            "open_ports": []
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Failed",
+          "details": {
+            "hostname": "RTR-BRANCH-04.xrnet.net",
+            "resolved_ip": null,
+            "matches_expected": false,
+            "error": "[Errno -5] No address associated with hostname"
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Device is not responding to ICMP ping. Check firewall settings or device status.",
+          "severity": "high",
+          "reference": null
+        },
+        {
+          "text": "No open TCP ports found. Verify device is operational and accessible.",
+          "severity": "high",
+          "reference": null
+        }
+      ]
+    },
+    {
+      "audit_id": "81f9efd2-8c4d-4f3d-a7d1-4c96bde01dc5",
+      "device_info": {
+        "hostname": "RTR-BRANCH-06.xrnet.net",
+        "ip": "172.16.39.105",
+        "description": "WAN IP: 203.0.113.6"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T06:46:00.784860",
+      "phases": {
+        "icmp_ping": {
+          "status": "Failed",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 0,
+            "packet_loss_percent": 100.0,
+            "error": "Unknown error"
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Failed",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 0,
+            "open_ports": []
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Failed",
+          "details": {
+            "hostname": "RTR-BRANCH-06.xrnet.net",
+            "resolved_ip": null,
+            "matches_expected": false,
+            "error": "[Errno -5] No address associated with hostname"
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Device is not responding to ICMP ping. Check firewall settings or device status.",
+          "severity": "high",
+          "reference": null
+        },
+        {
+          "text": "No open TCP ports found. Verify device is operational and accessible.",
+          "severity": "high",
+          "reference": null
+        }
+      ]
+    },
+    {
+      "audit_id": "2ce15fa9-939c-4d7c-816e-746f1fce53ef",
+      "device_info": {
+        "hostname": "RTR-BRANCH-03.xrnet.net",
+        "ip": "172.16.39.102",
+        "description": "WAN IP: 203.0.113.3"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T06:46:00.779792",
+      "phases": {
+        "icmp_ping": {
+          "status": "Failed",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 0,
+            "packet_loss_percent": 100.0,
+            "error": "Unknown error"
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Failed",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 0,
+            "open_ports": []
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Failed",
+          "details": {
+            "hostname": "RTR-BRANCH-03.xrnet.net",
+            "resolved_ip": null,
+            "matches_expected": false,
+            "error": "[Errno -5] No address associated with hostname"
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Device is not responding to ICMP ping. Check firewall settings or device status.",
+          "severity": "high",
+          "reference": null
+        },
+        {
+          "text": "No open TCP ports found. Verify device is operational and accessible.",
+          "severity": "high",
+          "reference": null
+        }
+      ]
+    },
+    {
+      "audit_id": "ff934ce0-dc8c-456b-b98d-c99f4628b920",
+      "device_info": {
+        "hostname": "RTR-EDGE-02.xrnet.net",
+        "ip": "172.16.39.101",
+        "description": "WAN IP: 203.0.113.2"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T06:46:00.779910",
+      "phases": {
+        "icmp_ping": {
+          "status": "Failed",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 0,
+            "packet_loss_percent": 100.0,
+            "error": "Unknown error"
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Failed",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 0,
+            "open_ports": []
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Failed",
+          "details": {
+            "hostname": "RTR-EDGE-02.xrnet.net",
+            "resolved_ip": null,
+            "matches_expected": false,
+            "error": "[Errno -5] No address associated with hostname"
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Device is not responding to ICMP ping. Check firewall settings or device status.",
+          "severity": "high",
+          "reference": null
+        },
+        {
+          "text": "No open TCP ports found. Verify device is operational and accessible.",
+          "severity": "high",
+          "reference": null
+        }
+      ]
+    },
+    {
+      "audit_id": "d993ef7b-836c-425a-b658-0abce8975be1",
+      "device_info": {
+        "hostname": "RTR-CORE-01.xrnet.net",
+        "ip": "172.16.39.100",
+        "description": "WAN IP: 203.0.113.1"
+      },
+      "audit_type": "connectivity",
+      "timestamp": "2025-05-28T06:46:00.775771",
+      "phases": {
+        "icmp_ping": {
+          "status": "Failed",
+          "details": {
+            "packets_sent": 4,
+            "packets_received": 0,
+            "packet_loss_percent": 100.0,
+            "error": "Unknown error"
+          },
+          "error": null
+        },
+        "tcp_ports": {
+          "status": "Failed",
+          "details": {
+            "ports_checked": 4,
+            "ports_open": 0,
+            "open_ports": []
+          },
+          "error": null
+        },
+        "dns_resolution": {
+          "status": "Failed",
+          "details": {
+            "hostname": "RTR-CORE-01.xrnet.net",
+            "resolved_ip": null,
+            "matches_expected": false,
+            "error": "[Errno -5] No address associated with hostname"
+          },
+          "error": null
+        }
+      },
+      "summary": {},
+      "recommendations": [
+        {
+          "text": "Device is not responding to ICMP ping. Check firewall settings or device status.",
+          "severity": "high",
+          "reference": null
+        },
+        {
+          "text": "No open TCP ports found. Verify device is operational and accessible.",
+          "severity": "high",
+          "reference": null
+        }
+      ]
+    }
+  ]
+}

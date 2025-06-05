@@ -1,0 +1,3 @@
+show ip bgp vpnv4 unicast vrf all
+                  ^
+% Invalid input detected at '^' marker.

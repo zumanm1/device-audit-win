@@ -1,0 +1,32 @@
+AUX Telnet Security Audit Results
+==================================
+
+Device: R1
+Timestamp: 2025-05-25T22:14:52.889657
+Status: success
+Error Count: 0
+
+🔍 TELNET AUDIT SUMMARY
+==================================================
+Hostname: R1
+AUX Line: N/A
+Telnet Allowed: NO
+Transport Input: transport input ssh
+Analysis: ✅ SECURE: Telnet disabled or SSH-only
+
+Command: aux_telnet_audit
+==================================================
+Executed: show running-config | include ^hostname|^line aux|^ transport input|^ login|^ exec-timeout
+Status: success
+Timestamp: 2025-05-25T22:14:56.810842
+
+Output:
+------------------------------
+hostname R1
+ login local
+line aux 0
+ login local
+ transport input ssh
+ login local
+------------------------------
+

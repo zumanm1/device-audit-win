@@ -1,0 +1,10 @@
+Protocol version: 1
+Downstream label generic region: min label: 16; max label: 100000
+Session hold time: 180 sec; keep alive interval: 60 sec
+Discovery hello: holdtime: 15 sec; interval: 5 sec
+Discovery targeted hello: holdtime: 90 sec; interval: 10 sec
+Downstream on Demand max hop count: 255
+Downstream on Demand Path Vector Limit: 255
+LDP for targeted sessions
+LDP initial/maximum backoff: 15/120 sec
+LDP loop detection: off

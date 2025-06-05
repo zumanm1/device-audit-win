@@ -1,0 +1,160 @@
+{
+  "timestamp": "2025-06-03T09:31:52.119324",
+  "tests": {
+    "Environment Files": {
+      "status": "PASS",
+      "timestamp": "2025-06-03T09:31:52.120099",
+      "details": {
+        "found_files": [
+          ".env-t",
+          "rr4-complete-enchanced-v4-cli.env-t"
+        ],
+        "config_keys": [
+          "JUMP_HOST_IP",
+          "JUMP_HOST_USERNAME",
+          "JUMP_HOST_PASSWORD",
+          "ROUTER_USERNAME",
+          "ROUTER_PASSWORD",
+          "SSH_KEY_EXCHANGE",
+          "SSH_HOST_KEY_ALGORITHMS",
+          "SSH_CIPHERS"
+        ],
+        "jump_host": "172.16.39.128"
+      }
+    },
+    "File Structure": {
+      "status": "PASS",
+      "timestamp": "2025-06-03T09:31:52.122345",
+      "details": {
+        "directories": {
+          "rr4_complete_enchanced_v4_cli_core": {
+            "exists": true,
+            "total_files": 10,
+            "python_files": 6
+          },
+          "rr4_complete_enchanced_v4_cli_tasks": {
+            "exists": true,
+            "total_files": 11,
+            "python_files": 10
+          },
+          "outputs": {
+            "exists": true,
+            "total_files": 3,
+            "python_files": 0
+          },
+          "docs": {
+            "exists": true,
+            "total_files": 63,
+            "python_files": 0
+          },
+          "tests": {
+            "exists": true,
+            "total_files": 18,
+            "python_files": 15
+          }
+        },
+        "all_required_dirs_exist": true
+      }
+    },
+    "Core Modules": {
+      "status": "PASS",
+      "timestamp": "2025-06-03T09:31:57.292019",
+      "details": {
+        "connection_manager": "OK",
+        "data_parser": "OK",
+        "output_handler": "OK",
+        "inventory_loader": "OK",
+        "task_executor": "OK",
+        "jump_host": "172.16.39.128"
+      }
+    },
+    "Task Collectors": {
+      "status": "FAIL",
+      "timestamp": "2025-06-03T09:31:57.314522",
+      "details": {
+        "failed_collectors": [
+          "static",
+          "console"
+        ],
+        "details": {
+          "mpls": {
+            "class_name": "MPLSCollector",
+            "command_count": 5,
+            "status": "OK"
+          },
+          "igp": {
+            "class_name": "IGPCollector",
+            "command_count": 6,
+            "status": "OK"
+          },
+          "bgp": {
+            "class_name": "BGPCollector",
+            "command_count": 6,
+            "status": "OK"
+          },
+          "vpn": {
+            "class_name": "VPNCollector",
+            "command_count": 4,
+            "status": "OK"
+          },
+          "interfaces": {
+            "class_name": "InterfaceCollector",
+            "command_count": 5,
+            "status": "OK"
+          },
+          "health": {
+            "class_name": "HealthCollector",
+            "command_count": 9,
+            "status": "OK"
+          },
+          "static": {
+            "status": "FAILED",
+            "error": "'StaticRouteCollector' object has no attribute 'commands_data'"
+          },
+          "console": {
+            "status": "FAILED",
+            "error": "'ConsoleLineCollector' object has no attribute 'commands_data'"
+          }
+        }
+      }
+    },
+    "Main Scripts": {
+      "status": "PASS",
+      "timestamp": "2025-06-03T09:31:57.333721",
+      "details": {
+        "scripts": {
+          "start_rr4_cli_enhanced.py": {
+            "exists": true,
+            "size": 9466,
+            "executable": false,
+            "has_main": true
+          },
+          "rr4-complete-enchanced-v4-cli.py": {
+            "exists": true,
+            "size": 69923,
+            "executable": true,
+            "has_main": true
+          },
+          "start_rr4_cli.py": {
+            "exists": true,
+            "size": 405066,
+            "executable": true,
+            "has_main": true
+          }
+        },
+        "all_exist": true
+      }
+    }
+  },
+  "summary": {
+    "total_tests": 5,
+    "passed": 4,
+    "failed": 1,
+    "success_rate": 80.0,
+    "status": "DEGRADED"
+  },
+  "recommendations": [
+    "Some tests failed - review failed test details",
+    "System not at 100% health - investigate warnings"
+  ]
+}

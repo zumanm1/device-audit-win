@@ -1,0 +1,3 @@
+device_ip,hostname,success,timestamp,aux_telnet_enabled,vty_telnet_enabled,con_telnet_enabled,telnet_violations_count,risk_level,compliance_status,error_message
+172.16.39.100,RTR-CORE-01.xrnet.net,True,2025-05-28T14:36:10.589493,False,False,False,0,LOW,COMPLIANT,
+172.16.39.101,RTR-EDGE-02.xrnet.net,True,2025-05-28T14:36:27.560935,False,False,False,0,LOW,COMPLIANT,

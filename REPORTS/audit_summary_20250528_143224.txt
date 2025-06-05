@@ -1,0 +1,49 @@
+NetAuditPro CLI Lite - Audit Summary Report
+============================================================
+
+Version: v3.0.0-CLI-LITE
+Generated: 2025-05-28 14:32:24
+Jump Host: 172.16.39.128
+Inventory File: routers01.csv
+Audit Duration: 15.3s
+Audit Status: Completed
+
+SUMMARY STATISTICS
+------------------------------
+Total Devices: 6
+Successful Audits: 2
+Failed Audits: 4
+Telnet Violations: 0
+High Risk Devices: 0
+Success Rate: 33.3%
+
+DEVICE AUDIT RESULTS
+------------------------------
+
+Device: RTR-CORE-01.xrnet.net (172.16.39.100)
+Status: SUCCESS
+Risk Level: LOW
+Compliance: COMPLIANT
+No telnet violations found
+
+Device: RTR-EDGE-02.xrnet.net (172.16.39.101)
+Status: SUCCESS
+Risk Level: LOW
+Compliance: COMPLIANT
+No telnet violations found
+
+Device: RTR-BRANCH-03.xrnet.net (172.16.39.102)
+Status: FAILED
+Error: Failed to connect to device 172.16.39.102
+
+Device: RTR-BRANCH-04.xrnet.net (172.16.39.103)
+Status: FAILED
+Error: Failed to connect to device 172.16.39.103
+
+Device: RTR-BRANCH-05.xrnet.net (172.16.39.104)
+Status: FAILED
+Error: Failed to connect to device 172.16.39.104
+
+Device: RTR-BRANCH-06.xrnet.net (172.16.39.105)
+Status: FAILED
+Error: Failed to connect to device 172.16.39.105

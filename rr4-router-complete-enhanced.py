@@ -78,7 +78,7 @@ app = Flask(__name__)
 app.secret_key = os.urandom(24)
 app.config['UPLOAD_FOLDER'] = 'inventories'
 app.config['ALLOWED_EXTENSIONS'] = {'csv'} 
-app.config['PORT'] = 5009  # Different port for enhanced version
+app.config['PORT'] = 5010  # Different port for enhanced version
 socketio = SocketIO(app, async_mode=None, cors_allowed_origins="*")
 
 # Global variables (preserving all from original)

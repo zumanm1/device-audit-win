@@ -1,0 +1,4 @@
+
+Neighbor ID     Pri   State           Dead Time   Address         Interface
+192.168.100.101   1   FULL/DROTHER    00:00:36    172.16.39.101   FastEthernet0/0
+192.168.100.104   1   FULL/BDR        00:00:29    172.16.39.102   FastEthernet0/0

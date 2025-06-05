@@ -1,0 +1,12 @@
+hostname,ip_address,platform,device_type,username,password,groups,vendor,model,os_version,enable_password,port
+R102,172.16.39.102,ios,cisco_ios,cisco,cisco,branch_routers,cisco,3725,12.4(15)T14,cisco,22
+R103,172.16.39.103,ios,cisco_ios,cisco,cisco,branch_routers,cisco,3725,12.4(15)T14,cisco,22
+R104,172.16.39.104,ios,cisco_ios,cisco,cisco,branch_routers,cisco,3725,12.4(15)T14,cisco,22
+R105,172.16.39.105,ios,cisco_ios,cisco,cisco,branch_routers,cisco,3725,12.4(15)T14,cisco,22
+R106,172.16.39.106,ios,cisco_ios,cisco,cisco,branch_routers,cisco,3725,12.4(15)T14,cisco,22
+R115,172.16.39.115,ios,cisco_ios,cisco,cisco,pe_routers,cisco,3725,12.4(15)T14,cisco,22
+R116,172.16.39.116,ios,cisco_ios,cisco,cisco,pe_routers,cisco,3725,12.4(15)T14,cisco,22
+R117,172.16.39.117,ios,cisco_ios,cisco,cisco,p_routers,cisco,3725,12.4(15)T14,cisco,22
+R118,172.16.39.118,ios,cisco_ios,cisco,cisco,rr_routers,cisco,3725,12.4(15)T14,cisco,22
+R119,172.16.39.119,ios,cisco_ios,cisco,cisco,ce_routers,cisco,3725,12.4(15)T14,cisco,22
+R120,172.16.39.120,ios,cisco_ios,cisco,cisco,ce_routers,cisco,3725,12.4(15)T14,cisco,22

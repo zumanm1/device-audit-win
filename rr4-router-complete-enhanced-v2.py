@@ -35,7 +35,7 @@ ENHANCED FEATURES ADDED (NEW):
 🚀 Separate sections for UP vs DOWN devices in reports
 🚀 Detailed failure reason tracking and reporting
 🚀 Enhanced data structures for device status tracking
-🚀 New API endpoints: /device_status, /down_devices, /enhanced_summary
+🚀 New API endpoints: /device_status, /down_devices, /enhanced_summary, /async_telnet_audit, /command_builder
 🚀 Real-time device status updates in web UI
 🚀 Enhanced audit summary with UP/DOWN device breakdown
 
@@ -47,7 +47,7 @@ CURRENT TEST ENVIRONMENT STATUS:
 - R4: UP (172.16.39.104) ✅
 
 DEPLOYMENT NOTES:
-- Port: 5007 (configurable in APP_CONFIG['PORT'])
+- Port: 5010 (configurable in APP_CONFIG['PORT'])
 - All original dependencies preserved: Flask, SocketIO, Paramiko, Netmiko, ReportLab, etc.
 - Embedded HTML templates (no external template files required)
 - Complete backward compatibility with original inventory formats
@@ -96,6 +96,7 @@ TEMPLATE_INDEX_NAME = "index_page.html"
 TEMPLATE_SETTINGS_NAME = "settings_page.html"
 TEMPLATE_VIEW_JSON_NAME = "view_json_page.html"
 TEMPLATE_EDIT_INVENTORY_NAME = "edit_inventory_page.html"
+TEMPLATE_COMMAND_BUILDER_NAME = "command_builder_page.html"
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -113,6 +114,252 @@ interactive_sessions: Dict[str, Dict[str, Any]] = {}
 # Enhanced tracking for down devices (NEW ENHANCEMENT)
 DOWN_DEVICES: Dict[str, Dict[str, Any]] = {}
 DEVICE_STATUS_TRACKING: Dict[str, str] = {}
+
+
+# Command Logging System
+COMMAND_LOGS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "COMMAND-LOGS")
+DEVICE_COMMAND_LOGS = {}  # Store command logs for each device
+
+
+# Command Logging System
+COMMAND_LOGS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "COMMAND-LOGS")
+DEVICE_COMMAND_LOGS = {}  # Store command logs for each device
+
+def ensure_command_logs_directory():
+    """Ensure the command logs directory exists"""
+    if not os.path.exists(COMMAND_LOGS_DIR):
+        os.makedirs(COMMAND_LOGS_DIR)
+        print(f"[INFO] Created command logs directory: {COMMAND_LOGS_DIR}")
+
+def log_device_command(device_name: str, command: str, response: str, status: str = "SUCCESS"):
+    """Log a command and its response for a specific device"""
+    ensure_command_logs_directory()
+    
+    # Initialize device log if not exists
+    if device_name not in DEVICE_COMMAND_LOGS:
+        DEVICE_COMMAND_LOGS[device_name] = {
+            'ping_status': 'Unknown',
+            'ssh_status': 'Unknown', 
+            'commands': [],
+            'summary': {'total_commands': 0, 'successful_commands': 0, 'failed_commands': 0}
+        }
+    
+    # Add command to log
+    DEVICE_COMMAND_LOGS[device_name]['commands'].append({
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'command': command,
+        'response': response,
+        'status': status
+    })
+    
+    # Update summary
+    DEVICE_COMMAND_LOGS[device_name]['summary']['total_commands'] += 1
+    if status == "SUCCESS":
+        DEVICE_COMMAND_LOGS[device_name]['summary']['successful_commands'] += 1
+    else:
+        DEVICE_COMMAND_LOGS[device_name]['summary']['failed_commands'] += 1
+
+def update_device_connection_status(device_name: str, ping_status: str = None, ssh_status: str = None):
+    """Update ping and SSH status for a device"""
+    if device_name not in DEVICE_COMMAND_LOGS:
+        DEVICE_COMMAND_LOGS[device_name] = {
+            'ping_status': 'Unknown',
+            'ssh_status': 'Unknown',
+            'commands': [],
+            'summary': {'total_commands': 0, 'successful_commands': 0, 'failed_commands': 0}
+        }
+    
+    if ping_status:
+        DEVICE_COMMAND_LOGS[device_name]['ping_status'] = ping_status
+    if ssh_status:
+        DEVICE_COMMAND_LOGS[device_name]['ssh_status'] = ssh_status
+
+def save_device_command_log_to_file(device_name: str):
+    """Save device command log to a text file"""
+    if device_name not in DEVICE_COMMAND_LOGS:
+        return None
+        
+    ensure_command_logs_directory()
+    log_data = DEVICE_COMMAND_LOGS[device_name]
+    
+    # Create filename with timestamp
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f"{device_name}_commands_{timestamp}.txt"
+    filepath = os.path.join(COMMAND_LOGS_DIR, filename)
+    
+    try:
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(f"ROUTER COMMAND LOG: {device_name}\n")
+            f.write("=" * 50 + "\n")
+            f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Ping Status: {log_data['ping_status']}\n")
+            f.write(f"SSH Status: {log_data['ssh_status']}\n")
+            f.write(f"Total Commands: {log_data['summary']['total_commands']}\n")
+            f.write(f"Successful Commands: {log_data['summary']['successful_commands']}\n")
+            f.write(f"Failed Commands: {log_data['summary']['failed_commands']}\n")
+            f.write("=" * 50 + "\n\n")
+            
+            if log_data['commands']:
+                f.write("COMMAND EXECUTION LOG:\n")
+                f.write("-" * 30 + "\n")
+                
+                for i, cmd_log in enumerate(log_data['commands'], 1):
+                    f.write(f"\n[{i}] {cmd_log['timestamp']} - {cmd_log['status']}\n")
+                    f.write(f"Command: {cmd_log['command']}\n")
+                    f.write("Response:\n")
+                    f.write(cmd_log['response'])
+                    f.write("\n" + "-" * 30 + "\n")
+            else:
+                f.write("No commands were executed successfully.\n")
+        
+        print(f"[INFO] Saved command log: {filepath}")
+        return filepath
+        
+    except Exception as e:
+        print(f"[ERROR] Failed to save command log for {device_name}: {e}")
+        return None
+
+def get_all_command_log_files():
+    """Get list of all command log files"""
+    ensure_command_logs_directory()
+    log_files = []
+    
+    try:
+        for filename in os.listdir(COMMAND_LOGS_DIR):
+            if filename.endswith('_commands_') and filename.endswith('.txt'):
+                filepath = os.path.join(COMMAND_LOGS_DIR, filename)
+                file_stat = os.stat(filepath)
+                log_files.append({
+                    'filename': filename,
+                    'filepath': filepath,
+                    'size': file_stat.st_size,
+                    'modified': datetime.fromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
+                    'device_name': filename.split('_commands_')[0]
+                })
+    except Exception as e:
+        print(f"[ERROR] Failed to list command log files: {e}")
+    
+    return sorted(log_files, key=lambda x: x['modified'], reverse=True)
+
+
+
+def ensure_command_logs_directory():
+    """Ensure the command logs directory exists"""
+    if not os.path.exists(COMMAND_LOGS_DIR):
+        os.makedirs(COMMAND_LOGS_DIR)
+        print(f"[INFO] Created command logs directory: {COMMAND_LOGS_DIR}")
+
+def log_device_command(device_name: str, command: str, response: str, status: str = "SUCCESS"):
+    """Log a command and its response for a specific device"""
+    ensure_command_logs_directory()
+    
+    # Initialize device log if not exists
+    if device_name not in DEVICE_COMMAND_LOGS:
+        DEVICE_COMMAND_LOGS[device_name] = {
+            'ping_status': 'Unknown',
+            'ssh_status': 'Unknown', 
+            'commands': [],
+            'summary': {'total_commands': 0, 'successful_commands': 0, 'failed_commands': 0}
+        }
+    
+    # Add command to log
+    DEVICE_COMMAND_LOGS[device_name]['commands'].append({
+        'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'command': command,
+        'response': response,
+        'status': status
+    })
+    
+    # Update summary
+    DEVICE_COMMAND_LOGS[device_name]['summary']['total_commands'] += 1
+    if status == "SUCCESS":
+        DEVICE_COMMAND_LOGS[device_name]['summary']['successful_commands'] += 1
+    else:
+        DEVICE_COMMAND_LOGS[device_name]['summary']['failed_commands'] += 1
+
+def update_device_connection_status(device_name: str, ping_status: str = None, ssh_status: str = None):
+    """Update ping and SSH status for a device"""
+    if device_name not in DEVICE_COMMAND_LOGS:
+        DEVICE_COMMAND_LOGS[device_name] = {
+            'ping_status': 'Unknown',
+            'ssh_status': 'Unknown',
+            'commands': [],
+            'summary': {'total_commands': 0, 'successful_commands': 0, 'failed_commands': 0}
+        }
+    
+    if ping_status:
+        DEVICE_COMMAND_LOGS[device_name]['ping_status'] = ping_status
+    if ssh_status:
+        DEVICE_COMMAND_LOGS[device_name]['ssh_status'] = ssh_status
+
+def save_device_command_log_to_file(device_name: str):
+    """Save device command log to a text file"""
+    if device_name not in DEVICE_COMMAND_LOGS:
+        return None
+        
+    ensure_command_logs_directory()
+    log_data = DEVICE_COMMAND_LOGS[device_name]
+    
+    # Create filename with timestamp
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f"{device_name}_commands_{timestamp}.txt"
+    filepath = os.path.join(COMMAND_LOGS_DIR, filename)
+    
+    try:
+        with open(filepath, 'w', encoding='utf-8') as f:
+            f.write(f"ROUTER COMMAND LOG: {device_name}\n")
+            f.write("=" * 50 + "\n")
+            f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Ping Status: {log_data['ping_status']}\n")
+            f.write(f"SSH Status: {log_data['ssh_status']}\n")
+            f.write(f"Total Commands: {log_data['summary']['total_commands']}\n")
+            f.write(f"Successful Commands: {log_data['summary']['successful_commands']}\n")
+            f.write(f"Failed Commands: {log_data['summary']['failed_commands']}\n")
+            f.write("=" * 50 + "\n\n")
+            
+            if log_data['commands']:
+                f.write("COMMAND EXECUTION LOG:\n")
+                f.write("-" * 30 + "\n")
+                
+                for i, cmd_log in enumerate(log_data['commands'], 1):
+                    f.write(f"\n[{i}] {cmd_log['timestamp']} - {cmd_log['status']}\n")
+                    f.write(f"Command: {cmd_log['command']}\n")
+                    f.write("Response:\n")
+                    f.write(cmd_log['response'])
+                    f.write("\n" + "-" * 30 + "\n")
+            else:
+                f.write("No commands were executed successfully.\n")
+        
+        print(f"[INFO] Saved command log: {filepath}")
+        return filepath
+        
+    except Exception as e:
+        print(f"[ERROR] Failed to save command log for {device_name}: {e}")
+        return None
+
+def get_all_command_log_files():
+    """Get list of all command log files"""
+    ensure_command_logs_directory()
+    log_files = []
+    
+    try:
+        for filename in os.listdir(COMMAND_LOGS_DIR):
+            if filename.endswith('_commands_') and filename.endswith('.txt'):
+                filepath = os.path.join(COMMAND_LOGS_DIR, filename)
+                file_stat = os.stat(filepath)
+                log_files.append({
+                    'filename': filename,
+                    'filepath': filepath,
+                    'size': file_stat.st_size,
+                    'modified': datetime.fromtimestamp(file_stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
+                    'device_name': filename.split('_commands_')[0]
+                })
+    except Exception as e:
+        print(f"[ERROR] Failed to list command log files: {e}")
+    
+    return sorted(log_files, key=lambda x: x['modified'], reverse=True)
+
+
 
 def generate_placeholder_config_for_down_device(device_name: str, device_ip: str, failure_reason: str, base_report_dir: str) -> str:
     """
@@ -311,17 +558,58 @@ Recommended Actions:
 # === END ENHANCED FEATURES ADDITIONS ===
 
 def strip_ansi(text: str) -> str:
+    """Remove ANSI escape sequences from text."""
     return re.sub(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])', '', text)
 
 def sanitize_log_message(msg: str) -> str:
+    """Enhanced sanitization function that masks usernames with **** and passwords with ####"""
     sanitized_msg = str(msg)
+    
     if APP_CONFIG:
+        # First handle specific parameter patterns to avoid conflicts
+        # Handle quotes and specific parameter patterns first
+        sanitized_msg = re.sub(r"'username':\s*'([^']+)'", r"'username': '****'", sanitized_msg)
+        sanitized_msg = re.sub(r"'password':\s*'([^']+)'", r"'password': '####'", sanitized_msg)
+        sanitized_msg = re.sub(r'"username":\s*"([^"]+)"', r'"username": "****"', sanitized_msg)
+        sanitized_msg = re.sub(r'"password":\s*"([^"]+)"', r'"password": "####"', sanitized_msg)
+        
+        # Handle function parameter patterns (username=value, password=value)
+        sanitized_msg = re.sub(r'username=([^\s,)]+)', r'username=****', sanitized_msg)
+        sanitized_msg = re.sub(r'password=([^\s,)]+)', r'password=####', sanitized_msg)
+        
+        # Handle generic patterns with colons and equals, but be more specific
+        # Only replace if not already processed
+        if "'username': '****'" not in sanitized_msg:
+            sanitized_msg = re.sub(r'\buser\s+\'([^\']+)\'', r'user \'****\'', sanitized_msg)
+            sanitized_msg = re.sub(r'\busername\s+\'([^\']+)\'', r'username \'****\'', sanitized_msg)
+        
+        # SSH connection string patterns (user@host)
+        sanitized_msg = re.sub(r'(\w+)@([\w\.-]+)', r'****@\2', sanitized_msg)
+        
+        # Now handle specific configured values replacement
+        # Replace exact username values
+        for key in ["JUMP_USERNAME", "DEVICE_USERNAME"]:
+            value = APP_CONFIG.get(key)
+            if value and len(value) > 0:
+                # Only replace standalone instances to avoid affecting other text
+                sanitized_msg = re.sub(r'\b' + re.escape(value) + r'\b', "****", sanitized_msg)
+        
+        # Replace exact password values  
         for key in ["JUMP_PASSWORD", "DEVICE_PASSWORD", "DEVICE_ENABLE"]:
             value = APP_CONFIG.get(key)
-            if value and len(value) > 2:
-                sanitized_msg = sanitized_msg.replace(value, "*******")
-    sanitized_msg = re.sub(r'(password|secret)\s*[:=]\s*([^\s,;"\']+)', r'\1: ********', sanitized_msg, flags=re.IGNORECASE)
-    sanitized_msg = re.sub(r'(password|secret)\s+([^\s,;"\']+)', r'\1 ********', sanitized_msg, flags=re.IGNORECASE)
+            if value and len(value) > 0:
+                # Only replace standalone instances to avoid affecting other text
+                sanitized_msg = re.sub(r'\b' + re.escape(value) + r'\b', "####", sanitized_msg)
+        
+        # Handle remaining generic patterns that weren't caught above
+        sanitized_msg = re.sub(r'(password|secret|pass|pwd)[:=]\s*([^\s,;"\']+)', r'\1=####', sanitized_msg, flags=re.IGNORECASE)
+        sanitized_msg = re.sub(r'(username|user)[:=]\s*([^\s,;"\']+)', r'\1=****', sanitized_msg, flags=re.IGNORECASE)
+    
+    # Also check SENSITIVE_STRINGS_TO_REDACT for any additional sensitive strings
+    for sensitive_string in SENSITIVE_STRINGS_TO_REDACT:
+        if sensitive_string and len(sensitive_string) > 0:
+            sanitized_msg = sanitized_msg.replace(sensitive_string, "####")
+    
     return sanitized_msg
 
 def log_to_ui_and_console(msg, console_only=False, is_sensitive=False, end="\n", **kw):
@@ -336,6 +624,7 @@ def log_to_ui_and_console(msg, console_only=False, is_sensitive=False, end="\n",
     
     # Always add to UI logs regardless of console_only flag
     # This ensures all logs are visible in both places
+    # First strip ANSI codes, then sanitize sensitive data
     processed_msg_ui = strip_ansi(sanitize_log_message(str(msg)))
     ui_msg_formatted = f"[{timestamp}] {processed_msg_ui}"
     cleaned_progress_marker = " कार्य प्रगति पर है "
@@ -375,6 +664,18 @@ def execute_verbose_command(ssh_client, command, timeout=30, device_name="Unknow
         stderr_data = stderr.read().decode('utf-8', errors='replace').strip()
         exit_status = stdout.channel.recv_exit_status()
         
+        # Determine command status
+        command_status = "SUCCESS" if exit_status == 0 else "FAILED"
+        full_response = stdout_data
+        if stderr_data:
+            full_response += f"\nSTDERR: {stderr_data}"
+        
+        # Log command to command logging system
+        try:
+            log_device_command(device_name, command, full_response, command_status)
+        except Exception as log_err:
+            print(f"[WARNING] Failed to log command for {device_name}: {log_err}")
+        
         if stdout_data:
             # Limit output to prevent flooding the UI
             truncated = len(stdout_data) > 500
@@ -386,41 +687,55 @@ def execute_verbose_command(ssh_client, command, timeout=30, device_name="Unknow
         log_to_ui_and_console(f"[{device_name}] Command completed with exit status: {exit_status}")
         return True, stdout_data, stderr_data, exit_status
     except Exception as e:
+        # Log failed command to command logging system
+        try:
+            log_device_command(device_name, command, f"Exception: {str(e)}", "FAILED")
+        except Exception as log_err:
+            print(f"[WARNING] Failed to log failed command for {device_name}: {log_err}")
+            
         log_to_ui_and_console(f"[{device_name}] Command execution failed: {e}")
         return False, "", str(e), -1
 
 def ping_local(host: str) -> bool:
-    """Ping a host from the local machine."""
-    # Check if host is empty or None
-    if not host:
-        log_to_ui_and_console(f"{Fore.RED}Invalid host address: empty{Style.RESET_ALL}", console_only=True)
-        return False
-        
-    # Check if host is localhost or loopback
-    if host in ['localhost', '127.0.0.1']:
-        return True
-        
-    is_windows = sys.platform.startswith('win')
-    param_count = '-n' if is_windows else '-c'
-    param_timeout_opt = '-w' if is_windows else '-W'
-    timeout_val = "1000" if is_windows else "1"
-    command = ["ping", param_count, "1", param_timeout_opt, timeout_val, host]
+    process_timeout = 10
+    command = ["ping", "-c", "2", "-W", "1", host]
+    
     try:
-        # Shorter timeout to avoid long waits
-        process_timeout = 2
-        log_to_ui_and_console(f"Pinging {host}...", console_only=True)
         result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=process_timeout)
         success = result.returncode == 0
         if success:
             log_to_ui_and_console(f"{Fore.GREEN}Ping to {host} successful.{Style.RESET_ALL}", console_only=True)
         else:
             log_to_ui_and_console(f"{Fore.YELLOW}Ping to {host} failed with return code {result.returncode}.{Style.RESET_ALL}", console_only=True)
+        
+        # Log ping status
+        try:
+            status = "SUCCESS" if success else "FAILED"
+            update_device_connection_status(host, ping_status=status)
+        except Exception as log_err:
+            print(f"[WARNING] Failed to log ping status for {host}: {log_err}")
+        
         return success
+        
     except subprocess.TimeoutExpired:
         log_to_ui_and_console(f"{Fore.YELLOW}Local ping to {host} timed out.{Style.RESET_ALL}", console_only=True)
+        
+        # Log ping status
+        try:
+            update_device_connection_status(host, ping_status="FAILED")
+        except Exception as log_err:
+            print(f"[WARNING] Failed to log ping status for {host}: {log_err}")
+        
         return False
     except Exception as e:
         log_to_ui_and_console(f"{Fore.RED}Local ping to {host} error: {e}{Style.RESET_ALL}", console_only=True)
+        
+        # Log ping status
+        try:
+            update_device_connection_status(host, ping_status="FAILED")
+        except Exception as log_err:
+            print(f"[WARNING] Failed to log ping status for {host}: {log_err}")
+        
         return False
 
 def ping_remote(ssh: paramiko.SSHClient, ip: str) -> bool:
@@ -1789,6 +2104,8 @@ def run_the_audit_logic():
                 if secret_collect: net_connect.enable()
                 log_to_ui_and_console(f"  {mark_audit(True)} Successfully connected to {r_name_collect}."); last_run_summary_data["per_router_status"][r_name_collect] = "Collection in Progress"; current_audit_progress["current_device_hostname"] = f"{r_name_collect} (Connected)"
                 if r_name_collect in detailed_reports_manifest: detailed_reports_manifest[r_name_collect]["status"] = "Collection in Progress"
+                # Initialize hostname variable to ensure it's always defined (fixes UnboundLocalError)
+                hostname = r_name_collect
                 # Verbose logging for router commands
                 log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Executing: terminal length 0")
                 try:
@@ -1796,22 +2113,22 @@ def run_the_audit_logic():
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Set terminal length 0 successful")
                     if output:
                         log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Command output:\n{output[:200]}{'...' if len(output) > 200 else ''}")
+                    
+                    # Log to command logging system
+                    try:
+                        log_device_command(r_name_collect, "terminal length 0", output or "No output", "SUCCESS")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log command for {r_name_collect}: {log_err}")
+                        
                 except Exception as e:
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Error setting terminal length: {e}")
-                
-                # Get hostname with verbose logging
-                log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Executing: show hostname")
-                try:
-                    hostname_output = net_connect.send_command("show hostname", expect_string=r"#")
-                    hostname = hostname_output.strip() if hostname_output else r_name_collect
-                    current_audit_progress["current_device_hostname"] = hostname
-                    log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Device hostname is '{hostname}'")
-                    if hostname_output:
-                        log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Command output:\n{hostname_output}")
-                except Exception as e:
-                    log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Error getting hostname: {e}")
-                    hostname = r_name_collect
-                
+                    # hostname already initialized above, no need to set again
+                    
+                    # Log failed command to command logging system
+                    try:
+                        log_device_command(r_name_collect, "terminal length 0", f"Exception: {str(e)}", "FAILED")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log failed command for {r_name_collect}: {log_err}")
                 # Initialize command output variables
                 show_run_section_line_cmd_output = ""; show_line_cmd_output = ""
                 
@@ -1822,9 +2139,21 @@ def run_the_audit_logic():
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Successfully retrieved line configurations")
                     if show_run_section_line_cmd_output:
                         log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Command output:\n{show_run_section_line_cmd_output[:500]}{'...' if len(show_run_section_line_cmd_output) > 500 else ''}")
+                    
+                    # Log to command logging system
+                    try:
+                        log_device_command(r_name_collect, "show running-config | include ^line", show_run_section_line_cmd_output or "No output", "SUCCESS")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log command for {r_name_collect}: {log_err}")
+                        
                 except Exception as e_cmd_run_line:
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] {Fore.YELLOW}Warning:{Style.RESET_ALL} Could not retrieve line configurations: {str(e_cmd_run_line)}")
-                
+                    
+                    # Log failed command to command logging system
+                    try:
+                        log_device_command(r_name_collect, "show running-config | include ^line", f"Exception: {str(e_cmd_run_line)}", "FAILED")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log failed command for {r_name_collect}: {log_err}")
                 # Get show line output with verbose logging
                 log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Executing: show line")
                 try:
@@ -1832,8 +2161,21 @@ def run_the_audit_logic():
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Successfully retrieved 'show line' output")
                     if show_line_cmd_output:
                         log_to_ui_and_console(f"[ROUTER:{r_name_collect}] Command output:\n{show_line_cmd_output[:500]}{'...' if len(show_line_cmd_output) > 500 else ''}")
+                    
+                    # Log to command logging system
+                    try:
+                        log_device_command(r_name_collect, "show line", show_line_cmd_output or "No output", "SUCCESS")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log command for {r_name_collect}: {log_err}")
+                        
                 except Exception as e_cmd_show_line:
                     log_to_ui_and_console(f"[ROUTER:{r_name_collect}] {Fore.YELLOW}Warning:{Style.RESET_ALL} Could not retrieve 'show line' output: {str(e_cmd_show_line)}")
+                    
+                    # Log failed command to command logging system
+                    try:
+                        log_device_command(r_name_collect, "show line", f"Exception: {str(e_cmd_show_line)}", "FAILED")
+                    except Exception as log_err:
+                        print(f"[WARNING] Failed to log failed command for {r_name_collect}: {log_err}")
                 violations_count_for_this_router = 0; physical_line_telnet_violations_details = []; router_has_physical_line_violation = False
                 current_physical_line = None; physical_line_buffer = []
                 target_line_pattern = re.compile(r"^\s*line\s+(?!(?:con|aux|vty)\b)(\d+(?:/\d+)*(?:\s+\d+)?)\s*$")
@@ -1892,6 +2234,12 @@ def run_the_audit_logic():
                 device_final_status = "success" if violations_count_for_this_router == 0 else "warning"
                 update_audit_progress(device=r_name_collect, status=device_final_status, completed=True) # Real-time update
                 last_run_summary_data["per_router_status"][r_name_collect] = f"Collected (as {hostname}), Physical Line Violations: {violations_count_for_this_router}"; current_run_failures[r_name_collect] = None
+                
+                # Save command logs to file
+                try:
+                    save_device_command_log_to_file(r_name_collect)
+                except Exception as save_log_err:
+                    print(f"[WARNING] Failed to save command log for {r_name_collect}: {save_log_err}")
             except NetmikoTimeoutException as e_nm_timeout: 
                 err_msg = f"Netmiko Timeout for {r_name_collect}: {e_nm_timeout}"
                 log_to_ui_and_console(f"{Fore.RED}  {mark_audit(False)} {sanitize_log_message(err_msg)}{Style.RESET_ALL}")
@@ -2020,7 +2368,7 @@ def run_the_audit_logic():
             print(f"Error emitting progress update: {e}")
     except Exception as e_audit_main:
         error_msg = f"UNEXPECTED CRITICAL ERROR: {type(e_audit_main).__name__} - {e_audit_main}"; log_to_ui_and_console(f"{Fore.RED}{sanitize_log_message(error_msg)}{Style.RESET_ALL}")
-        import traceback; tb_str = traceback.format_exc(); log_to_ui_and_console(sanitize_log_message(tb_str)); ui_logs.append(strip_ansi(sanitize_log_message(tb_str)))
+        import traceback; tb_str = traceback.format_exc(); log_to_ui_and_console(sanitize_log_message(tb_str)); ui_logs.append(sanitize_log_message(tb_str))
         audit_status = f"Failed Critically: {type(e_audit_main).__name__}"; current_audit_progress["status_message"] = audit_status
     finally:
         current_audit_progress["current_phase"] = "Finalizing"
@@ -2271,6 +2619,9 @@ HTML_BASE_LAYOUT = r"""<!DOCTYPE html>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/manage_inventories"><i class="fas fa-tasks"></i> Manage Inventories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/command_logs"><i class="fas fa-terminal"></i> Command Logs</a>
                     </li>
                 </ul>
                 <span class="navbar-text">
@@ -2968,11 +3319,11 @@ HTML_INDEX_PAGE = r"""{% extends "base_layout.html" %}
         }
     });
 </script>
-{% endblock %}
-"""
+{% endblock %}"""
 HTML_SETTINGS_TEMPLATE_CONTENT = """
 {% extends "base_layout.html" %}
 {% block title %}Settings - Router Audit & Terminal Pro{% endblock %}
+{% block nav_settings %}active{% endblock %}
 {% block content %}
 <h1><i class="fas fa-cogs"></i> Application Settings</h1>
 <p class="lead">Configure jump host details, default device credentials, and global inventory settings.</p>
@@ -2982,25 +3333,25 @@ HTML_SETTINGS_TEMPLATE_CONTENT = """
     <div class="card-body">
         <form method="POST" action="{{ url_for('settings_route') }}">
             <h5>Jump Host Configuration</h5>
-            <div class="form-row">
-                <div class="form-group col-md-6"><label for="jump_host">Jump Host IP/Hostname:</label><input type="text" class="form-control" id="jump_host" name="jump_host" value="{{ config.JUMP_HOST }}"></div>
-                <div class="form-group col-md-6"><label for="jump_ping_path">Jump Host Ping Executable Path:</label><input type="text" class="form-control" id="jump_ping_path" name="jump_ping_path" value="{{ config.JUMP_PING_PATH }}" placeholder="e.g., /bin/ping"></div>
+            <div class="row">
+                <div class="col-md-6"><label for="jump_host" class="form-label">Jump Host IP/Hostname:</label><input type="text" class="form-control" id="jump_host" name="jump_host" value="{{ config.JUMP_HOST }}"></div>
+                <div class="col-md-6"><label for="jump_ping_path" class="form-label">Jump Host Ping Executable Path:</label><input type="text" class="form-control" id="jump_ping_path" name="jump_ping_path" value="{{ config.JUMP_PING_PATH }}" placeholder="e.g., /bin/ping"></div>
             </div>
-            <div class="form-row">
-                <div class="form-group col-md-6"><label for="jump_username">Jump Host Username:</label><input type="text" class="form-control" id="jump_username" name="jump_username" value="{{ config.JUMP_USERNAME }}"></div>
-                <div class="form-group col-md-6"><label for="jump_password">Jump Host Password:</label><input type="password" class="form-control" id="jump_password" name="jump_password" placeholder="Leave blank to keep current"><small class="form-text text-muted">Passwords stored in .env file.</small></div>
+            <div class="row mt-3">
+                <div class="col-md-6"><label for="jump_username" class="form-label">Jump Host Username:</label><input type="text" class="form-control" id="jump_username" name="jump_username" value="{{ config.JUMP_USERNAME }}"></div>
+                <div class="col-md-6"><label for="jump_password" class="form-label">Jump Host Password:</label><input type="password" class="form-control" id="jump_password" name="jump_password" placeholder="Leave blank to keep current"><small class="form-text text-muted">Passwords stored in .env file.</small></div>
             </div>
             <hr>
             <h5>Default Device Credentials (used if not in inventory)</h5>
-            <div class="form-row">
-                <div class="form-group col-md-4"><label for="device_username">Default Device Username:</label><input type="text" class="form-control" id="device_username" name="device_username" value="{{ config.DEVICE_USERNAME }}"></div>
-                <div class="form-group col-md-4"><label for="device_password">Default Device Password:</label><input type="password" class="form-control" id="device_password" name="device_password" placeholder="Leave blank to keep current"></div>
-                <div class="form-group col-md-4"><label for="device_enable_password">Default Device Enable Password:</label><input type="password" class="form-control" id="device_enable_password" name="device_enable_password" placeholder="Leave blank or empty to clear"></div>
+            <div class="row">
+                <div class="col-md-4"><label for="device_username" class="form-label">Default Device Username:</label><input type="text" class="form-control" id="device_username" name="device_username" value="{{ config.DEVICE_USERNAME }}"></div>
+                <div class="col-md-4"><label for="device_password" class="form-label">Default Device Password:</label><input type="password" class="form-control" id="device_password" name="device_password" placeholder="Leave blank to keep current"></div>
+                <div class="col-md-4"><label for="device_enable_password" class="form-label">Default Device Enable Password:</label><input type="password" class="form-control" id="device_enable_password" name="device_enable_password" placeholder="Leave blank or empty to clear"></div>
             </div>
             <hr>
              <h5>Global Inventory Settings</h5>
-             <div class="form-group">
-                <label>Inventory Format:</label>
+             <div class="mb-3">
+                <label class="form-label">Inventory Format:</label>
                 <p class="form-control-static">CSV (.csv) <small class="text-muted">- The application now exclusively uses CSV format for inventories</small></p>
             </div>
             <button type="submit" class="btn btn-primary mt-3"><i class="fas fa-save"></i> Save All Settings</button>
@@ -3013,6 +3364,7 @@ HTML_VIEW_JSON_TEMPLATE_CONTENT = """{% extends "base_layout.html" %} ...""" # (
 HTML_EDIT_INVENTORY_TEMPLATE_CONTENT = """
 {% extends "base_layout.html" %}
 {% block title %}Manage Inventories{% endblock %}
+{% block nav_inventories %}active{% endblock %}
 {% block content %}
 <h1><i class="fas fa-tasks"></i> Manage Inventory Files</h1>
 <p class="lead">Upload new inventory files (YAML or CSV), select an existing file to be active, edit content, or export the current active inventory to CSV.</p>
@@ -3022,19 +3374,19 @@ HTML_EDIT_INVENTORY_TEMPLATE_CONTENT = """
     <div class="card-body">
         <form method="POST" action="{{ url_for('manage_inventories_route') }}">
             <input type="hidden" name="action" value="set_active">
-            <div class="form-row align-items-end">
-                <div class="form-group col-md-8">
-                    <label for="active_inventory_file_manage"><strong>Current Active Inventory:</strong> {{ active_inventory }} (Format: {{ active_inventory_format.upper() }})</label>
+            <div class="row align-items-end">
+                <div class="col-md-8">
+                    <label for="active_inventory_file_manage" class="form-label"><strong>Current Active Inventory:</strong> {{ active_inventory }} (Format: {{ active_inventory_format.upper() }})</label>
                     <br>
-                    <label for="active_inventory_file_manage">Select an inventory file to make active:</label>
+                    <label for="active_inventory_file_manage" class="form-label">Select an inventory file to make active:</label>
                     <select class="form-control" id="active_inventory_file_manage" name="active_inventory_file_manage">
                         {% for inv_file in inventories %}
                         <option value="{{ inv_file }}" {% if inv_file == active_inventory %}selected{% endif %}>{{ inv_file }}</option>
                         {% endfor %}
                     </select>
                 </div>
-                <div class="form-group col-md-4">
-                     <button type="submit" class="btn btn-info btn-block"><i class="fas fa-check-circle"></i> Set as Active</button>
+                <div class="col-md-4">
+                     <button type="submit" class="btn btn-info w-100"><i class="fas fa-check-circle"></i> Set as Active</button>
                 </div>
             </div>
         </form>
@@ -3048,9 +3400,9 @@ HTML_EDIT_INVENTORY_TEMPLATE_CONTENT = """
     <div class="card-body">
         <form method="POST" action="{{ url_for('manage_inventories_route') }}" enctype="multipart/form-data">
             <input type="hidden" name="action" value="upload">
-            <div class="form-group">
-                <label for="inventory_file_upload_manage">Upload CSV (.csv) inventory file:</label>
-                <input type="file" class="form-control-file" id="inventory_file_upload_manage" name="inventory_file_upload_manage" accept=".csv">
+            <div class="mb-3">
+                <label for="inventory_file_upload_manage" class="form-label">Upload CSV (.csv) inventory file:</label>
+                <input type="file" class="form-control" id="inventory_file_upload_manage" name="inventory_file_upload_manage" accept=".csv">
                 <small class="form-text text-muted">
                     File will be validated and versioned (e.g., inventory-list-v01.csv). 
                     If valid, it will be set as active.
@@ -3068,10 +3420,10 @@ HTML_EDIT_INVENTORY_TEMPLATE_CONTENT = """
     <div class="card-body">
         <ul class="nav nav-tabs" id="editorTabs" role="tablist">
             <li class="nav-item">
-                <a class="nav-link active" id="csv-tab" data-toggle="tab" href="#csv-editor" role="tab" aria-controls="csv-editor" aria-selected="true">Table View</a>
+                <a class="nav-link active" id="csv-tab" data-bs-toggle="tab" href="#csv-editor" role="tab" aria-controls="csv-editor" aria-selected="true">Table View</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" id="raw-tab" data-toggle="tab" href="#raw-editor" role="tab" aria-controls="raw-editor" aria-selected="false">Raw CSV</a>
+                <a class="nav-link" id="raw-tab" data-bs-toggle="tab" href="#raw-editor" role="tab" aria-controls="raw-editor" aria-selected="false">Raw CSV</a>
             </li>
         </ul>
         
@@ -3093,7 +3445,7 @@ HTML_EDIT_INVENTORY_TEMPLATE_CONTENT = """
                     </div>
                     
                     <div class="btn-toolbar mb-3">
-                        <div class="btn-group mr-2">
+                        <div class="btn-group me-2">
                             <button type="button" class="btn btn-sm btn-success" id="addRowBtn"><i class="fas fa-plus-circle"></i> Add Row</button>
                             <button type="button" class="btn btn-sm btn-warning" id="addColumnBtn"><i class="fas fa-columns"></i> Add Column</button>
                         </div>
@@ -3107,7 +3459,7 @@ HTML_EDIT_INVENTORY_TEMPLATE_CONTENT = """
             <!-- Raw CSV Editor Tab -->
             <div class="tab-pane fade" id="raw-editor" role="tabpanel" aria-labelledby="raw-tab">
                 <form method="POST" action="{{ url_for('edit_active_inventory_content_route') }}">
-                    <div class="form-group mt-3">
+                    <div class="mb-3 mt-3">
                         <textarea class="form-control" id="raw_inventory_content_edit" name="inventory_content_edit" rows="20" placeholder="Loading CSV content...">{{ current_inventory_content_raw }}</textarea>
                         <small class="form-text text-muted">CSV format with header row. Changes will be saved as a new CSV version.</small>
                     </div>
@@ -3118,11 +3470,13 @@ HTML_EDIT_INVENTORY_TEMPLATE_CONTENT = """
         </div>
     </div>
 </div>
-
+{% endblock %}
+{% block extra_scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Parse the raw CSV data into an array of arrays
-    const csvData = parseCSV('{{ current_inventory_content_raw|replace("\n", "\\n")|replace("'", "\\'") | safe }}');
+    const csvData = parseCSV('{{ current_inventory_content_raw|replace("
+", "\n")|replace("'", "\'") | safe }}');
     
     // Populate the CSV table
     populateCSVTable(csvData);
@@ -3140,7 +3494,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Parse CSV string into array of arrays
 function parseCSV(csvString) {
     // Simple parser for well-formed CSV
-    const lines = csvString.trim().split('\\n');
+    const lines = csvString.trim().split('\n');
     const result = [];
     
     for (let i = 0; i < lines.length; i++) {
@@ -3152,7 +3506,7 @@ function parseCSV(csvString) {
         for (let j = 0; j < lines[i].length; j++) {
             const char = lines[i][j];
             
-            if (char === '"' && (j === 0 || lines[i][j-1] !== '\\')) {
+            if (char === '"' && (j === 0 || lines[i][j-1] !== '\')) {
                 inQuote = !inQuote;
             } else if (char === ',' && !inQuote) {
                 row.push(currentValue);
@@ -3170,150 +3524,387 @@ function parseCSV(csvString) {
 }
 
 // Populate the CSV table with data
-function populateCSVTable(data) {
-    if (!data || data.length === 0) {
-        return;
-    }
+function populateCSVTable(csvData) {
+    const header = document.getElementById('csvTableHeader');
+    const body = document.getElementById('csvTableBody');
     
-    const tableHeader = document.getElementById('csvTableHeader');
-    const tableBody = document.getElementById('csvTableBody');
+    // Clear existing content
+    header.innerHTML = '';
+    body.innerHTML = '';
+    
+    if (csvData.length === 0) return;
     
     // Create header row
-    let headerRow = document.createElement('tr');
-    for (let i = 0; i < data[0].length; i++) {
-        let th = document.createElement('th');
-        th.contentEditable = "true";
-        th.textContent = data[0][i];
+    const headerRow = document.createElement('tr');
+    csvData[0].forEach((headerText, index) => {
+        const th = document.createElement('th');
+        th.textContent = headerText;
+        th.innerHTML += '<button type="button" class="btn btn-sm btn-danger ms-2 delete-column" data-column="' + index + '"><i class="fas fa-times"></i></button>';
         headerRow.appendChild(th);
-    }
-    tableHeader.appendChild(headerRow);
+    });
+    // Add action column
+    const actionTh = document.createElement('th');
+    actionTh.textContent = 'Actions';
+    headerRow.appendChild(actionTh);
+    header.appendChild(headerRow);
     
     // Create data rows
-    for (let i = 1; i < data.length; i++) {
-        let tr = document.createElement('tr');
-        for (let j = 0; j < data[i].length; j++) {
-            let td = document.createElement('td');
-            td.contentEditable = "true";
-            td.textContent = data[i][j];
-            tr.appendChild(td);
-        }
-        
-        // Add delete row button
-        let deleteCell = document.createElement('td');
-        let deleteBtn = document.createElement('button');
-        deleteBtn.className = "btn btn-sm btn-danger";
-        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-        deleteBtn.addEventListener('click', function() {
-            tr.remove();
+    for (let i = 1; i < csvData.length; i++) {
+        const row = document.createElement('tr');
+        csvData[i].forEach((cellData, index) => {
+            const td = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control form-control-sm';
+            input.value = cellData;
+            input.dataset.row = i;
+            input.dataset.col = index;
+            td.appendChild(input);
+            row.appendChild(td);
         });
-        deleteCell.appendChild(deleteBtn);
-        tr.appendChild(deleteCell);
         
-        tableBody.appendChild(tr);
+        // Add delete button
+        const actionTd = document.createElement('td');
+        actionTd.innerHTML = '<button type="button" class="btn btn-sm btn-danger delete-row" data-row="' + i + '"><i class="fas fa-trash"></i></button>';
+        row.appendChild(actionTd);
+        body.appendChild(row);
     }
+    
+    // Add event listeners for delete buttons
+    document.querySelectorAll('.delete-row').forEach(btn => {
+        btn.addEventListener('click', deleteRow);
+    });
+    document.querySelectorAll('.delete-column').forEach(btn => {
+        btn.addEventListener('click', deleteColumn);
+    });
 }
 
-// Add a new row to the table
 function addRow() {
-    const tableBody = document.getElementById('csvTableBody');
-    const columnCount = document.getElementById('csvTableHeader').firstChild.childElementCount;
+    const table = document.getElementById('csvTable');
+    const tbody = table.querySelector('tbody');
+    const headerCount = table.querySelector('thead tr').children.length - 1; // Subtract action column
     
-    let newRow = document.createElement('tr');
-    
-    // Create empty cells for each column
-    for (let i = 0; i < columnCount; i++) {
-        let td = document.createElement('td');
-        td.contentEditable = "true";
-        td.textContent = "";
+    const newRow = document.createElement('tr');
+    for (let i = 0; i < headerCount; i++) {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control form-control-sm';
+        input.dataset.row = tbody.children.length + 1;
+        input.dataset.col = i;
+        td.appendChild(input);
         newRow.appendChild(td);
     }
     
-    // Add delete row button
-    let deleteCell = document.createElement('td');
-    let deleteBtn = document.createElement('button');
-    deleteBtn.className = "btn btn-sm btn-danger";
-    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-    deleteBtn.addEventListener('click', function() {
-        newRow.remove();
-    });
-    deleteCell.appendChild(deleteBtn);
-    newRow.appendChild(deleteCell);
+    // Add delete button
+    const actionTd = document.createElement('td');
+    actionTd.innerHTML = '<button type="button" class="btn btn-sm btn-danger delete-row" data-row="' + (tbody.children.length + 1) + '"><i class="fas fa-trash"></i></button>';
+    newRow.appendChild(actionTd);
+    tbody.appendChild(newRow);
     
-    tableBody.appendChild(newRow);
+    // Re-attach event listeners
+    newRow.querySelector('.delete-row').addEventListener('click', deleteRow);
 }
 
-// Add a new column to the table
 function addColumn() {
-    const headerRow = document.getElementById('csvTableHeader').firstChild;
-    const tableRows = document.getElementById('csvTableBody').children;
+    const headerName = prompt('Enter column header name:');
+    if (!headerName) return;
     
-    // Add new header cell
-    let newHeaderCell = document.createElement('th');
-    newHeaderCell.contentEditable = "true";
-    newHeaderCell.textContent = "New Column";
-    headerRow.insertBefore(newHeaderCell, headerRow.lastChild);
+    const table = document.getElementById('csvTable');
+    const headerRow = table.querySelector('thead tr');
+    const rows = table.querySelectorAll('tbody tr');
     
-    // Add new cell to each data row
-    for (let i = 0; i < tableRows.length; i++) {
-        let newCell = document.createElement('td');
-        newCell.contentEditable = "true";
-        newCell.textContent = "";
-        tableRows[i].insertBefore(newCell, tableRows[i].lastChild);
+    // Add header
+    const newTh = document.createElement('th');
+    newTh.textContent = headerName;
+    newTh.innerHTML += '<button type="button" class="btn btn-sm btn-danger ms-2 delete-column" data-column="' + (headerRow.children.length - 1) + '"><i class="fas fa-times"></i></button>';
+    headerRow.insertBefore(newTh, headerRow.lastElementChild);
+    
+    // Add empty cells to existing rows
+    rows.forEach((row, rowIndex) => {
+        const newTd = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control form-control-sm';
+        input.dataset.row = rowIndex + 1;
+        input.dataset.col = headerRow.children.length - 2;
+        newTd.appendChild(input);
+        row.insertBefore(newTd, row.lastElementChild);
+    });
+    
+    // Re-attach event listeners
+    newTh.querySelector('.delete-column').addEventListener('click', deleteColumn);
+}
+
+function deleteRow(event) {
+    if (confirm('Are you sure you want to delete this row?')) {
+        event.target.closest('tr').remove();
     }
 }
 
-// Prepare the CSV data from the table for submission
+function deleteColumn(event) {
+    const columnIndex = parseInt(event.target.closest('button').dataset.column);
+    if (confirm('Are you sure you want to delete this column?')) {
+        const table = document.getElementById('csvTable');
+        
+        // Remove header
+        table.querySelector('thead tr').children[columnIndex].remove();
+        
+        // Remove cells from all rows
+        table.querySelectorAll('tbody tr').forEach(row => {
+            if (row.children[columnIndex]) {
+                row.children[columnIndex].remove();
+            }
+        });
+    }
+}
+
 function prepareCSVData() {
-    const headerRow = document.getElementById('csvTableHeader').firstChild;
-    const tableRows = document.getElementById('csvTableBody').children;
-    let csvData = [];
+    const table = document.getElementById('csvTable');
+    const rows = [];
     
-    // Get header row values
-    let headers = [];
-    for (let i = 0; i < headerRow.children.length; i++) {
-        headers.push(headerRow.children[i].textContent);
-    }
-    csvData.push(headers);
-    
-    // Get data row values
-    for (let i = 0; i < tableRows.length; i++) {
-        let rowData = [];
-        for (let j = 0; j < headers.length; j++) {
-            rowData.push(tableRows[i].children[j].textContent);
+    // Get headers
+    const headerRow = [];
+    table.querySelectorAll('thead th').forEach((th, index) => {
+        if (index < table.querySelectorAll('thead th').length - 1) { // Skip action column
+            headerRow.push(th.textContent.replace(/\s*×\s*$/, '').trim()); // Remove delete button text
         }
-        csvData.push(rowData);
-    }
+    });
+    rows.push(headerRow);
+    
+    // Get data rows
+    table.querySelectorAll('tbody tr').forEach(row => {
+        const dataRow = [];
+        row.querySelectorAll('input').forEach(input => {
+            dataRow.push(input.value);
+        });
+        if (dataRow.length > 0) {
+            rows.push(dataRow);
+        }
+    });
     
     // Convert to CSV string
-    let csvString = '';
-    for (let i = 0; i < csvData.length; i++) {
-        for (let j = 0; j < csvData[i].length; j++) {
-            // Handle values with commas, quotes, or newlines
-            let value = csvData[i][j];
-            if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-                value = '"' + value.replace(/"/g, '""') + '"';
-            }
-            csvString += value;
-            if (j < csvData[i].length - 1) {
-                csvString += ',';
-            }
-        }
-        if (i < csvData.length - 1) {
-            csvString += '\n';
-        }
-    }
+    const csvString = rows.map(row => 
+        row.map(cell => 
+            cell.includes(',') || cell.includes('"') || cell.includes('\n') 
+                ? '"' + cell.replace(/"/g, '""') + '"' 
+                : cell
+        ).join(',')
+    ).join('\n');
     
-    // Set the hidden input value
     document.getElementById('csv-data-hidden').value = csvString;
 }
 </script>
 {% endblock %}
 """
 
+
+# Command Logs Templates
+HTML_COMMAND_LOGS_TEMPLATE = r"""{% extends "base_layout.html" %}
+
+{% block title %}Command Logs - Router Audit & Terminal Pro{% endblock %}
+
+{% block head_extra %}
+<style>
+    .status-card { 
+        border-radius: 10px; 
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
+    .log-preview {
+        max-height: 150px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1><i class="fas fa-terminal"></i> Command Logs Management</h1>
+<p class="lead">View and manage router command execution logs</p>
+
+<!-- Summary Cards -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="card status-card bg-primary text-white">
+            <div class="card-body text-center">
+                <h5><i class="fas fa-file-alt"></i> Total Log Files</h5>
+                <h2>{{ total_files }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card status-card bg-success text-white">
+            <div class="card-body text-center">
+                <h5><i class="fas fa-server"></i> Devices Logged</h5>
+                <h2>{{ current_session_logs.keys()|length }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card status-card bg-info text-white">
+            <div class="card-body text-center">
+                <h5><i class="fas fa-terminal"></i> Commands Executed</h5>
+                <h2>{% set total_commands = 0 %}{% for device in current_session_logs.values() %}{% set total_commands = total_commands + device.summary.total_commands %}{% endfor %}{{ total_commands }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card status-card bg-warning text-dark">
+            <div class="card-body text-center">
+                <h5><i class="fas fa-chart-line"></i> Success Rate</h5>
+                <h2>{% set total_commands = 0 %}{% set successful_commands = 0 %}{% for device in current_session_logs.values() %}{% set total_commands = total_commands + device.summary.total_commands %}{% set successful_commands = successful_commands + device.summary.successful_commands %}{% endfor %}{% if total_commands > 0 %}{{ "%.1f" | format((successful_commands / total_commands * 100)) }}%{% else %}0%{% endif %}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Current Session Logs -->
+{% if current_session_logs %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card status-card">
+            <div class="card-header bg-success text-white">
+                <h5><i class="fas fa-clock"></i> Current Session Logs</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for device_name, device_log in current_session_logs.items() %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card">
+                            <div class="card-header">
+                                <strong>{{ device_name }}</strong>
+                                <span class="badge {% if device_log.ping_status == 'SUCCESS' %}badge-success{% else %}badge-danger{% endif %} ml-2">
+                                    Ping: {{ device_log.ping_status }}
+                                </span>
+                                <span class="badge {% if device_log.ssh_status == 'SUCCESS' %}badge-success{% else %}badge-danger{% endif %}">
+                                    SSH: {{ device_log.ssh_status }}
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <p><strong>Commands:</strong> {{ device_log.summary.total_commands }} 
+                                   ({{ device_log.summary.successful_commands }} successful, {{ device_log.summary.failed_commands }} failed)</p>
+                                {% if device_log.commands %}
+                                <h6>Latest Commands:</h6>
+                                <div class="log-preview bg-light p-2 rounded">
+                                    {% for cmd in device_log.commands[-3:] %}
+                                    <small><strong>[{{ cmd.timestamp }}]</strong> {{ cmd.command }}<br>
+                                    <span class="text-muted">{{ cmd.response[:100] }}{% if cmd.response|length > 100 %}...{% endif %}</span><br><br></small>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Saved Log Files -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card status-card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-folder-open"></i> Saved Command Log Files</h5>
+            </div>
+            <div class="card-body">
+                {% if log_files %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Device</th>
+                                <th>Filename</th>
+                                <th>Size</th>
+                                <th>Modified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for log_file in log_files %}
+                            <tr>
+                                <td><strong>{{ log_file.device_name }}</strong></td>
+                                <td>{{ log_file.filename }}</td>
+                                <td>{{ "%.1f" | format(log_file.size / 1024) }} KB</td>
+                                <td>{{ log_file.modified }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_command_log', filename=log_file.filename) }}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                    <a href="{{ url_for('download_command_log', filename=log_file.filename) }}" class="btn btn-sm btn-success">
+                                        <i class="fas fa-download"></i> Download
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted">
+                    <i class="fas fa-folder-open fa-3x mb-3"></i>
+                    <p>No command log files found. Run an audit to generate logs.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}"""
+
+HTML_VIEW_COMMAND_LOG_TEMPLATE = r"""{% extends "base_layout.html" %}
+
+{% block title %}View Command Log - Router Audit & Terminal Pro{% endblock %}
+
+{% block head_extra %}
+<style>
+    .log-content {
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 5px;
+        padding: 15px;
+        white-space: pre-wrap;
+        max-height: 600px;
+        overflow-y: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="fas fa-file-alt"></i> Command Log: {{ filename }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <a href="{{ url_for('command_logs_route') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Command Logs
+                    </a>
+                    <a href="{{ url_for('download_command_log', filename=filename) }}" class="btn btn-success">
+                        <i class="fas fa-download"></i> Download
+                    </a>
+                </div>
+                <div class="log-content">{{ log_content }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}"""
+
 app.jinja_loader = DictLoader({
     TEMPLATE_BASE_NAME: HTML_BASE_LAYOUT, TEMPLATE_INDEX_NAME: HTML_INDEX_PAGE,
     TEMPLATE_SETTINGS_NAME: HTML_SETTINGS_TEMPLATE_CONTENT, TEMPLATE_VIEW_JSON_NAME: HTML_VIEW_JSON_TEMPLATE_CONTENT,
-    TEMPLATE_EDIT_INVENTORY_NAME: HTML_EDIT_INVENTORY_TEMPLATE_CONTENT
+    TEMPLATE_EDIT_INVENTORY_NAME: HTML_EDIT_INVENTORY_TEMPLATE_CONTENT,
+    "command_logs.html": HTML_COMMAND_LOGS_TEMPLATE, "view_command_log.html": HTML_VIEW_COMMAND_LOG_TEMPLATE
 })
 
 def allowed_file(filename: str) -> bool:
@@ -3775,7 +4366,7 @@ def audit_runner_thread_wrapper(): # (No changes needed in this function itself)
         if audit_status == "Completed": last_successful_audit_completion_time = datetime.now()
     except Exception as e_runner:
         log_to_ui_and_console(f"{Fore.RED}Critical error in audit runner: {e_runner}{Style.RESET_ALL}"); audit_status = f"Failed Critically: {e_runner}"; current_audit_progress["status_message"] = audit_status
-        import traceback; tb_str = traceback.format_exc(); log_to_ui_and_console(sanitize_log_message(tb_str)); ui_logs.append(strip_ansi(sanitize_log_message(tb_str)))
+        import traceback; tb_str = traceback.format_exc(); log_to_ui_and_console(sanitize_log_message(tb_str)); ui_logs.append(sanitize_log_message(tb_str))
     finally:
         ui_logs = [log_entry for log_entry in ui_logs if " कार्य प्रगति पर है " not in log_entry]
         if audit_status == "Running": audit_status = "Failed: Interrupted"; current_audit_progress["status_message"] = audit_status
@@ -3883,7 +4474,7 @@ def inject_now():
     # Inject both timestamp and port number for all templates
     return {
         'BROWSER_TIMESTAMP': datetime.now(timezone.utc),
-        'APP_PORT': app.config.get('PORT', 5007)  # Default to 5007 if not set
+        'APP_PORT': app.config.get('PORT', 5010)  # Default to 5010 if not set
     }
 
 def interactive_shell_reader(sid: str, paramiko_channel: paramiko.channel.Channel): # (No changes needed)
@@ -3996,7 +4587,325 @@ def enhanced_summary():
     }
     
     return jsonify(enhanced_summary_data)
-# === END ENHANCED FEATURES ===
+
+@app.route('/command_logs')
+def command_logs_route():
+    """Route to view all command logs"""
+    try:
+        log_files = get_all_command_log_files()
+        current_session_logs = DEVICE_COMMAND_LOGS.copy()
+        
+        return render_template('command_logs.html', 
+                             log_files=log_files,
+                             current_session_logs=current_session_logs,
+                             total_files=len(log_files))
+    except Exception as e:
+        flash(f"Error loading command logs: {e}", "danger")
+        return redirect(url_for('index'))
+
+@app.route('/download_command_log/<filename>')
+def download_command_log(filename):
+    """Download a specific command log file"""
+    try:
+        ensure_command_logs_directory()
+        return send_from_directory(COMMAND_LOGS_DIR, filename, as_attachment=True)
+    except Exception as e:
+        flash(f"Error downloading log file: {e}", "danger")
+        return redirect(url_for('command_logs_route'))
+
+@app.route('/view_command_log/<filename>')
+def view_command_log(filename):
+    """View a specific command log file"""
+    try:
+        ensure_command_logs_directory()
+        filepath = os.path.join(COMMAND_LOGS_DIR, filename)
+        
+        if not os.path.exists(filepath):
+            flash("Log file not found", "danger")
+            return redirect(url_for('command_logs_route'))
+        
+        with open(filepath, 'r', encoding='utf-8') as f:
+            log_content = f.read()
+        
+        return render_template('view_command_log.html', 
+                             filename=filename,
+                             log_content=log_content)
+    except Exception as e:
+        flash(f"Error viewing log file: {e}", "danger")
+        return redirect(url_for('command_logs_route'))
+
+# === COMMAND BUILDER FEATURE ===
+# Default command templates for different device types
+DEFAULT_COMMAND_TEMPLATES = {
+    'cisco_ios': {
+        'show_commands': [
+            'show version',
+            'show interfaces brief',
+            'show ip interface brief',
+            'show line',
+            'show users',
+            'show vlan brief',
+            'show spanning-tree brief',
+            'show cdp neighbors',
+            'show inventory'
+        ],
+        'show_run_commands': [
+            'show running-config',
+            'show running-config | include line',
+            'show running-config | include username',
+            'show running-config | include enable',
+            'show running-config | section line',
+            'show running-config | section interface',
+            'show running-config | section router',
+            'show running-config | section access-list'
+        ]
+    },
+    'cisco_ios_xe': {
+        'show_commands': [
+            'show version',
+            'show interfaces brief',
+            'show ip interface brief', 
+            'show line',
+            'show users',
+            'show vlan brief',
+            'show spanning-tree brief',
+            'show cdp neighbors',
+            'show inventory',
+            'show platform'
+        ],
+        'show_run_commands': [
+            'show running-config',
+            'show running-config | include line',
+            'show running-config | include username',
+            'show running-config | include enable',
+            'show running-config | section line',
+            'show running-config | section interface',
+            'show running-config | section router',
+            'show running-config | section access-list'
+        ]
+    },
+    'cisco_ios_xr': {
+        'show_commands': [
+            'show version',
+            'show interfaces brief',
+            'show ipv4 interface brief',
+            'show line',
+            'show users',
+            'show cdp neighbors',
+            'show inventory'
+        ],
+        'show_run_commands': [
+            'show running-config',
+            'show running-config line',
+            'show running-config username',
+            'show running-config interface',
+            'show running-config router'
+        ]
+    }
+}
+
+# Store user's custom commands (in production, this would be in a database)
+USER_CUSTOM_COMMANDS = {
+    'show_commands': [],
+    'show_run_commands': []
+}
+
+@app.route('/command_builder', methods=['GET', 'POST'])
+def command_builder():
+    """Command Builder feature - allows users to preview and customize commands"""
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'add_custom_command':
+            command_type = request.form.get('command_type', 'show_commands')
+            custom_command = request.form.get('custom_command', '').strip()
+            
+            if custom_command and custom_command not in USER_CUSTOM_COMMANDS.get(command_type, []):
+                if command_type not in USER_CUSTOM_COMMANDS:
+                    USER_CUSTOM_COMMANDS[command_type] = []
+                USER_CUSTOM_COMMANDS[command_type].append(custom_command)
+                flash(f"Custom command '{custom_command}' added successfully!", "success")
+            else:
+                flash("Command already exists or is empty!", "warning")
+        
+        elif action == 'remove_custom_command':
+            command_type = request.form.get('command_type', 'show_commands')
+            command_to_remove = request.form.get('command_to_remove', '')
+            
+            if command_to_remove in USER_CUSTOM_COMMANDS.get(command_type, []):
+                USER_CUSTOM_COMMANDS[command_type].remove(command_to_remove)
+                flash(f"Custom command '{command_to_remove}' removed successfully!", "success")
+            else:
+                flash("Command not found!", "warning")
+        
+        elif action == 'execute_custom_commands':
+            return redirect(url_for('execute_custom_commands'))
+    
+    # Get available device types from inventory
+    device_types = set()
+    if ACTIVE_INVENTORY_DATA:
+        for device in ACTIVE_INVENTORY_DATA.values():
+            if isinstance(device, dict) and 'device_type' in device:
+                device_types.add(device['device_type'])
+    
+    return render_template('command_builder.html',
+                         device_types=sorted(device_types),
+                         default_templates=DEFAULT_COMMAND_TEMPLATES,
+                         user_custom_commands=USER_CUSTOM_COMMANDS,
+                         inventory_devices=ACTIVE_INVENTORY_DATA)
+
+@app.route('/execute_custom_commands', methods=['GET', 'POST'])
+def execute_custom_commands():
+    """Execute custom commands on selected devices"""
+    if request.method == 'POST':
+        selected_devices = request.form.getlist('selected_devices')
+        selected_show_commands = request.form.getlist('selected_show_commands')
+        selected_run_commands = request.form.getlist('selected_run_commands')
+        
+        if not selected_devices:
+            flash("Please select at least one device!", "warning")
+            return redirect(url_for('command_builder'))
+        
+        if not selected_show_commands and not selected_run_commands:
+            flash("Please select at least one command to execute!", "warning")
+            return redirect(url_for('command_builder'))
+        
+        # Store the execution request for processing
+        custom_command_execution = {
+            'devices': selected_devices,
+            'show_commands': selected_show_commands,
+            'run_commands': selected_run_commands,
+            'timestamp': datetime.now().isoformat(),
+            'status': 'pending'
+        }
+        
+        # Start execution in background thread
+        execution_thread = threading.Thread(
+            target=execute_custom_commands_background,
+            args=(custom_command_execution,),
+            daemon=True
+        )
+        execution_thread.start()
+        
+        flash(f"Custom command execution started for {len(selected_devices)} device(s)!", "success")
+        return redirect(url_for('command_builder'))
+    
+    # GET request - show execution form
+    return redirect(url_for('command_builder'))
+
+def execute_custom_commands_background(execution_request):
+    """Background execution of custom commands"""
+    try:
+        devices = execution_request['devices']
+        show_commands = execution_request['show_commands'] 
+        run_commands = execution_request['run_commands']
+        
+        log_to_ui_and_console(f"[CUSTOM-CMD] Starting custom command execution for {len(devices)} device(s)")
+        
+        for device_name in devices:
+            if device_name not in ACTIVE_INVENTORY_DATA:
+                log_to_ui_and_console(f"[CUSTOM-CMD] Device {device_name} not found in inventory")
+                continue
+                
+            device_info = ACTIVE_INVENTORY_DATA[device_name]
+            device_ip = device_info.get('ip_address', 'Unknown')
+            device_type = device_info.get('device_type', 'cisco_ios')
+            
+            log_to_ui_and_console(f"[CUSTOM-CMD] Executing commands on {device_name} ({device_ip})")
+            
+            # Create custom command log entry
+            log_device_command(device_name, "CUSTOM_COMMAND_SESSION_START", f"Starting custom command execution", "INFO")
+            
+            try:
+                # Connect to device (reuse existing connection logic)
+                net_connect = establish_device_connection(device_name, device_ip, device_type)
+                
+                if net_connect:
+                    # Execute show commands
+                    for cmd in show_commands:
+                        try:
+                            log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Executing '{cmd}'")
+                            output = execute_verbose_command(net_connect, cmd, device_name=device_name)
+                            log_device_command(device_name, cmd, output[:1000] + "..." if len(output) > 1000 else output, "SUCCESS")
+                        except Exception as cmd_err:
+                            log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Error executing '{cmd}': {cmd_err}")
+                            log_device_command(device_name, cmd, f"Error: {str(cmd_err)}", "FAILED")
+                    
+                    # Execute running-config commands
+                    for cmd in run_commands:
+                        try:
+                            log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Executing '{cmd}'")
+                            output = execute_verbose_command(net_connect, cmd, device_name=device_name)
+                            log_device_command(device_name, cmd, output[:1000] + "..." if len(output) > 1000 else output, "SUCCESS")
+                        except Exception as cmd_err:
+                            log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Error executing '{cmd}': {cmd_err}")
+                            log_device_command(device_name, cmd, f"Error: {str(cmd_err)}", "FAILED")
+                    
+                    net_connect.disconnect()
+                    log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Commands executed successfully")
+                    
+                else:
+                    log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Failed to establish connection")
+                    log_device_command(device_name, "CONNECTION_FAILED", "Could not establish device connection", "FAILED")
+                    
+            except Exception as device_err:
+                log_to_ui_and_console(f"[CUSTOM-CMD] {device_name}: Device error: {device_err}")
+                log_device_command(device_name, "DEVICE_ERROR", f"Device error: {str(device_err)}", "FAILED")
+            
+            # Save command log for this device
+            save_device_command_log_to_file(device_name)
+        
+        log_to_ui_and_console(f"[CUSTOM-CMD] Custom command execution completed for all devices")
+        
+    except Exception as e:
+        log_to_ui_and_console(f"[CUSTOM-CMD] Background execution error: {e}")
+
+def establish_device_connection(device_name, device_ip, device_type):
+    """Establish connection to device (reused from main audit logic)"""
+    try:
+        # Get credentials
+        device_username = APP_CONFIG.get("DEVICE_USERNAME")
+        device_password = APP_CONFIG.get("DEVICE_PASSWORD") 
+        secret_password = APP_CONFIG.get("DEVICE_ENABLE")
+        jump_host = APP_CONFIG.get("JUMP_HOST")
+        jump_username = APP_CONFIG.get("JUMP_USERNAME")
+        jump_password = APP_CONFIG.get("JUMP_PASSWORD")
+        
+        if not all([device_username, device_password, jump_host, jump_username, jump_password]):
+            log_to_ui_and_console(f"[CUSTOM-CMD] Missing configuration for device connection")
+            return None
+        
+        # Try Netmiko first
+        try:
+            from netmiko import ConnectHandler
+            device_conn_dict = {
+                'device_type': device_type,
+                'host': device_ip,
+                'username': device_username,
+                'password': device_password,
+                'secret': secret_password,
+                'timeout': 15,
+                'session_timeout': 30,
+                'auth_timeout': 15,
+                'banner_timeout': 10,
+                'conn_timeout': 10
+            }
+            
+            net_connect = ConnectHandler(**device_conn_dict)
+            if secret_password:
+                net_connect.enable()
+            
+            return net_connect
+            
+        except Exception as netmiko_err:
+            log_to_ui_and_console(f"[CUSTOM-CMD] Netmiko failed, trying Paramiko: {netmiko_err}")
+            # Fallback to Paramiko (simplified implementation)
+            return None
+            
+    except Exception as e:
+        log_to_ui_and_console(f"[CUSTOM-CMD] Connection establishment error: {e}")
+        return None
+
 
 if __name__ == '__main__':
     script_dir = os.path.dirname(os.path.abspath(__file__))

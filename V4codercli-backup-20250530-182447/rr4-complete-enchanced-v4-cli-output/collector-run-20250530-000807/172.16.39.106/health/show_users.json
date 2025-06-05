@@ -1,0 +1,15 @@
+{
+  "lines": [
+    "Line       User       Host(s)              Idle       Location",
+    "0 con 0                idle                 00:03:48",
+    "* 98 vty 0     cisco      idle                 00:00:00 172.16.39.128",
+    "Interface    User               Mode         Idle     Peer Address"
+  ],
+  "line_count": 4,
+  "potential_headers": [
+    [
+      4,
+      "Interface    User               Mode         Idle     Peer Address"
+    ]
+  ]
+}

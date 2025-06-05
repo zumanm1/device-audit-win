@@ -1,0 +1,5 @@
+Translating "static"...domain server (255.255.255.255)
+
+show ip route static detail
+                     ^
+% Invalid input detected at '^' marker.

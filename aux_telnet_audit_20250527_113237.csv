@@ -1,0 +1,32 @@
+hostname,ip_address,line,model,telnet_allowed,login_method,exec_timeout,risk_level,timestamp,error,model,ping_status,ssh_status,auth_status,command_status,platform_info,audit_start_time,audit_end_time,audit_duration
+RTR-BRANCH-03.xrnet.net,172.16.39.102,line aux 0,Unknown,NO,unknown,default,LOW,2025-05-27 11:31:24,,Unknown,SUCCESS,SUCCESS,UNKNOWN,SUCCESS,"show platform
+
+Command 'show' not found, but can be installed with:
+apt install mailutils-mh  # version 1:3.14-1, or
+apt install mmh           # version 0.4-4
+apt install nmh           # version 1.7.1-11
+root@eve-ng:~# ",2025-05-27 11:30:23,2025-05-27 11:32:37,2m 14s
+RTR-CORE-01.xrnet.net,172.16.39.100,line aux 0,Unknown,NO,local,default,LOW,2025-05-27 11:31:24,,Unknown,SUCCESS,FAILED,UNKNOWN,PARTIAL,Not available,2025-05-27 11:30:23,2025-05-27 11:32:37,2m 14s
+RTR-EDGE-02.xrnet.net,172.16.39.101,line aux 0,Unknown,NO,unknown,default,LOW,2025-05-27 11:31:27,,Unknown,SUCCESS,FAILED,UNKNOWN,PARTIAL,"R1#show run | include line aux
+",2025-05-27 11:30:23,2025-05-27 11:32:37,2m 14s
+RTR-BRANCH-04.xrnet.net,172.16.39.103,line aux 0,Unknown,NO,unknown,default,LOW,2025-05-27 11:32:21,,Unknown,SUCCESS,FAILED,UNKNOWN,SUCCESS,"show platform
+
+Command 'show' not found, but can be installed with:
+apt install mailutils-mh  # version 1:3.14-1, or
+apt install mmh           # version 0.4-4
+apt install nmh           # version 1.7.1-11
+root@eve-ng:~# ",2025-05-27 11:30:23,2025-05-27 11:32:37,2m 14s
+RTR-BRANCH-05.xrnet.net,172.16.39.104,line aux 0,Unknown,NO,unknown,default,LOW,2025-05-27 11:32:33,,Unknown,SUCCESS,FAILED,UNKNOWN,SUCCESS,"show platform
+
+Command 'show' not found, but can be installed with:
+apt install mailutils-mh  # version 1:3.14-1, or
+apt install mmh           # version 0.4-4
+apt install nmh           # version 1.7.1-11
+root@eve-ng:~# ",2025-05-27 11:30:23,2025-05-27 11:32:37,2m 14s
+RTR-BRANCH-06.xrnet.net,172.16.39.105,line aux 0,Unknown,NO,unknown,default,LOW,2025-05-27 11:32:37,,Unknown,SUCCESS,FAILED,UNKNOWN,SUCCESS,"show platform
+
+Command 'show' not found, but can be installed with:
+apt install mailutils-mh  # version 1:3.14-1, or
+apt install mmh           # version 0.4-4
+apt install nmh           # version 1.7.1-11
+root@eve-ng:~# ",2025-05-27 11:30:23,2025-05-27 11:32:37,2m 14s

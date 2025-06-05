@@ -1,0 +1,122 @@
+Device: Cisco 2921
+Command: show running-config
+Timestamp: 2025-05-27T18:12:24.817693
+==================================================
+Building configuration...
+
+Current configuration : 1250 bytes
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R2
+!
+boot-start-marker
+boot-end-marker
+!
+!
+no aaa new-model
+memory-size iomem 5
+ip cef
+!
+!
+!
+!
+ip domain name lab.local
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+username cisco privilege 15 password 0 cisco
+archive
+ log config
+  hidekeys
+! 
+!
+!
+!
+ip ssh version 2
+!
+!
+!
+!
+interface Loopback0
+ ip address 192.168.100.104 255.255.255.255
+!
+interface FastEthernet0/0
+ ip address 172.16.39.102 255.255.255.0
+ speed 100
+ full-duplex
+!
+interface FastEthernet0/1
+ ip address 192.168.100.37 255.255.255.252
+ shutdown
+ duplex auto
+ speed auto
+!
+router ospf 1
+ log-adjacency-changes
+ passive-interface default
+ no passive-interface FastEthernet0/0
+ no passive-interface FastEthernet0/1
+ network 172.16.39.0 0.0.0.255 area 0
+ network 192.168.200.0 0.0.0.255 area 0
+!
+ip forward-protocol nd
+ip route 0.0.0.0 0.0.0.0 FastEthernet0/0 172.16.39.2
+!
+!
+ip http server
+no ip http secure-server
+!
+!
+!
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ privilege level 15
+ login local
+line aux 0
+line vty 0 4
+ privilege level 15
+ login local
+ transport input ssh
+line vty 5
+ login local
+!
+!
+end

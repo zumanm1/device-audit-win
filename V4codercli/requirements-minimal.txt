@@ -1,0 +1,27 @@
+# V4CODERCLI - Minimal Cross-Platform Requirements
+# Essential dependencies for basic functionality
+# Tested on Python 3.8+ (Windows/Linux/macOS)
+
+# Core CLI framework
+click>=8.0.0
+python-dotenv>=0.19.0
+
+# Network automation (essential)
+paramiko>=2.9.0
+netmiko>=4.0.0
+nornir>=3.3.0
+nornir-netmiko>=0.2.0
+
+# Data processing (essential)  
+textfsm>=1.1.0
+pyyaml>=6.0
+jinja2>=3.0.0
+
+# Security
+cryptography>=3.4.8
+
+# Output formatting
+tabulate>=0.9.0
+
+# Platform specific
+pywin32>=227; sys_platform == "win32" 

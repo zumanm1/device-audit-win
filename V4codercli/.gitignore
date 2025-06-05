@@ -1,0 +1,340 @@
+# RR4 Complete Enhanced v4 CLI - Git Ignore File
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff (if applicable)
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff (if applicable)
+instance/
+.webassets-cache
+
+# Scrapy stuff (if applicable)
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Network Collection Tool Specific Files
+# =====================================
+
+# Environment configuration files (contain sensitive data)
+*.env
+*.env-*
+rr4-complete-enchanced-v4-cli.env*
+.environment
+config.ini
+secrets.yaml
+
+# Output directories
+rr4-complete-enchanced-v4-cli-output/
+output/
+collections/
+*-collection/
+*-output/
+backup/
+archives/
+
+# Log files
+*.log
+logs/
+rr4-complete-enchanced-v4-cli-logs/
+*.log.*
+debug.log
+error.log
+collection.log
+nornir.log
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+*.tmp
+*.temp
+cache/
+.cache/
+
+# Network device data (potentially sensitive)
+device-configs/
+configs/
+running-configs/
+startup-configs/
+show-commands/
+
+# Inventory files (may contain sensitive information)
+*.csv
+*inventory*
+*devices*
+routers.csv
+switches.csv
+production.csv
+staging.csv
+
+# Credentials and keys
+*.key
+*.pem
+*.crt
+*.p12
+id_rsa*
+id_ed25519*
+authorized_keys
+known_hosts
+.ssh/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration backups
+*.bak
+*.backup
+*~
+
+# Archive files
+*.tar
+*.tar.gz
+*.tgz
+*.zip
+*.rar
+*.7z
+
+# IDE and Editor files
+# ===================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# Vim
+*.swp
+*.swo
+*~
+.vimrc.local
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# Operating System Files
+# ======================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+.DocumentRevisions-V100
+.TemporaryItems
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# SSH and Network Security
+# ========================
+.ssh/
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+known_hosts*
+authorized_keys*
+
+# Network Collection Artifacts
+# ============================
+connection_diagnostics.log
+fix_*.py
+*.task-list.txt
+*.plan.txt
+*.prd.txt
+*.backlogger.txt
+*-run_tests.py
+*-setup_*.py
+*-plugins_config.py
+*-config.yaml
+*-requirements.txt
+*-routers*.csv
+
+# Performance and Profiling
+# =========================
+*.prof
+*.cProfile
+.profile
+
+# Documentation Build
+# ===================
+_build/
+_static/
+_templates/
+
+# Package managers
+# ===============
+node_modules/
+package-lock.json
+yarn.lock
+
+# Security scanning reports
+# ========================
+security_report.json
+bandit_report.json
+safety_report.*
+vulnerability_scan.*
+
+# Backup files
+# ============
+*.backup
+*.bak
+*~
+.#*
+#*# 

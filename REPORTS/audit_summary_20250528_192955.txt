@@ -1,0 +1,25 @@
+NetAuditPro CLI Lite - Audit Summary Report
+============================================================
+
+Version: v3.0.0-CLI-LITE
+Generated: 2025-05-28 19:29:55
+Jump Host: 172.16.39.128
+Jump Username: root
+Jump Password: e*e
+Device Username: cisco
+Device Password: c***o
+Inventory File: routers01.csv
+Audit Duration: 1.6s
+Audit Status: Interrupted
+
+SUMMARY STATISTICS
+------------------------------
+Total Devices: 6
+Successful Audits: 0
+Failed Audits: 0
+Telnet Violations: 0
+High Risk Devices: 0
+Success Rate: 0.0%
+
+DEVICE AUDIT RESULTS
+------------------------------

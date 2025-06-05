@@ -1,0 +1,22 @@
+
+Fri May 30 00:01:37.951 UTC
+
+VRF: default
+_____________
+
+Prefix              Next Hop            Interface
+------------------- ------------------- ------------------
+0.0.0.0/0           drop                default handler 
+0.0.0.0/32          broadcast
+172.16.39.0/24      attached            MgmtEth0/RP0/CPU0/0
+172.16.39.0/32      broadcast           MgmtEth0/RP0/CPU0/0
+172.16.39.2/32      172.16.39.2/32      MgmtEth0/RP0/CPU0/0
+172.16.39.101/32    172.16.39.101/32    MgmtEth0/RP0/CPU0/0
+172.16.39.102/32    172.16.39.102/32    MgmtEth0/RP0/CPU0/0
+172.16.39.107/32    receive             MgmtEth0/RP0/CPU0/0
+172.16.39.128/32    172.16.39.128/32    MgmtEth0/RP0/CPU0/0
+172.16.39.140/32    172.16.39.140/32    MgmtEth0/RP0/CPU0/0
+172.16.39.255/32    broadcast           MgmtEth0/RP0/CPU0/0
+224.0.0.0/4         0.0.0.0/32          
+224.0.0.0/24        receive
+255.255.255.255/32  broadcast

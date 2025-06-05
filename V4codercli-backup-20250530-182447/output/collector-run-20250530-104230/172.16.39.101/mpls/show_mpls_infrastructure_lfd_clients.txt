@@ -1,0 +1,3 @@
+show mpls infrastructure lfd clients
+            ^
+% Invalid input detected at '^' marker.

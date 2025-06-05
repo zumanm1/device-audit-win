@@ -1,0 +1,7 @@
+
+Fri May 30 00:10:37.801 UTC
+
+Interface          Status      Protocol    Description
+--------------------------------------------------------------------------------
+Nu0                up          up          
+Mg0/RP0/CPU0/0     up          up          

@@ -1,0 +1,117 @@
+# RR4 Complete Enhanced v4 CLI - Cross-Platform Requirements
+# Compatible with Windows 10/11, Linux (Ubuntu/CentOS/RHEL), and macOS
+# Python 3.8+ required for best compatibility
+
+# ===================================================================
+# CORE CLI FRAMEWORK & COMMAND LINE INTERFACE
+# ===================================================================
+click>=8.0.0
+python-dotenv>=0.19.0
+rich>=12.0.0
+
+# ===================================================================
+# NETWORK AUTOMATION & SSH LIBRARIES  
+# ===================================================================
+# SSH and connection libraries
+paramiko>=2.9.0
+netmiko>=4.0.0
+
+# Nornir automation framework
+nornir>=3.3.0
+nornir-netmiko>=0.2.0
+
+# Optional enhanced connection libraries
+scrapli>=2022.7.30; extra == "enhanced"
+nornir-scrapli>=2022.7.30; extra == "enhanced"
+
+# ===================================================================
+# DATA PROCESSING & PARSING
+# ===================================================================
+# Template parsing for network command outputs
+textfsm>=1.1.0
+ttp>=0.9.0
+
+# Jinja2 templating
+jinja2>=3.0.0
+
+# YAML processing
+pyyaml>=6.0
+
+# JSON processing (enhanced)
+json5>=0.9.6
+
+# Regular expressions (built-in re module used)
+
+# ===================================================================
+# OUTPUT FORMATTING & REPORTING
+# ===================================================================
+# Table formatting
+tabulate>=0.9.0
+
+# ===================================================================
+# SECURITY & ENCRYPTION
+# ===================================================================
+# Cryptography for SSH keys and secure connections
+cryptography>=3.4.8
+
+# ===================================================================
+# NETWORKING UTILITIES
+# ===================================================================
+# HTTP requests for API calls
+requests>=2.27.0
+
+# IP address handling (built-in for Python 3.3+)
+ipaddress>=1.0.23; python_version < "3.3"
+
+# ===================================================================
+# PLATFORM-SPECIFIC DEPENDENCIES
+# ===================================================================
+# Windows-specific modules for system interaction
+pywin32>=227; sys_platform == "win32"
+
+# ===================================================================
+# DEVELOPMENT & TESTING (OPTIONAL)
+# ===================================================================
+# Testing framework
+pytest>=7.0.0; extra == "dev"
+pytest-cov>=3.0.0; extra == "dev"
+
+# Code formatting and linting
+black>=22.0.0; extra == "dev" 
+flake8>=4.0.0; extra == "dev"
+
+# ===================================================================
+# ENHANCED CAPABILITIES (OPTIONAL)
+# ===================================================================
+# Advanced network device parsing (optional - large package)
+# pyats>=21.0.0; extra == "enhanced"
+# genie>=21.0.0; extra == "enhanced"
+
+# ===================================================================
+# CROSS-PLATFORM COMPATIBILITY NOTES
+# ===================================================================
+# This requirements file has been tested on:
+# - Windows 10/11 with Python 3.8+
+# - Ubuntu 20.04/22.04 with Python 3.8+
+# - CentOS 7/8 with Python 3.8+
+# - macOS 11+ with Python 3.8+
+#
+# Installation options:
+# Basic installation:     pip install -r requirements.txt
+# With dev tools:         pip install -r requirements.txt[dev]  
+# With enhanced features: pip install -r requirements.txt[enhanced]
+# Full installation:      pip install -r requirements.txt[dev,enhanced]
+#
+# ===================================================================
+# VERSION COMPATIBILITY MATRIX
+# ===================================================================
+# Python 3.8+  : All features supported
+# Python 3.9+  : Recommended version
+# Python 3.10+ : Optimal performance
+# Python 3.11+ : Latest features
+#
+# Network device compatibility:
+# - Cisco IOS    : Fully supported
+# - Cisco IOS-XE : Fully supported  
+# - Cisco IOS-XR : Fully supported
+# - Jump host    : Linux-based systems 

@@ -1,0 +1,77 @@
+{
+  "summary": {
+    "total_tests": 9,
+    "passed": 6,
+    "failed": 2,
+    "warnings": 1,
+    "success_rate": 66.66666666666666
+  },
+  "test_results": [
+    {
+      "test": "Timing Display Elements",
+      "status": "PASS",
+      "details": "Start: 10:36:33 AM, Elapsed: 00:07:17",
+      "timestamp": "2025-05-28T10:43:51.816Z"
+    },
+    {
+      "test": "Total Devices Count",
+      "status": "FAIL",
+      "details": "Expected 6, got 0",
+      "timestamp": "2025-05-28T10:43:55.818Z"
+    },
+    {
+      "test": "Current Device Status",
+      "status": "FAIL",
+      "details": "Expected 'Audit Complete', got 'None'",
+      "timestamp": "2025-05-28T10:43:56.864Z"
+    },
+    {
+      "test": "Timing Format Validation",
+      "status": "WARN",
+      "details": "Start time shows 'Not Started' but API has start_time: 10:36:33",
+      "timestamp": "2025-05-28T10:43:56.913Z"
+    },
+    {
+      "test": "Log Timestamps",
+      "status": "PASS",
+      "details": "Found 100 valid timestamps, timing consistent",
+      "timestamp": "2025-05-28T10:43:56.954Z"
+    },
+    {
+      "test": "API /api/progress",
+      "status": "PASS",
+      "details": "Status: 200",
+      "timestamp": "2025-05-28T10:43:56.974Z"
+    },
+    {
+      "test": "API /api/timing",
+      "status": "PASS",
+      "details": "Status: 200",
+      "timestamp": "2025-05-28T10:43:56.996Z"
+    },
+    {
+      "test": "API /api/live-logs",
+      "status": "PASS",
+      "details": "Status: 200",
+      "timestamp": "2025-05-28T10:43:57.032Z"
+    },
+    {
+      "test": "API /api/raw-logs",
+      "status": "PASS",
+      "details": "Status: 200",
+      "timestamp": "2025-05-28T10:43:57.058Z"
+    }
+  ],
+  "issues_found": [
+    {
+      "test": "Total Devices Count",
+      "issue": "Incorrect total devices count",
+      "details": "Expected 6, got 0"
+    },
+    {
+      "test": "Current Device Status",
+      "issue": "Incorrect current device status",
+      "details": "Expected 'Audit Complete', got 'None'"
+    }
+  ]
+}

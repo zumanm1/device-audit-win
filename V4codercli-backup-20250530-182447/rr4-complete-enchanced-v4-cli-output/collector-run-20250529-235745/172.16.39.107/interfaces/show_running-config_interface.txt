@@ -1,0 +1,9 @@
+
+Thu May 29 23:58:47.655 UTC
+interface MgmtEth0/RP0/CPU0/0
+ ipv4 address 172.16.39.107 255.255.255.0
+!
+interface preconfigure GigabitEthernet0/0/0/0/1
+ description Management Interface 
+ ipv4 address 172.16.39.107 255.255.255.0
+!

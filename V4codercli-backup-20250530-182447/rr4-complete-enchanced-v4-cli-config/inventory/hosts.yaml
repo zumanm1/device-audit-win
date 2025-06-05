@@ -1,0 +1,424 @@
+R0:
+  connection_options:
+    napalm:
+      extras:
+        allow_agent: false
+        optional_args:
+          keepalive: 30
+          ssh_strict: false
+          transport: ssh
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: ios
+      username: cisco
+    netmiko:
+      extras:
+        allow_agent: false
+        fast_cli: true
+        global_delay_factor: 2
+        session_timeout: 300
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_ios
+      username: cisco
+    scrapli:
+      extras:
+        allow_agent: false
+        auth_strict_key: false
+        auth_timeout: 60
+        sock: null
+        ssh_config_file: null
+        timeout_socket: 60
+        timeout_transport: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_iosxe
+      username: cisco
+  data:
+    device_type: cisco_ios
+    management_ip: 172.16.39.100
+    model_name: null
+    os_version: unknown
+    vendor: cisco
+    wan_ip: null
+  groups:
+  - all_devices
+  hostname: 172.16.39.100
+  platform: ios
+R1:
+  connection_options:
+    napalm:
+      extras:
+        allow_agent: false
+        optional_args:
+          keepalive: 30
+          ssh_strict: false
+          transport: ssh
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: ios
+      username: cisco
+    netmiko:
+      extras:
+        allow_agent: false
+        fast_cli: true
+        global_delay_factor: 2
+        session_timeout: 300
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_xe
+      username: cisco
+    scrapli:
+      extras:
+        allow_agent: false
+        auth_strict_key: false
+        auth_timeout: 60
+        sock: null
+        ssh_config_file: null
+        timeout_socket: 60
+        timeout_transport: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_iosxe
+      username: cisco
+  data:
+    device_type: cisco_xe
+    management_ip: 172.16.39.101
+    model_name: null
+    os_version: unknown
+    vendor: cisco
+    wan_ip: null
+  groups:
+  - all_devices
+  hostname: 172.16.39.101
+  platform: iosxe
+R2:
+  connection_options:
+    napalm:
+      extras:
+        allow_agent: false
+        optional_args:
+          keepalive: 30
+          ssh_strict: false
+          transport: ssh
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: ios
+      username: cisco
+    netmiko:
+      extras:
+        allow_agent: false
+        fast_cli: true
+        global_delay_factor: 2
+        session_timeout: 300
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_ios
+      username: cisco
+    scrapli:
+      extras:
+        allow_agent: false
+        auth_strict_key: false
+        auth_timeout: 60
+        sock: null
+        ssh_config_file: null
+        timeout_socket: 60
+        timeout_transport: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_iosxe
+      username: cisco
+  data:
+    device_type: cisco_ios
+    management_ip: 172.16.39.102
+    model_name: null
+    os_version: unknown
+    vendor: cisco
+    wan_ip: null
+  groups:
+  - all_devices
+  hostname: 172.16.39.102
+  platform: ios
+R3:
+  connection_options:
+    napalm:
+      extras:
+        allow_agent: false
+        optional_args:
+          keepalive: 30
+          ssh_strict: false
+          transport: ssh
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: ios
+      username: cisco
+    netmiko:
+      extras:
+        allow_agent: false
+        fast_cli: true
+        global_delay_factor: 2
+        session_timeout: 300
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_ios
+      username: cisco
+    scrapli:
+      extras:
+        allow_agent: false
+        auth_strict_key: false
+        auth_timeout: 60
+        sock: null
+        ssh_config_file: null
+        timeout_socket: 60
+        timeout_transport: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_iosxe
+      username: cisco
+  data:
+    device_type: cisco_ios
+    management_ip: 172.16.39.103
+    model_name: null
+    os_version: unknown
+    vendor: cisco
+    wan_ip: null
+  groups:
+  - all_devices
+  hostname: 172.16.39.103
+  platform: ios
+R4:
+  connection_options:
+    napalm:
+      extras:
+        allow_agent: false
+        optional_args:
+          keepalive: 30
+          ssh_strict: false
+          transport: ssh
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: ios
+      username: cisco
+    netmiko:
+      extras:
+        allow_agent: false
+        fast_cli: true
+        global_delay_factor: 2
+        session_timeout: 300
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_ios
+      username: cisco
+    scrapli:
+      extras:
+        allow_agent: false
+        auth_strict_key: false
+        auth_timeout: 60
+        sock: null
+        ssh_config_file: null
+        timeout_socket: 60
+        timeout_transport: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_iosxe
+      username: cisco
+  data:
+    device_type: cisco_ios
+    management_ip: 172.16.39.104
+    model_name: null
+    os_version: unknown
+    vendor: cisco
+    wan_ip: null
+  groups:
+  - all_devices
+  hostname: 172.16.39.104
+  platform: ios
+R5:
+  connection_options:
+    napalm:
+      extras:
+        allow_agent: false
+        optional_args:
+          keepalive: 30
+          ssh_strict: false
+          transport: ssh
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: ios
+      username: cisco
+    netmiko:
+      extras:
+        allow_agent: false
+        fast_cli: true
+        global_delay_factor: 2
+        session_timeout: 300
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_ios
+      username: cisco
+    scrapli:
+      extras:
+        allow_agent: false
+        auth_strict_key: false
+        auth_timeout: 60
+        sock: null
+        ssh_config_file: null
+        timeout_socket: 60
+        timeout_transport: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_iosxe
+      username: cisco
+  data:
+    device_type: cisco_ios
+    management_ip: 172.16.39.105
+    model_name: null
+    os_version: unknown
+    vendor: cisco
+    wan_ip: null
+  groups:
+  - all_devices
+  hostname: 172.16.39.105
+  platform: ios
+R6:
+  connection_options:
+    napalm:
+      extras:
+        allow_agent: false
+        optional_args:
+          keepalive: 30
+          ssh_strict: false
+          transport: ssh
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: ios
+      username: cisco
+    netmiko:
+      extras:
+        allow_agent: false
+        fast_cli: true
+        global_delay_factor: 2
+        session_timeout: 300
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_ios
+      username: cisco
+    scrapli:
+      extras:
+        allow_agent: false
+        auth_strict_key: false
+        auth_timeout: 60
+        sock: null
+        ssh_config_file: null
+        timeout_socket: 60
+        timeout_transport: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_iosxe
+      username: cisco
+  data:
+    device_type: cisco_ios
+    management_ip: 172.16.39.106
+    model_name: null
+    os_version: unknown
+    vendor: cisco
+    wan_ip: null
+  groups:
+  - all_devices
+  hostname: 172.16.39.106
+  platform: ios
+R7:
+  connection_options:
+    napalm:
+      extras:
+        allow_agent: false
+        optional_args:
+          keepalive: 30
+          ssh_strict: false
+          transport: ssh
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: iosxr
+      username: cisco
+    netmiko:
+      extras:
+        allow_agent: false
+        fast_cli: true
+        global_delay_factor: 2
+        session_timeout: 300
+        sock: null
+        ssh_config_file: null
+        timeout: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_xr
+      username: cisco
+    scrapli:
+      extras:
+        allow_agent: false
+        auth_strict_key: false
+        auth_timeout: 60
+        sock: null
+        ssh_config_file: null
+        timeout_socket: 60
+        timeout_transport: 60
+        use_keys: false
+      password: cisco
+      platform: cisco_iosxr
+      username: cisco
+  data:
+    device_type: cisco_xr
+    management_ip: 172.16.39.107
+    model_name: null
+    os_version: unknown
+    vendor: cisco
+    wan_ip: null
+  groups:
+  - all_devices
+  hostname: 172.16.39.107
+  platform: iosxr

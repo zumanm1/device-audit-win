@@ -1,0 +1,2 @@
+show segment-routing mpls connected-prefix-sid-map
+% Incomplete command.

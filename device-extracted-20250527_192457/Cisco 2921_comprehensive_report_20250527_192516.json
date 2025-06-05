@@ -1,0 +1,115 @@
+{
+  "device_summary": {
+    "hostname": "Cisco 2921",
+    "ip_address": "172.16.39.102",
+    "audit_timestamp": "2025-05-27T19:25:16.587306",
+    "overall_status": "success"
+  },
+  "stage_results": {
+    "A1_ping": {
+      "status": "success",
+      "details": "Device 172.16.39.102 responds to ping",
+      "error": null
+    },
+    "A2_ssh_auth": {
+      "status": "success",
+      "details": "SSH connection established and credentials verified",
+      "error": null
+    },
+    "A3_authorization": {
+      "status": "success",
+      "details": "Authorization confirmed - device responds to commands",
+      "error": null
+    },
+    "A4_wait_confirm": {
+      "status": "success",
+      "details": "3-second wait completed, ready for data collection",
+      "error": null
+    },
+    "A5_data_collection": {
+      "status": "success",
+      "details": "Data collected and saved to /root/za-con/device-extracted-20250527_192457",
+      "error": null
+    },
+    "A6_data_processing": {
+      "status": "success",
+      "details": "Data processed for dashboard and reporting updates",
+      "error": null
+    },
+    "A7_telnet_analysis": {
+      "status": "success",
+      "details": "Found 0 lines with telnet enabled",
+      "error": null
+    },
+    "A8_reporting": {
+      "status": "pending",
+      "details": null,
+      "error": null
+    }
+  },
+  "telnet_security_summary": {
+    "aux_lines": [
+      {
+        "hostname": "R2",
+        "ip_address": "172.16.39.102",
+        "line": "line aux 0",
+        "telnet_allowed": "NO",
+        "login_method": "local",
+        "exec_timeout": "default",
+        "risk_level": "LOW",
+        "transport_input": "transport input ssh",
+        "analysis": "\u2705 SECURE: Telnet disabled or SSH-only",
+        "timestamp": "2025-05-27 19:25:16",
+        "connection_method": "jump_host"
+      }
+    ],
+    "vty_lines": [
+      {
+        "hostname": "Cisco 2921",
+        "line": "line vty 0 4",
+        "line_type": "vty",
+        "telnet_allowed": "NO",
+        "login_method": "unknown",
+        "exec_timeout": "default",
+        "transport_input": "N/A",
+        "risk_level": "LOW",
+        "analysis": "\u2705 SECURE: VTY telnet disabled or SSH-only",
+        "config_text": "line vty 0 4",
+        "timestamp": "2025-05-27 19:25:16"
+      },
+      {
+        "hostname": "Cisco 2921",
+        "line": "line vty 5",
+        "line_type": "vty",
+        "telnet_allowed": "NO",
+        "login_method": "unknown",
+        "exec_timeout": "default",
+        "transport_input": "N/A",
+        "risk_level": "LOW",
+        "analysis": "\u2705 SECURE: VTY telnet disabled or SSH-only",
+        "config_text": "line vty 5",
+        "timestamp": "2025-05-27 19:25:16"
+      }
+    ],
+    "con_lines": [
+      {
+        "hostname": "Cisco 2921",
+        "line": "line con 0",
+        "line_type": "con",
+        "telnet_allowed": "NO",
+        "login_method": "unknown",
+        "exec_timeout": "default",
+        "transport_input": "N/A",
+        "risk_level": "LOW",
+        "analysis": "\u2705 SECURE: CON telnet disabled or SSH-only",
+        "config_text": "line con 0",
+        "timestamp": "2025-05-27 19:25:16"
+      }
+    ],
+    "telnet_enabled_count": 0,
+    "high_risk_lines": [],
+    "security_violations": []
+  },
+  "failed_stages": [],
+  "recommendations": []
+}

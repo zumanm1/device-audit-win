@@ -1,0 +1,30 @@
+Signalling Summary:
+    LSP Tunnels Process:            not running, disabled
+    Passive LSP Listener:           not registered with RSVP
+    RSVP Process:                   not running
+    Forwarding:                     disabled
+    auto-tunnel:
+	p2p    Disabled (0), id-range:62336-64335
+
+    Periodic reoptimization:        every 3600 seconds, next in 0 seconds
+    Periodic FRR Promotion:         Not Running
+    Periodic auto-bw collection:    every 300 seconds, next in 0 seconds
+    SR tunnel max label push:       0 primary path labels (0 repair path labels)
+    P2P:
+      Head: 0 interfaces,   0 active signalling attempts, 0 established
+            0 activations,  0 deactivations
+            0 SSO recovery attempts, 0 SSO recovered
+      Midpoints: 0, Tails: 0
+
+    P2MP:
+      Head: 0 interfaces,   0 active signalling attempts, 0 established
+            0 sub-LSP activations,  0 sub-LSP deactivations
+            0 LSP successful activations,  0 LSP deactivations
+            0 SSO recovery attempts, LSP recovered: 0 full, 0 partial, 0 fail
+      Midpoints: 0, Tails: 0
+
+Bidirectional Tunnel Summary:
+    Tunnel Head: 0 total, 0 connected, 0 associated, 0 co-routed
+    LSPs Head:   0 established, 0 proceeding, 0 associated, 0 standby
+    LSPs Mid:    0 established, 0 proceeding, 0 associated, 0 standby
+    LSPs Tail:   0 established, 0 proceeding, 0 associated, 0 standby

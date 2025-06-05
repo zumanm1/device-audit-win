@@ -1,0 +1,3 @@
+Tag switching is not operational.
+CEF or tag switching has not been enabled.
+No TFIB currently allocated.

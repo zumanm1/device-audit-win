@@ -1,0 +1,8 @@
+{
+  "lines": [
+    "show environment all",
+    "^",
+    "% Invalid input detected at '^' marker."
+  ],
+  "line_count": 3
+}

@@ -1,0 +1,20 @@
+
+Name: R1_t1                             (Tunnel1) Destination: 10.0.0.2
+  Status:
+    Admin: up         Oper: up     Path: valid       Signalling: connected
+    path option 1, type explicit path1 (Basis for Setup, path weight 10)
+  Config Parameters:
+    Bandwidth: 100      kbps (Global)  Priority: 7  7   Affinity: 0x0/0xFFFF
+    Metric Type: TE (default)
+    AutoRoute:  enabled  LockDown: disabled  Loadshare: 100      bw-based
+    auto-bw: disabled
+  
+Name: R1_t2                             (Tunnel2) Destination: 10.0.0.3
+  Status:
+    Admin: up         Oper: up     Path: valid       Signalling: connected
+    path option 1, type dynamic (Basis for Setup, path weight 20)
+  Config Parameters:
+    Bandwidth: 200      kbps (Global)  Priority: 7  7   Affinity: 0x0/0xFFFF
+    Metric Type: TE (default)
+    AutoRoute:  enabled  LockDown: disabled  Loadshare: 100      bw-based
+    auto-bw: disabled

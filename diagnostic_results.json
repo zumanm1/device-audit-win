@@ -1,0 +1,54 @@
+{
+  "timestamp": "2025-05-28T06:37:35.722054",
+  "timing_data": {
+    "formatted": {
+      "completion_datetime": "2025-05-27 22:04:18",
+      "durations": {
+        "active_time": "08:34:15",
+        "pause_time": "00:00:00",
+        "total_time": "08:34:15"
+      },
+      "start_datetime": "2025-05-27 22:03:20",
+      "status": {
+        "completed": true,
+        "paused": false,
+        "running": false
+      }
+    },
+    "success": true,
+    "timing": {
+      "completion_date": "2025-05-27",
+      "completion_time": "22:04:18",
+      "elapsed_time": 30855.43651199341,
+      "formatted_elapsed_time": "08:34:15",
+      "formatted_pause_duration": "00:00:00",
+      "formatted_total_duration": "08:34:15",
+      "is_paused": false,
+      "is_running": false,
+      "pause_duration": 0.0,
+      "raw_completion_time": 1748383458.7654161,
+      "raw_elapsed_seconds": 30855.43651199341,
+      "raw_pause_seconds": 0.0,
+      "raw_start_time": 1748383400.228151,
+      "start_date": "2025-05-27",
+      "start_time": "22:03:20",
+      "total_duration": 30855.43651199341
+    }
+  },
+  "progress_data": {
+    "completed_devices": 6,
+    "current_device": "Audit Complete",
+    "elapsed_time": "00:00:00",
+    "percent_complete": 100.0,
+    "status": "Completed",
+    "status_counts": {
+      "failure": 4,
+      "success": 2,
+      "violations": 0,
+      "warning": 0
+    },
+    "success": true,
+    "total_devices": 6
+  },
+  "analysis_complete": true
+}

@@ -1,0 +1,8 @@
+{
+  "lines": [
+    "Thu May 29 23:58:28.120 UTC",
+    "Line            User                 Service  Conns   Idle        Location",
+    "*  vty0            cisco                ssh          0  00:00:00     172.16.39.128"
+  ],
+  "line_count": 3
+}

@@ -1,0 +1,3 @@
+show mpls ldp capabilities
+              ^
+% Invalid input detected at '^' marker.

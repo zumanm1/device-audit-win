@@ -1,0 +1,181 @@
+{
+    "audit_timestamp": "20250527_183912",
+    "report_generated": "2025-05-27 18:39:12",
+    "results": [
+        {
+            "device": {
+                "hostname": "RTR-BRANCH-01.xrnet.net",
+                "ip": "172.16.39.101",
+                "model": "Unknown"
+            },
+            "timestamp": "2025-05-27 18:39:12",
+            "phases": {
+                "connectivity": {
+                    "status": "Failed",
+                    "details": "ICMP ping failed"
+                },
+                "authentication": {
+                    "status": "Failed",
+                    "details": "SSH authentication failed"
+                },
+                "authorization": {
+                    "status": "Failed",
+                    "details": "Authorization failed"
+                },
+                "config_audit": {
+                    "status": "Failed",
+                    "details": "Configuration collection failed"
+                },
+                "risk_assessment": {
+                    "status": "Failed",
+                    "details": "Telnet disabled",
+                    "recommendations": ""
+                },
+                "reporting": {
+                    "status": "Success",
+                    "details": "Report generated successfully"
+                }
+            }
+        },
+        {
+            "device": {
+                "hostname": "RTR-BRANCH-02.xrnet.net",
+                "ip": "172.16.39.102",
+                "model": "Unknown"
+            },
+            "timestamp": "2025-05-27 18:39:12",
+            "phases": {
+                "connectivity": {
+                    "status": "Failed",
+                    "details": "ICMP ping failed"
+                },
+                "authentication": {
+                    "status": "Failed",
+                    "details": "SSH authentication failed"
+                },
+                "authorization": {
+                    "status": "Failed",
+                    "details": "Authorization failed"
+                },
+                "config_audit": {
+                    "status": "Failed",
+                    "details": "Configuration collection failed"
+                },
+                "risk_assessment": {
+                    "status": "Failed",
+                    "details": "Telnet disabled",
+                    "recommendations": ""
+                },
+                "reporting": {
+                    "status": "Success",
+                    "details": "Report generated successfully"
+                }
+            }
+        },
+        {
+            "device": {
+                "hostname": "RTR-BRANCH-03.xrnet.net",
+                "ip": "172.16.39.103",
+                "model": "Unknown"
+            },
+            "timestamp": "2025-05-27 18:39:12",
+            "phases": {
+                "connectivity": {
+                    "status": "Failed",
+                    "details": "ICMP ping failed"
+                },
+                "authentication": {
+                    "status": "Failed",
+                    "details": "SSH authentication failed"
+                },
+                "authorization": {
+                    "status": "Failed",
+                    "details": "Authorization failed"
+                },
+                "config_audit": {
+                    "status": "Failed",
+                    "details": "Configuration collection failed"
+                },
+                "risk_assessment": {
+                    "status": "Failed",
+                    "details": "Telnet disabled",
+                    "recommendations": ""
+                },
+                "reporting": {
+                    "status": "Success",
+                    "details": "Report generated successfully"
+                }
+            }
+        },
+        {
+            "device": {
+                "hostname": "RTR-BRANCH-04.xrnet.net",
+                "ip": "172.16.39.104",
+                "model": "Unknown"
+            },
+            "timestamp": "2025-05-27 18:39:12",
+            "phases": {
+                "connectivity": {
+                    "status": "Failed",
+                    "details": "ICMP ping failed"
+                },
+                "authentication": {
+                    "status": "Failed",
+                    "details": "SSH authentication failed"
+                },
+                "authorization": {
+                    "status": "Failed",
+                    "details": "Authorization failed"
+                },
+                "config_audit": {
+                    "status": "Failed",
+                    "details": "Configuration collection failed"
+                },
+                "risk_assessment": {
+                    "status": "Failed",
+                    "details": "Telnet disabled",
+                    "recommendations": ""
+                },
+                "reporting": {
+                    "status": "Success",
+                    "details": "Report generated successfully"
+                }
+            }
+        },
+        {
+            "device": {
+                "hostname": "RTR-BRANCH-05.xrnet.net",
+                "ip": "172.16.39.105",
+                "model": "Unknown"
+            },
+            "timestamp": "2025-05-27 18:39:12",
+            "phases": {
+                "connectivity": {
+                    "status": "Failed",
+                    "details": "ICMP ping failed"
+                },
+                "authentication": {
+                    "status": "Failed",
+                    "details": "SSH authentication failed"
+                },
+                "authorization": {
+                    "status": "Failed",
+                    "details": "Authorization failed"
+                },
+                "config_audit": {
+                    "status": "Failed",
+                    "details": "Configuration collection failed"
+                },
+                "risk_assessment": {
+                    "status": "Failed",
+                    "details": "Telnet disabled",
+                    "recommendations": ""
+                },
+                "reporting": {
+                    "status": "Success",
+                    "details": "Report generated successfully"
+                }
+            }
+        }
+    ]
+}

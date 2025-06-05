@@ -1,0 +1,4 @@
+netmiko>=4.1.0
+cryptography>=38.0.0
+colorama>=0.4.4
+tabulate>=0.8.10

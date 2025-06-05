@@ -1,0 +1,6 @@
+
+Fri May 30 09:38:33.298 UTC
+
+Unable to retrieve global TE topology data: TE EDM not registered (TE process may not be running).
+Error retrieving data from TE: process not running
+TE:process not running

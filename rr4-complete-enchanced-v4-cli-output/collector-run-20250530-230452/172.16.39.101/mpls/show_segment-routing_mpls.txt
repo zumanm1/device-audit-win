@@ -1,0 +1,2 @@
+show segment-routing mpls
+% Incomplete command.

@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - V5evscriptcli Web Management{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h3 mb-0">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </h1>
+            <p class="text-muted mb-0">Multi-Vendor EVE-NG Lab Management Platform</p>
+        </div>
+        <div>
+            <button class="btn btn-primary" onclick="location.href='{{ url_for('topology') }}'">
+                <i class="fas fa-plus me-1"></i>Create New Lab
+            </button>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ router_types|length }}</h4>
+                            <p class="card-text">Router Types</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-network-wired fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title" id="completedDeployments">0</h4>
+                            <p class="card-text">Completed Today</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-white bg-warning">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ active_deployments }}</h4>
+                            <p class="card-text">Active Deployments</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-spinner fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title" id="totalLabs">0</h4>
+                            <p class="card-text">Total Labs</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-flask fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Quick Actions -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary" onclick="location.href='{{ url_for('topology') }}'">
+                            <i class="fas fa-project-diagram me-2"></i>Design Topology
+                        </button>
+                        <button class="btn btn-outline-success" onclick="createQuickLab()">
+                            <i class="fas fa-rocket me-2"></i>Quick Lab Deploy
+                        </button>
+                        <button class="btn btn-outline-info" onclick="location.href='{{ url_for('monitoring') }}'">
+                            <i class="fas fa-chart-line me-2"></i>Monitor Deployments
+                        </button>
+                        <button class="btn btn-outline-secondary" onclick="location.href='{{ url_for('labs') }}'">
+                            <i class="fas fa-list me-2"></i>Manage Labs
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Router Types Overview -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-network-wired me-2"></i>Supported Routers
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for router_type in router_types %}
+                    <div class="mb-2">
+                        <span class="badge badge-router-{{ router_type }} me-2">{{ router_type }}</span>
+                        <button class="btn btn-sm btn-outline-info" onclick="showRouterSpecs('{{ router_type }}')">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Recent Activity
+                    </h5>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="refreshActivity()">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="activityFeed">
+                        <div class="text-center text-muted py-4">
+                            <i class="fas fa-history fa-2x mb-2"></i>
+                            <p>No recent activity</p>
+                            <small>Deploy a lab to see activity here</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-server me-2"></i>System Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>EVE-NG Connection</span>
+                                <span class="badge bg-success" id="eveStatus">Connected</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>API Response Time</span>
+                                <span class="badge bg-info" id="apiResponseTime">< 100ms</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Cache Status</span>
+                                <span class="badge bg-success" id="cacheStatus">Active</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Platform Version</span>
+                                <span class="badge bg-secondary">v2.0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Router Specifications Modal -->
+<div class="modal fade" id="routerSpecsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-network-wired me-2"></i>Router Specifications
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="routerSpecsContent">
+                <!-- Content loaded dynamically -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Lab Modal -->
+<div class="modal fade" id="quickLabModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-rocket me-2"></i>Quick Lab Deployment
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickLabForm">
+                    <div class="mb-3">
+                        <label for="quickLabName" class="form-label">Lab Name</label>
+                        <input type="text" class="form-control" id="quickLabName" value="Quick_Lab_{{ user }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quickRouterType" class="form-label">Router Type</label>
+                        <select class="form-select" id="quickRouterType" required>
+                            {% for router_type in router_types %}
+                            <option value="{{ router_type }}">{{ router_type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quickRouterCount" class="form-label">Number of Routers</label>
+                        <input type="number" class="form-control" id="quickRouterCount" value="2" min="1" max="5" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="deployQuickLab()">
+                    <i class="fas fa-rocket me-1"></i>Deploy Lab
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize dashboard
+    loadDashboardData();
+    
+    // Auto-refresh every 30 seconds
+    setInterval(loadDashboardData, 30000);
+    
+    // Real-time updates via Socket.IO
+    if (socket) {
+        socket.on('deployment_update', function(data) {
+            updateActivityFeed(data);
+        });
+        
+        socket.on('deployment_complete', function(data) {
+            updateActivityFeed(data);
+            loadDashboardData(); // Refresh stats
+        });
+    }
+});
+
+async function loadDashboardData() {
+    try {
+        // This would typically fetch real data from the API
+        // For now, we'll simulate some basic stats
+        
+        updateSystemStatus();
+        
+    } catch (error) {
+        console.error('Error loading dashboard data:', error);
+    }
+}
+
+function updateSystemStatus() {
+    // Simulate API health check
+    const now = new Date();
+    const responseTime = Math.floor(Math.random() * 50) + 50; // 50-100ms
+    
+    document.getElementById('apiResponseTime').textContent = `${responseTime}ms`;
+    
+    // Update status indicators
+    document.getElementById('eveStatus').className = 'badge bg-success';
+    document.getElementById('eveStatus').textContent = 'Connected';
+    
+    document.getElementById('cacheStatus').className = 'badge bg-success';
+    document.getElementById('cacheStatus').textContent = 'Active';
+}
+
+function updateActivityFeed(data) {
+    const feed = document.getElementById('activityFeed');
+    const timestamp = new Date().toLocaleTimeString();
+    
+    const activityItem = document.createElement('div');
+    activityItem.className = 'border-bottom pb-2 mb-2';
+    activityItem.innerHTML = `
+        <div class="d-flex justify-content-between">
+            <div>
+                <i class="fas fa-info-circle text-info me-2"></i>
+                ${data.message || 'Deployment update'}
+            </div>
+            <small class="text-muted">${timestamp}</small>
+        </div>
+    `;
+    
+    // Remove "no activity" message if present
+    if (feed.querySelector('.text-center')) {
+        feed.innerHTML = '';
+    }
+    
+    feed.insertBefore(activityItem, feed.firstChild);
+    
+    // Keep only last 10 items
+    while (feed.children.length > 10) {
+        feed.removeChild(feed.lastChild);
+    }
+}
+
+async function showRouterSpecs(routerType) {
+    try {
+        const response = await apiRequest(`/api/router-specs/${routerType}`);
+        
+        if (response.success) {
+            const specs = response.specifications;
+            const content = document.getElementById('routerSpecsContent');
+            
+            content.innerHTML = `
+                <h6 class="border-bottom pb-2">
+                    <span class="badge badge-router-${routerType} me-2">${routerType}</span>
+                    ${specs.description || 'Router Specifications'}
+                </h6>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Interfaces</h6>
+                        <ul class="list-group list-group-flush">
+                            ${(specs.onboard_interfaces || []).map(iface => 
+                                `<li class="list-group-item px-0">${iface} (onboard)</li>`
+                            ).join('')}
+                            ${(specs.slot_interfaces || []).map(iface => 
+                                `<li class="list-group-item px-0">${iface} (slot)</li>`
+                            ).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <h6>Specifications</h6>
+                        <table class="table table-sm">
+                            <tr>
+                                <td>RAM Range</td>
+                                <td>${specs.ram_range || 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <td>Max Slots</td>
+                                <td>${specs.max_slots || 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <td>Typical Use</td>
+                                <td>${specs.typical_use || 'N/A'}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                ${specs.supported_modules ? `
+                    <div class="mt-3">
+                        <h6>Supported Modules</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            ${specs.supported_modules.map(module => 
+                                `<span class="badge bg-secondary">${module}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('routerSpecsModal'));
+            modal.show();
+        }
+    } catch (error) {
+        showAlert(`Error loading router specifications: ${error.message}`, 'danger');
+    }
+}
+
+function createQuickLab() {
+    const modal = new bootstrap.Modal(document.getElementById('quickLabModal'));
+    modal.show();
+}
+
+async function deployQuickLab() {
+    try {
+        const labName = document.getElementById('quickLabName').value;
+        const routerType = document.getElementById('quickRouterType').value;
+        const routerCount = parseInt(document.getElementById('quickRouterCount').value);
+        
+        // Validate inputs
+        if (!labName || !routerType || routerCount < 1 || routerCount > 5) {
+            showAlert('Please fill in all fields correctly', 'warning');
+            return;
+        }
+        
+        // Generate quick lab configuration
+        const routers = {};
+        const connections = [];
+        
+        for (let i = 1; i <= routerCount; i++) {
+            routers[`R${i}`] = {
+                type: 'dynamips',
+                template: routerType,
+                name: `R${i}`,
+                left: (i * 150).toString(),
+                top: '200'
+            };
+            
+            // Connect to next router if not last
+            if (i < routerCount) {
+                connections.push([`R${i}`, 'f0/0', `R${i+1}`, 'f0/0', `Link${i}`]);
+            }
+        }
+        
+        const deploymentData = {
+            lab_name: labName,
+            lab_path: '/',
+            description: `Quick deployment of ${routerCount} ${routerType} routers`,
+            routers: routers,
+            connections: connections
+        };
+        
+        // Start deployment
+        const response = await apiRequest('/api/deploy-lab', {
+            method: 'POST',
+            body: JSON.stringify(deploymentData)
+        });
+        
+        if (response.success) {
+            showAlert(`Lab deployment started! Deployment ID: ${response.deployment_id}`, 'success');
+            
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('quickLabModal'));
+            modal.hide();
+            
+            // Redirect to monitoring
+            setTimeout(() => {
+                window.location.href = '/monitoring';
+            }, 1500);
+        }
+        
+    } catch (error) {
+        showAlert(`Deployment failed: ${error.message}`, 'danger');
+    }
+}
+
+function refreshActivity() {
+    loadDashboardData();
+    showAlert('Dashboard refreshed', 'info');
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,41 @@
+# SSH Configuration for Legacy Cisco Devices with Jump Host
+# Based on PROVEN WORKING user connection
+
+# Jump Host Configuration
+Host jumphost eve-ng
+    HostName 172.16.39.128
+    User root
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ConnectTimeout 15
+    ServerAliveInterval 30
+    ServerAliveCountMax 3
+
+# ALL Cisco routers via jump host with PROVEN working algorithms
+Host cisco-legacy cisco-* 172.16.39.* router-* 10.* 192.168.*
+    # Route through jump host
+    ProxyJump jumphost
+    
+    # PROVEN WORKING algorithms from user's successful connection
+    KexAlgorithms +diffie-hellman-group1-sha1
+    HostKeyAlgorithms +ssh-rsa
+    Ciphers +aes128-cbc,3des-cbc,aes192-cbc,aes256-cbc
+    
+    # Connection optimization
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    ConnectTimeout 30
+    ServerAliveInterval 60
+    ServerAliveCountMax 5
+    
+    # Authentication settings
+    PreferredAuthentications password,keyboard-interactive
+    PasswordAuthentication yes
+    PubkeyAuthentication no
+    
+    # Protocol and feature settings
+    Protocol 2
+    RequestTTY yes
+    ForwardAgent no
+    ForwardX11 no
+    LogLevel ERROR

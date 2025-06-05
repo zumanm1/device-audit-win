@@ -1,0 +1,20 @@
+FastEthernet0/0 is up, line protocol is up 
+  Internet Address 172.16.39.101/24, Area 0 
+  Process ID 1, Router ID 192.168.100.101, Network Type BROADCAST, Cost: 1
+  Transmit Delay is 1 sec, State DROTHER, Priority 1
+  Designated Router (ID) 192.168.200.5, Interface address 172.16.39.100
+  Backup Designated router (ID) 192.168.100.104, Interface address 172.16.39.102
+  Timer intervals configured, Hello 10, Dead 40, Wait 40, Retransmit 5
+    oob-resync timeout 40
+    Hello due in 00:00:02
+  Supports Link-local Signaling (LLS)
+  Cisco NSF helper support enabled
+  IETF NSF helper support enabled
+  Index 1/1, flood queue length 0
+  Next 0x0(0)/0x0(0)
+  Last flood scan length is 0, maximum is 1
+  Last flood scan time is 0 msec, maximum is 0 msec
+  Neighbor Count is 2, Adjacent neighbor count is 2 
+    Adjacent with neighbor 192.168.100.104  (Backup Designated Router)
+    Adjacent with neighbor 192.168.200.5  (Designated Router)
+  Suppress hello for 0 neighbor(s)

@@ -1,0 +1,33 @@
+NetAuditPro CLI Lite - Audit Summary Report
+============================================================
+
+Version: v3.0.0-CLI-LITE
+Generated: 2025-05-28 14:36:43
+Jump Host: 172.16.39.128
+Inventory File: routers01.csv
+Audit Duration: 35.4s
+Audit Status: Interrupted
+
+SUMMARY STATISTICS
+------------------------------
+Total Devices: 6
+Successful Audits: 2
+Failed Audits: 0
+Telnet Violations: 0
+High Risk Devices: 0
+Success Rate: 33.3%
+
+DEVICE AUDIT RESULTS
+------------------------------
+
+Device: RTR-CORE-01.xrnet.net (172.16.39.100)
+Status: SUCCESS
+Risk Level: LOW
+Compliance: COMPLIANT
+No telnet violations found
+
+Device: RTR-EDGE-02.xrnet.net (172.16.39.101)
+Status: SUCCESS
+Risk Level: LOW
+Compliance: COMPLIANT
+No telnet violations found

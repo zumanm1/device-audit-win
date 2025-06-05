@@ -1,0 +1,109 @@
+====================================================================================================
+COMPREHENSIVE COLLECTION STATUS REPORT - DEVICE ANALYSIS
+====================================================================================================
+Generated: 2025-06-02 00:40:05
+Report Type: Device Analysis
+====================================================================================================
+
+DEVICE OVERVIEW
+------------------------------------------------------------
+Total Unique Devices: 8
+Accessible Devices: 8
+Failed Devices: 0
+Consistent Devices: 8
+Inconsistent Devices: 0
+
+DEVICE SUCCESS RATES
+------------------------------------------------------------
+172.16.39.100: 100.0% (EXCELLENT)
+172.16.39.101: 100.0% (EXCELLENT)
+172.16.39.102: 100.0% (EXCELLENT)
+172.16.39.103: 100.0% (EXCELLENT)
+172.16.39.104: 100.0% (EXCELLENT)
+172.16.39.105: 100.0% (EXCELLENT)
+172.16.39.106: 100.0% (EXCELLENT)
+172.16.39.107: 100.0% (EXCELLENT)
+
+DEVICE COLLECTION PARTICIPATION
+------------------------------------------------------------
+172.16.39.100: 1 collections
+172.16.39.101: 1 collections
+172.16.39.102: 1 collections
+172.16.39.103: 1 collections
+172.16.39.104: 1 collections
+172.16.39.105: 1 collections
+172.16.39.106: 1 collections
+172.16.39.107: 1 collections
+
+DEVICE LAYER COVERAGE
+------------------------------------------------------------
+172.16.39.100: bgp, health, igp, interfaces, mpls
+172.16.39.101: bgp, health, igp, interfaces, mpls
+172.16.39.102: bgp, health, igp, interfaces, mpls
+172.16.39.103: bgp, health, igp, interfaces, mpls
+172.16.39.104: bgp, health, igp, interfaces, mpls
+172.16.39.105: bgp, health, igp, interfaces, mpls
+172.16.39.106: bgp, health, igp, interfaces, mpls
+172.16.39.107: bgp, health, igp, interfaces, mpls
+
+DETAILED DEVICE ANALYSIS
+------------------------------------------------------------
+Collection: collector-run-20250530-230452
+Collection Success Rate: 100.0%
+  Device: 172.16.39.100
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.104
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.105
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.102
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.107
+    Status: accessible
+    Total Files: 87
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.103
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.101
+    Status: accessible
+    Total Files: 94
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+  Device: 172.16.39.106
+    Status: accessible
+    Total Files: 89
+    Layers Count: 5
+    Data Quality Score: 0.950
+    Layers: mpls, bgp, interfaces, igp, health
+    Has Errors: False
+

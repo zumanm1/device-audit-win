@@ -1,0 +1,5 @@
+
+Thu May 29 23:58:42.756 UTC
+
+Interface                      IP-Address      Status          Protocol Vrf-Name
+MgmtEth0/RP0/CPU0/0            172.16.39.107   Up              Up       default 

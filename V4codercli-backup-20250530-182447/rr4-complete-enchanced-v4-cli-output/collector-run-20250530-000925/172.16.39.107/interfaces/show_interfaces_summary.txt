@@ -1,0 +1,9 @@
+
+Fri May 30 00:10:43.483 UTC
+Interface Type          Total    UP       Down     Admin Down
+--------------          -----    --       ----     ----------
+ALL TYPES               2        2        0        0       
+--------------         
+IFT_ETHERNET            1        1        0        0       
+IFT_NULL                1        1        0        0       
+

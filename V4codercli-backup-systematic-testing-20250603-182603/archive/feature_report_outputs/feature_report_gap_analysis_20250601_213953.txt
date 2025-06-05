@@ -1,0 +1,124 @@
+====================================================================================================
+COMPREHENSIVE COLLECTION STATUS REPORT - GAP ANALYSIS
+====================================================================================================
+Generated: 2025-06-01 21:39:53
+Report Type: Gap Analysis
+====================================================================================================
+
+GAP ANALYSIS SUMMARY
+------------------------------------------------------------
+Total Gaps Identified: 7
+Missing Collection Options: 2
+Incomplete Collection Options: 1
+Critical Issues: 1
+
+MISSING COLLECTION OPTIONS
+------------------------------------------------------------
+• complete_collection
+• console_audit
+
+INCOMPLETE COLLECTION OPTIONS
+------------------------------------------------------------
+• custom_or_partial
+
+CRITICAL GAPS
+------------------------------------------------------------
+• Missing critical console_audit
+
+DETAILED GAP ANALYSIS BY OPTION TYPE
+------------------------------------------------------------
+FULL_COLLECTION:
+  Option Present: True
+  Collection Count: 1
+  Completeness Score: 0.820
+  Identified Gaps:
+    - Missing required layers: static, vpn
+    - Low layer completeness: 0.625
+  Missing Layers: static, vpn
+
+COMPLETE_COLLECTION:
+  Option Present: False
+  Collection Count: 0
+  Completeness Score: 0.000
+  Identified Gaps:
+    - No complete_collection collections found
+
+CONSOLE_AUDIT:
+  Option Present: False
+  Collection Count: 0
+  Completeness Score: 0.000
+  Identified Gaps:
+    - No console_audit collections found
+
+AUDIT_ONLY:
+  Option Present: True
+  Collection Count: 3
+  Completeness Score: 0.804
+  Identified Gaps:
+    - Low layer completeness: 0.208
+
+CUSTOM_OR_PARTIAL:
+  Option Present: True
+  Collection Count: 8
+  Completeness Score: 0.700
+  Identified Gaps:
+    - Low device coverage: 37.5%
+    - Low layer completeness: 0.125
+
+ROOT CAUSE ANALYSIS
+------------------------------------------------------------
+Critical Impact Issues: 0
+High Impact Issues: 2
+Total Issues: 8
+Affected Options: 5
+
+PRIORITIZED ROOT CAUSES
+------------------------------------------------------------
+1. collection_strategy_gap
+   Category: process_issues
+   Severity: high
+   Remediation Effort: low
+   Description: No console_audit collections have been executed
+
+2. device_connectivity_issues
+   Category: infrastructure_issues
+   Severity: high
+   Remediation Effort: medium
+   Description: Low device success rate in custom_or_partial collections
+
+3. collection_strategy_gap
+   Category: process_issues
+   Severity: medium
+   Remediation Effort: low
+   Description: No complete_collection collections have been executed
+
+4. data_quality_degradation
+   Category: technical_issues
+   Severity: medium
+   Remediation Effort: medium
+   Description: Data quality below standards in full_collection
+
+5. data_quality_degradation
+   Category: technical_issues
+   Severity: medium
+   Remediation Effort: medium
+   Description: Data quality below standards in audit_only
+
+6. data_quality_degradation
+   Category: technical_issues
+   Severity: medium
+   Remediation Effort: medium
+   Description: Data quality below standards in custom_or_partial
+
+7. protocol_layer_missing
+   Category: configuration_issues
+   Severity: low
+   Remediation Effort: low
+   Description: Protocol layer 'static' missing - may indicate protocol not configured
+
+8. protocol_layer_missing
+   Category: configuration_issues
+   Severity: low
+   Remediation Effort: low
+   Description: Protocol layer 'vpn' missing - may indicate protocol not configured
+

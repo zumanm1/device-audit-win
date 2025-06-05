@@ -1,0 +1,525 @@
+/* V5evscriptcli Web Dashboard Styles */
+
+/* Core Variables */
+:root {
+    --primary-color: #0066cc;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --info-color: #17a2b8;
+    --light-color: #f8f9fa;
+    --dark-color: #343a40;
+}
+
+/* Global Styles */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #f8f9fa;
+}
+
+/* Navigation */
+.navbar-brand {
+    font-weight: bold;
+    color: var(--primary-color) !important;
+}
+
+.nav-link {
+    color: #495057;
+    padding: 0.75rem 1rem;
+    border-radius: 0.375rem;
+    margin: 0.25rem;
+    transition: all 0.2s ease-in-out;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background-color: var(--primary-color);
+    color: white !important;
+}
+
+/* Sidebar */
+.sidebar {
+    min-height: calc(100vh - 56px);
+    background-color: var(--light-color);
+    border-right: 1px solid #dee2e6;
+    padding: 1rem;
+}
+
+/* Content Area */
+.content-area {
+    min-height: calc(100vh - 56px);
+    padding: 1.5rem;
+}
+
+/* Cards */
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+/* Router Type Badges */
+.badge-router-c3725 { background-color: var(--success-color); }
+.badge-router-c7200 { background-color: var(--primary-color); }
+.badge-router-c3640 { background-color: var(--warning-color); color: #212529; }
+.badge-router-c2691 { background-color: var(--danger-color); }
+.badge-router-c1700 { background-color: #6f42c1; }
+
+/* Buttons */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Forms */
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+}
+
+/* Topology Designer */
+.topology-canvas {
+    background-color: white;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    min-height: 600px;
+    position: relative;
+    overflow: hidden;
+}
+
+.router-node {
+    cursor: move;
+    padding: 1rem;
+    background-color: white;
+    border: 2px solid var(--primary-color);
+    border-radius: 0.375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    min-width: 180px;
+    user-select: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.router-node:hover {
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.router-node.selected {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+}
+
+.router-node.dragging {
+    opacity: 0.8;
+    transform: rotate(2deg);
+    z-index: 1000;
+}
+
+.router-node-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.router-node-name {
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: var(--dark-color);
+}
+
+.router-node-interfaces {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.interface {
+    display: flex;
+    align-items: center;
+    padding: 0.375rem 0.5rem;
+    background-color: var(--light-color);
+    border: 1px solid #dee2e6;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    font-size: 0.8rem;
+}
+
+.interface:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.interface.selected {
+    background-color: var(--warning-color);
+    color: #212529;
+    border-color: var(--warning-color);
+    animation: pulse 1s infinite;
+}
+
+.interface i {
+    margin-right: 0.5rem;
+    font-size: 0.75rem;
+}
+
+.interface small {
+    margin-left: auto;
+    opacity: 0.7;
+}
+
+/* Connection paths */
+.connection-path {
+    pointer-events: stroke;
+    cursor: pointer;
+    transition: stroke-width 0.2s ease-in-out;
+}
+
+.connection-path:hover {
+    stroke-width: 4;
+    stroke: var(--warning-color);
+}
+
+.temp-connection {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* Router palette */
+.router-palette .btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    width: 100%;
+    margin-bottom: 0.5rem;
+}
+
+.router-palette .badge {
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Connection details table */
+.connection-details-table {
+    font-size: 0.85rem;
+}
+
+.connection-details-table td {
+    vertical-align: middle;
+    padding: 0.5rem;
+}
+
+/* Topology controls */
+.topology-controls {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 0.375rem;
+    padding: 0.5rem;
+    backdrop-filter: blur(5px);
+}
+
+.topology-controls .btn {
+    margin-left: 0.25rem;
+}
+
+/* Canvas grid (optional) */
+.topology-canvas.show-grid {
+    background-image: 
+        linear-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes connectionPulse {
+    0% { stroke-width: 2; }
+    50% { stroke-width: 4; }
+    100% { stroke-width: 2; }
+}
+
+.connection-active {
+    animation: connectionPulse 2s infinite;
+}
+
+/* Interface mapping info panel */
+.interface-mapping-panel {
+    background: linear-gradient(135deg, #e3f2fd 0%, #f8f9fa 100%);
+    border-left: 4px solid var(--info-color);
+    padding: 1rem;
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+.interface-mapping-panel h6 {
+    color: var(--info-color);
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.interface-mapping-panel ul {
+    margin-bottom: 0;
+    padding-left: 1.5rem;
+}
+
+.interface-mapping-panel li {
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 0.25rem;
+}
+
+/* Deployment status indicators */
+.deployment-indicator {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 1050;
+    max-width: 350px;
+}
+
+.deployment-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.deployment-card.status-running {
+    border-left-color: var(--warning-color);
+}
+
+.deployment-card.status-completed {
+    border-left-color: var(--success-color);
+}
+
+.deployment-card.status-failed {
+    border-left-color: var(--danger-color);
+}
+
+/* Activity feed improvements */
+.activity-feed {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    padding: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    margin-right: 0.75rem;
+    margin-top: 0.125rem;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-time {
+    font-size: 0.75rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .sidebar {
+        min-height: auto;
+        border-right: none;
+        border-bottom: 1px solid #dee2e6;
+        margin-bottom: 1rem;
+    }
+    
+    .content-area {
+        padding: 1rem;
+    }
+    
+    .router-node {
+        min-width: 140px;
+        padding: 0.75rem;
+    }
+    
+    .topology-controls {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        margin-bottom: 1rem;
+        background: transparent;
+        backdrop-filter: none;
+    }
+    
+    .deployment-indicator {
+        position: relative;
+        top: auto;
+        right: auto;
+        max-width: 100%;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Dark Mode Support - Enhanced */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #1a1a1a;
+        color: #e9ecef;
+    }
+    
+    .card {
+        background-color: #2d3748;
+        border-color: #4a5568;
+        color: #e9ecef;
+    }
+    
+    .card-header {
+        background-color: rgba(255, 255, 255, 0.03);
+        border-bottom-color: #4a5568;
+    }
+    
+    .nav-link {
+        color: #e9ecef;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+        background-color: var(--primary-color);
+        color: white !important;
+    }
+    
+    .topology-canvas {
+        background-color: #2d3748;
+        border-color: #4a5568;
+    }
+    
+    .topology-canvas.show-grid {
+        background-image: 
+            linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    }
+    
+    .router-node {
+        background-color: #3e4c59;
+        border-color: var(--primary-color);
+        color: #e9ecef;
+    }
+    
+    .router-node-header {
+        border-bottom-color: #4a5568;
+    }
+    
+    .router-node-name {
+        color: #e9ecef;
+    }
+    
+    .interface {
+        background-color: #4a5568;
+        border-color: #5a6570;
+        color: #e9ecef;
+    }
+    
+    .interface:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .interface-mapping-panel {
+        background: linear-gradient(135deg, #2a4d5e 0%, #2d3748 100%);
+        border-left-color: var(--info-color);
+        color: #e9ecef;
+    }
+    
+    .deployment-card {
+        background-color: #2d3748;
+        color: #e9ecef;
+    }
+    
+    .activity-feed {
+        background-color: #2d3748;
+        border-color: #4a5568;
+        color: #e9ecef;
+    }
+    
+    .activity-item {
+        border-bottom-color: #4a5568;
+    }
+    
+    .form-control {
+        background-color: #3e4c59;
+        border-color: #5a6570;
+        color: #e9ecef;
+    }
+    
+    .form-control:focus {
+        background-color: #3e4c59;
+        border-color: var(--primary-color);
+        color: #e9ecef;
+        box-shadow: 0 0 0 0.2rem rgba(0, 102, 204, 0.25);
+    }
+    
+    .btn-outline-primary {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+    
+    .table-dark {
+        --bs-table-bg: #2d3748;
+        --bs-table-color: #e9ecef;
+    }
+    
+    .topology-controls {
+        background: rgba(45, 55, 72, 0.9);
+        color: #e9ecef;
+    }
+    
+    .alert-info {
+        background-color: #1e3a4a;
+        border-color: #2c5f7a;
+        color: #91d5ff;
+    }
+    
+    .text-muted {
+        color: #a0aec0 !important;
+    }
+} 
